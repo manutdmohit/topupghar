@@ -16,6 +16,7 @@ import { ShoppingCartComponent } from '@/components/shopping-cart';
 import { FeatureCard } from '@/components/feature-card';
 import { TestimonialCard } from '@/components/testimonial-card';
 import Link from 'next/link';
+import HeroSection from '@/components/hero-section';
 
 export default function GameShopClone() {
   const specialOffers = [
@@ -278,41 +279,7 @@ export default function GameShopClone() {
       </section>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 via-blue-600/80 to-purple-600/90 z-10"></div>
-          <Image
-            src="/hero-gaming.jpg"
-            alt="Gaming Hero"
-            width={1200}
-            height={500}
-            className="w-full h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
-            priority
-          />
-          <div className="absolute inset-0 z-20 flex items-center justify-center text-center">
-            <div className="max-w-4xl px-6">
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                Level Up Your
-                <span className="block bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                  Gaming Experience
-                </span>
-              </h1>
-              <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed">
-                Get instant access to premium gaming credits, exclusive content,
-                and the best deals on your favorite games
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                  Shop Now
-                </button>
-                <button className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300">
-                  Learn More
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-4 py-16">
