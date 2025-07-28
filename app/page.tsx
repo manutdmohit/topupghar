@@ -196,16 +196,23 @@ export default function GameShopClone() {
           <div className="flex items-center space-x-3">
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Gamepad2 className="w-6 h-6 text-white" />
+                {/* <Gamepad2 className="w-6 h-6 text-white" /> */}
+                <Image
+                  src="/logo.jpg"
+                  alt="Game Shop Logo"
+                  width={40}
+                  height={40}
+                  className="object-cover rounded-lg"
+                />
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
             </div>
             <div>
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                GAME SHOP
+                Topup घर
               </span>
-              <div className="text-xs text-purple-300">
-                Premium Gaming Store
+              <div className="text-xs font-medium text-purple-300">
+                डिजिटल दुनियाँको तपाईंको भरपर्दो साथी
               </div>
             </div>
           </div>
