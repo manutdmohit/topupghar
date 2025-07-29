@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
+import HeaderSection from '@/components/header';
+import FooterSection from '@/components/FooterSection';
 
 export const metadata: Metadata = {
   title: 'Topup Ghar || Instant Game Topups and Digital Services',
@@ -21,7 +23,13 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body>
+        <main>
+          <HeaderSection />
+          {children}
+          <FooterSection />
+        </main>
+      </body>
     </html>
   );
 }

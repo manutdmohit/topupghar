@@ -17,6 +17,7 @@ import { FeatureCard } from '@/components/feature-card';
 import { TestimonialCard } from '@/components/testimonial-card';
 import Link from 'next/link';
 import HeroSection from '@/components/hero-section';
+import SpecialOfferSection from '@/components/special-offer-section';
 
 export default function GameShopClone() {
   const specialOffers = [
@@ -190,84 +191,6 @@ export default function GameShopClone() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white px-4 py-4 sticky top-0 z-50 shadow-2xl backdrop-blur-lg border-b border-purple-500/20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                {/* <Gamepad2 className="w-6 h-6 text-white" /> */}
-                <Image
-                  src="/logo.jpg"
-                  alt="Game Shop Logo"
-                  width={40}
-                  height={40}
-                  className="object-cover rounded-lg"
-                />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
-            </div>
-            <div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Topup घर
-              </span>
-              <div className="text-xs font-medium text-purple-300">
-                डिजिटल दुनियाँको तपाईंको भरपर्दो साथी
-              </div>
-            </div>
-          </div>
-
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link
-              href="#"
-              className="hover:text-purple-300 transition-all duration-300 font-medium relative group"
-            >
-              Home
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <div className="relative group">
-              <div className="flex items-center space-x-1 hover:text-purple-300 transition-all duration-300 cursor-pointer font-medium relative group">
-                <span>Shop</span>
-                <ChevronDown className="w-4 h-4" />
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
-              </div>
-              <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-purple-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <Link
-                  href="#"
-                  className="block px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/20 hover:text-purple-300 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-                >
-                  Gaming
-                </Link>
-                <Link
-                  href="#"
-                  className="block px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/20 hover:text-purple-300 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-                >
-                  Gift Cards
-                </Link>
-                <Link
-                  href="#"
-                  className="block px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/20 hover:text-purple-300 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-                >
-                  Subscription
-                </Link>
-              </div>
-            </div>
-            <Link
-              href="#"
-              className="hover:text-purple-300 transition-all duration-300 font-medium relative group"
-            >
-              Contact Us
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            {/* <ShoppingCartComponent /> */}
-            <MobileMenu />
-          </div>
-        </div>
-      </header>
-
       {/* Search Section */}
       <section className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 py-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -307,28 +230,7 @@ export default function GameShopClone() {
       </section>
 
       {/* Special Offer Section */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full font-bold text-lg mb-6 shadow-lg">
-            <Flame className="w-6 h-6" />
-            Limited Time Offers
-            <Flame className="w-6 h-6" />
-          </div>
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Special Deals Just for You
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Grab these exclusive offers before they're gone! Limited stock
-            available.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {specialOffers.map((offer, index) => (
-            <ProductCard key={index} {...offer} />
-          ))}
-        </div>
-      </section>
+      <SpecialOfferSection />
 
       {/* Popular Now Section */}
       <section className="bg-gradient-to-br from-gray-50 to-blue-50 py-16">
@@ -402,124 +304,6 @@ export default function GameShopClone() {
           </p>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Gamepad2 className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    GAME SHOP
-                  </span>
-                  <div className="text-sm text-purple-300">
-                    Premium Gaming Store
-                  </div>
-                </div>
-              </div>
-              <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-                Your ultimate destination for gaming credits, premium services,
-                and exclusive content. Trusted by millions of gamers worldwide
-                with instant delivery and 24/7 support.
-              </p>
-              <div className="flex space-x-4">
-                {['facebook', 'twitter', 'instagram', 'discord'].map(
-                  (social) => (
-                    <div
-                      key={social}
-                      className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center cursor-pointer hover:from-purple-500/40 hover:to-pink-500/40 transition-all duration-300 border border-purple-500/20 hover:border-purple-400/40"
-                    >
-                      <span className="text-sm font-bold capitalize">
-                        {social[0]}
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-xl mb-6 text-purple-300">
-                Quick Links
-              </h3>
-              <ul className="space-y-4">
-                {['Home', 'Shop', 'About Us', 'Contact', 'FAQ', 'Support'].map(
-                  (link) => (
-                    <li key={link}>
-                      <Link
-                        href="#"
-                        className="text-gray-300 hover:text-purple-300 transition-colors duration-300 flex items-center group"
-                      >
-                        <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                        {link}
-                      </Link>
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-xl mb-6 text-purple-300">
-                Services
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  'Game Top-ups',
-                  'Premium Accounts',
-                  'Gift Cards',
-                  'Streaming Services',
-                  'Mobile Credits',
-                  'Console Games',
-                ].map((service) => (
-                  <li key={service}>
-                    <Link
-                      href="#"
-                      className="text-gray-300 hover:text-purple-300 transition-colors duration-300 flex items-center group"
-                    >
-                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                      {service}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-purple-500/20 mt-12 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 mb-4 md:mb-0">
-                &copy; 2024 GameShop. All rights reserved. | Instant delivery
-                guaranteed worldwide
-              </p>
-              <div className="flex space-x-6 text-sm">
-                <Link
-                  href="#"
-                  className="text-gray-400 hover:text-purple-300 transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-                <Link
-                  href="#"
-                  className="text-gray-400 hover:text-purple-300 transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                <Link
-                  href="#"
-                  className="text-gray-400 hover:text-purple-300 transition-colors"
-                >
-                  Refund Policy
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
