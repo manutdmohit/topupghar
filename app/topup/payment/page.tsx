@@ -14,6 +14,7 @@ export default function TopupPaymentPage() {
     type: '',
     amount: '',
     price: '',
+    duration: '',
   });
 
   const [uid, setUid] = useState('');
@@ -27,6 +28,7 @@ export default function TopupPaymentPage() {
       type: searchParams.get('type') || '',
       amount: searchParams.get('amount') || '',
       price: searchParams.get('price') || '',
+      duration: searchParams.get('duration') || '',
     });
   }, [searchParams]);
 
@@ -37,21 +39,38 @@ export default function TopupPaymentPage() {
   };
 
   const validatePhone = (phone: string) => /^(97|98)\d{8}$/.test(phone);
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // UID Label Logic
+  // UID/Email label and placeholder logic
   let idLabel = 'Your Game UID';
   let idPlaceholder = 'Enter your game UID';
+  let idType: 'text' | 'email' = 'text';
+
   if (data.platform === 'freefire') {
     idLabel = 'Free Fire UID';
     idPlaceholder = 'Enter your Free Fire UID';
   } else if (data.platform === 'pubg') {
     idLabel = 'PUBG ID / Player ID';
     idPlaceholder = 'Enter your PUBG Player ID';
+  } else if (data.platform === 'garena') {
+    idLabel = 'Garena Account ID';
+    idPlaceholder = 'Enter your Garena Account ID';
+  } else if (data.platform === 'netflix') {
+    idLabel = 'Netflix Email Address';
+    idPlaceholder = 'Enter your Netflix email';
+    idType = 'email';
   }
 
+  // For Netflix, require email
   const handleSubmit = () => {
     if (!uid || !phone || !receipt) {
       toast.error('Please fill in all required fields and upload the receipt.');
+      return;
+    }
+
+    if (data.platform === 'netflix' && !validateEmail(uid)) {
+      toast.error('Please enter a valid email address for Netflix.');
       return;
     }
 
@@ -62,17 +81,22 @@ export default function TopupPaymentPage() {
 
     // Simulated submission logic
     console.log({
-      uid,
+      id: uid,
       phone,
       platform: data.platform,
       amount: data.amount,
       type: data.type,
       price: data.price,
+      duration: data.duration,
       receipt,
     });
 
     toast.success(
-      `🎉 Order placed for ${data.amount} ${data.type}. Admin will verify it soon.`
+      `🎉 Order placed for ${
+        data.platform === 'netflix'
+          ? `${data.duration} Netflix account`
+          : `${data.amount} ${data.type}`
+      }. Admin will verify it soon.`
     );
 
     // Reset form
@@ -88,29 +112,52 @@ export default function TopupPaymentPage() {
 
   if (!data.platform) return null;
 
+  // -------- Summary Logic ----------
+  let summary;
+  if (data.platform === 'netflix') {
+    summary = (
+      <>
+        You're buying <strong>Netflix account for {data.duration}</strong> for{' '}
+        <strong>₹ {data.price}</strong>
+      </>
+    );
+  } else {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>
+          {data.amount}{' '}
+          {data.type === 'uc'
+            ? 'UC'
+            : data.type === 'shell'
+            ? 'Shells'
+            : data.type}
+        </strong>{' '}
+        for <strong>रू {data.price}</strong>
+      </>
+    );
+  }
+
   return (
     <div className="max-w-xl mx-auto px-4 py-10 space-y-8">
       <h1 className="text-3xl font-bold text-purple-700 text-center capitalize">
         {data.platform} {data.type} Payment
       </h1>
 
-      <p className="text-center text-lg mb-2">
-        You're buying <strong>{data.amount}</strong> {data.type} for{' '}
-        <strong>रू {data.price}</strong>
-      </p>
+      <p className="text-center text-lg mb-2">{summary}</p>
 
       <p className="text-sm text-center text-gray-500 italic">
-        ⚠️ Please double-check all your details before submitting. Incorrect UID
-        or contact may delay your delivery.
+        ⚠️ Please double-check all your details before submitting. Incorrect
+        info may delay your delivery.
       </p>
 
-      {/* UID */}
+      {/* UID or Email */}
       <div>
         <label className="block mb-1 font-medium text-gray-700">
           {idLabel} <span className="text-red-500">*</span>
         </label>
         <input
-          type="text"
+          type={idType}
           placeholder={idPlaceholder}
           value={uid}
           onChange={(e) => setUid(e.target.value)}
