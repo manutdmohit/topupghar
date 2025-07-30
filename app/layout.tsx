@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
+
+import { Toaster } from 'sonner';
 import HeaderSection from '@/components/header';
 import FooterSection from '@/components/FooterSection';
 
@@ -23,12 +25,11 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <body>
-        <main>
-          <HeaderSection />
-          {children}
-          <FooterSection />
-        </main>
+      <body className="font-sans">
+        <HeaderSection />
+        <main>{children}</main>
+        <FooterSection />
+        <Toaster />
       </body>
     </html>
   );

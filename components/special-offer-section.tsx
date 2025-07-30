@@ -14,6 +14,7 @@ import { ProductCard } from '@/components/product-card';
 const specialOffers = [
   {
     title: 'Free Fire Diamond Package',
+    href: '/freefire',
     image: '/free-fire.jpg',
     badge: 'BESTSELLER',
     price: '$9.99',
@@ -28,6 +29,7 @@ const specialOffers = [
   {
     title: 'PUBG Mobile UC',
     image: '/pubg.jpg',
+    href: '/pubg',
     badge: 'HOT DEAL',
     price: '$12.99',
     originalPrice: '$19.99',
