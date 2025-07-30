@@ -41,8 +41,9 @@ const specialOffers = [
   },
 
   {
-    title: 'Facebook Boost',
-    image: '/facebook.jpg',
+    title: 'Netflix Subscription',
+    image: '/netflix-banner.jpg',
+    href: '/netflix',
     badge: 'BESTSELLER',
     price: '$9.99',
     originalPrice: '$14.99',

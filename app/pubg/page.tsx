@@ -73,7 +73,10 @@ export default function PUBGTopupPage() {
             <h3 className="text-xl font-semibold text-yellow-700">
               {pkg.label}
             </h3>
-            <p className="text-gray-600 mt-2 font-medium">रू {pkg.price}</p>
+            <p className="text-gray-600 mt-2 font-medium">
+              NPR {pkg.price.toLocaleString('en-US')}
+            </p>
+
             {selectedId === pkg.id && (
               <div className="mt-3 text-sm text-yellow-700 font-medium">
                 ✅ Selected

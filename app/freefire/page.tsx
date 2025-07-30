@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -87,7 +87,7 @@ export default function FreeFireDiamondPage() {
               {pkg.label}
             </h3>
             <p className="text-gray-600 mt-2 font-medium">
-              रू {pkg.price.toLocaleString('ne-NP')}
+              NPR {pkg.price.toLocaleString('en-US')}
             </p>
             {selectedPackage === pkg.id && (
               <div className="mt-3 text-sm text-purple-700 font-medium">

@@ -63,6 +63,30 @@ export default function GameShopClone() {
 
   const popularItems = [
     {
+      title: 'Garena Shells',
+      image: '/garena-banner.jpg',
+      href: '/garena-shell',
+      badge: 'TRENDING',
+      price: '$5.99',
+      originalPrice: '$8.99',
+      rating: 4.8,
+      reviews: 3421,
+      deliveryTime: 'Instant',
+      inStock: true,
+    },
+    {
+      title: 'Facebook Followers',
+      image: '/facebook.jpg',
+      href: '/facebook-followers',
+      badge: 'TRENDING',
+      price: '$5.99',
+      originalPrice: '$8.99',
+      rating: 4.8,
+      reviews: 3421,
+      deliveryTime: 'Instant',
+      inStock: true,
+    },
+    {
       title: 'Free Fire Diamonds',
       image: '/free-fire.jpg',
       badge: 'TRENDING',
@@ -215,7 +239,7 @@ export default function GameShopClone() {
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            Why Choose GameShop?
+            Why Choose Topup घर?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             We provide the most reliable and secure platform for all your gaming
@@ -252,7 +276,7 @@ export default function GameShopClone() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {popularItems.map((item, index) => (
               <ProductCard key={index} {...item} compact />
             ))}
