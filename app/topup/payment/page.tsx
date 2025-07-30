@@ -19,12 +19,9 @@ export default function TopupPaymentPage() {
 
   const [uid, setUid] = useState('');
   const [phone, setPhone] = useState('');
-  const [referredBy, setReferredBy] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
+  const [referredBy, setReferredBy] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const [is18Plus, setIs18Plus] = useState(false);
-  const [showAgeError, setShowAgeError] = useState(false);
 
   useEffect(() => {
     setData({
@@ -34,6 +31,7 @@ export default function TopupPaymentPage() {
       price: searchParams.get('price') || '',
       duration: searchParams.get('duration') || '',
     });
+    setReferredBy(searchParams.get('referredBy') || '');
   }, [searchParams]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,8 +41,10 @@ export default function TopupPaymentPage() {
   };
 
   const validatePhone = (phone: string) => /^(97|98)\d{8}$/.test(phone);
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // Label logic
+  // UID/Email label and placeholder logic
   let idLabel = 'Your Game UID';
   let idPlaceholder = 'Enter your game UID';
   let idType: 'text' | 'email' = 'text';
@@ -62,46 +62,16 @@ export default function TopupPaymentPage() {
     idLabel = 'Netflix Email Address';
     idPlaceholder = 'Enter your Netflix email';
     idType = 'email';
-  } else if (data.platform === 'facebook') {
-    idLabel = 'Facebook Account/Page Link';
-    idPlaceholder = 'Paste your Facebook profile or page link here';
   }
 
-  const isUidValid = () => {
-    if (!uid) return false;
-    if (data.platform === 'netflix')
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uid);
-    if (data.platform === 'facebook') return uid.startsWith('http'); // simple check for a link
-    return true;
-  };
-
-  const isPhoneValid = () => validatePhone(phone);
-
-  const isFormReady = is18Plus && isUidValid() && isPhoneValid() && !!receipt;
-
   const handleSubmit = () => {
-    if (!is18Plus) {
-      setShowAgeError(true);
-      toast.error('You must confirm you are 18 or older to proceed.');
-      return;
-    }
-    setShowAgeError(false);
-
     if (!uid || !phone || !receipt) {
       toast.error('Please fill in all required fields and upload the receipt.');
       return;
     }
 
-    if (
-      data.platform === 'netflix' &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uid)
-    ) {
+    if (data.platform === 'netflix' && !validateEmail(uid)) {
       toast.error('Please enter a valid email address for Netflix.');
-      return;
-    }
-
-    if (data.platform === 'facebook' && !uid.startsWith('http')) {
-      toast.error('Please enter a valid Facebook profile or page link.');
       return;
     }
 
@@ -120,6 +90,7 @@ export default function TopupPaymentPage() {
       price: data.price,
       duration: data.duration,
       receipt,
+      referredBy: referredBy.trim(),
     });
 
     toast.success(
@@ -134,7 +105,7 @@ export default function TopupPaymentPage() {
     setUid('');
     setPhone('');
     setReceipt(null);
-    setIs18Plus(false);
+    setReferredBy('');
     if (fileInputRef.current) fileInputRef.current.value = '';
 
     setTimeout(() => {
@@ -153,13 +124,6 @@ export default function TopupPaymentPage() {
         <strong>₹ {data.price}</strong>
       </>
     );
-  } else if (data.platform === 'facebook') {
-    summary = (
-      <>
-        You're buying <strong>{data.amount} Facebook followers</strong> for{' '}
-        <strong>NPR {data.price}</strong>
-      </>
-    );
   } else {
     summary = (
       <>
@@ -170,6 +134,8 @@ export default function TopupPaymentPage() {
             ? 'UC'
             : data.type === 'shell'
             ? 'Shells'
+            : data.type === 'followers'
+            ? 'Followers'
             : data.type}
         </strong>{' '}
         for <strong>NPR {data.price}</strong>
@@ -190,7 +156,7 @@ export default function TopupPaymentPage() {
         info may delay your delivery.
       </p>
 
-      {/* UID / Email / Facebook Link */}
+      {/* UID or Email */}
       <div>
         <label className="block mb-1 font-medium text-gray-700">
           {idLabel} <span className="text-red-500">*</span>
@@ -200,22 +166,8 @@ export default function TopupPaymentPage() {
           placeholder={idPlaceholder}
           value={uid}
           onChange={(e) => setUid(e.target.value)}
-          className={`w-full px-4 py-2 border rounded-lg ${
-            !isUidValid() ? 'border-red-400' : ''
-          }`}
+          className="w-full px-4 py-2 border rounded-lg"
         />
-        {data.platform === 'netflix' &&
-          uid &&
-          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uid) && (
-            <span className="text-red-500 text-sm">
-              Please enter a valid email address.
-            </span>
-          )}
-        {data.platform === 'facebook' && uid && !uid.startsWith('http') && (
-          <span className="text-red-500 text-sm">
-            Please enter a valid Facebook profile or page link.
-          </span>
-        )}
       </div>
 
       {/* Phone */}
@@ -228,31 +180,21 @@ export default function TopupPaymentPage() {
           placeholder="9800000000"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className={`w-full px-4 py-2 border rounded-lg outline-none ${
-            phone && !validatePhone(phone) ? 'border-red-400' : ''
-          }`}
+          className="w-full px-4 py-2 border rounded-lg"
         />
-        {phone && !validatePhone(phone) && (
-          <span className="text-red-500 text-sm">
-            Enter a valid Nepali phone (98xxxxxxxx or 97xxxxxxxx)
-          </span>
-        )}
       </div>
 
-      {/* Referred By */}
+      {/* Referred By (optional) */}
       <div>
         <label className="block mb-1 font-medium text-gray-700">
-          Referred By{' '}
+          Referred By <span className="text-xs text-gray-400">(optional)</span>
         </label>
         <input
           type="text"
-          placeholder="Referred By"
+          placeholder="Referral code or name (if any)"
           value={referredBy}
           onChange={(e) => setReferredBy(e.target.value)}
-          className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-purple-500 ${
-            referredBy ? 'border-purple-500' : 'border-gray-300'
-          } ${referredBy ? 'focus:border-purple-500' : 'focus:border-gray-300'}
-            ${referredBy ? '' : 'border-gray-300'}`}
+          className="w-full px-4 py-2 border rounded-lg"
         />
       </div>
 
@@ -312,37 +254,11 @@ export default function TopupPaymentPage() {
         )}
       </div>
 
-      {/* Are you 18+ Checkbox */}
-      <div className="flex items-center justify-center mt-2">
-        <input
-          id="age-check"
-          type="checkbox"
-          checked={is18Plus}
-          onChange={(e) => {
-            setIs18Plus(e.target.checked);
-            setShowAgeError(false);
-          }}
-          className="w-5 h-5 mr-2 accent-purple-600"
-        />
-        <label
-          htmlFor="age-check"
-          className="text-base text-gray-700 select-none"
-        >
-          I confirm that I am 18 years old or above
-        </label>
-      </div>
-      {showAgeError && (
-        <div className="text-center text-red-600 mt-2 font-medium">
-          You must confirm you are 18 or older to proceed.
-        </div>
-      )}
-
       {/* Submit */}
       <div className="text-center">
         <Button
           onClick={handleSubmit}
           className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700"
-          disabled={!isFormReady}
         >
           Submit for Verification
         </Button>
