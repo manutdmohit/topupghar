@@ -62,6 +62,16 @@ export default function TopupPaymentPage() {
     idLabel = 'Netflix Email Address';
     idPlaceholder = 'Enter your Netflix email';
     idType = 'email';
+  } else if (data.platform === 'spotify') {
+    // Spotify
+    idLabel = 'Spotify Username';
+    idPlaceholder = 'Enter your Spotify username';
+    idType = 'text';
+  } else if (data.platform === 'youtube-premium') {
+    // YouTube Premium
+    idLabel = 'Gmail Account ID';
+    idPlaceholder = 'Enter your Google Account ID';
+    idType = 'email';
   }
 
   const handleSubmit = () => {
@@ -117,11 +127,15 @@ export default function TopupPaymentPage() {
 
   // -------- Summary Logic ----------
   let summary;
-  if (data.platform === 'netflix') {
+  if (data.platform === 'netflix' || data.platform === 'youtube-premium') {
     summary = (
       <>
-        You're buying <strong>Netflix account for {data.duration}</strong> for{' '}
-        <strong>₹ {data.price}</strong>
+        You're buying{' '}
+        <strong>
+          {data.platform === 'netflix' ? 'Netflix' : 'YouTube Premium'} account
+          for {data.duration}
+        </strong>{' '}
+        for <strong>₹ {data.price}</strong>
       </>
     );
   } else {
