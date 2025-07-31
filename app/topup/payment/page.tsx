@@ -17,12 +17,25 @@ export default function TopupPaymentPage() {
     duration: '',
   });
 
+  // Common fields
   const [uid, setUid] = useState('');
-  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
   const [referredBy, setReferredBy] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // TikTok fields
+  const [loginId, setLoginId] = useState('');
+  const [tiktokPassword, setTiktokPassword] = useState('');
+  const [loginMethod, setLoginMethod] = useState<'google' | 'facebook' | ''>(
+    ''
+  );
+
+  // Garena
+  const [password, setPassword] = useState('');
+
+  // Facebook
+  const [facebookLink, setFacebookLink] = useState('');
 
   useEffect(() => {
     setData({
@@ -73,34 +86,69 @@ export default function TopupPaymentPage() {
     idType = 'email';
   }
 
+  // ----------- Submission Logic -----------
   const handleSubmit = () => {
-    if (
-      !uid ||
-      !phone ||
-      !receipt ||
-      (data.platform === 'garena' && !password)
-    ) {
-      toast.error('Please fill in all required fields and upload the receipt.');
-      return;
-    }
-
-    if (data.platform === 'netflix' && !validateEmail(uid)) {
-      toast.error('Please enter a valid email address for Netflix.');
-      return;
-    }
-    if (data.platform === 'youtube-premium' && !validateEmail(uid)) {
-      toast.error('Please enter a valid Gmail address for YouTube Premium.');
-      return;
-    }
-    if (!validatePhone(phone)) {
-      toast.error('Please enter a valid Nepali phone number.');
-      return;
+    // TikTok validation
+    if (data.platform === 'tiktok') {
+      if (!loginId || !tiktokPassword || !loginMethod || !phone || !receipt) {
+        toast.error(
+          'Please fill in all required TikTok fields and upload the receipt.'
+        );
+        return;
+      }
+      if (!validatePhone(phone)) {
+        toast.error('Please enter a valid Nepali phone number.');
+        return;
+      }
+    } else if (data.platform === 'facebook') {
+      if (!facebookLink || !phone || !receipt) {
+        toast.error(
+          'कृपया Facebook को Profile वा Page को Link, फोन, र Receipt अपलोड गर्नुहोस्।'
+        );
+        return;
+      }
+      if (!validatePhone(phone)) {
+        toast.error('Please enter a valid Nepali phone number.');
+        return;
+      }
+    } else {
+      if (
+        !uid ||
+        !phone ||
+        !receipt ||
+        (data.platform === 'garena' && !password)
+      ) {
+        toast.error(
+          'Please fill in all required fields and upload the receipt.'
+        );
+        return;
+      }
+      if (data.platform === 'netflix' && !validateEmail(uid)) {
+        toast.error('Please enter a valid email address for Netflix.');
+        return;
+      }
+      if (data.platform === 'youtube-premium' && !validateEmail(uid)) {
+        toast.error('Please enter a valid Gmail address for YouTube Premium.');
+        return;
+      }
+      if (!validatePhone(phone)) {
+        toast.error('Please enter a valid Nepali phone number.');
+        return;
+      }
     }
 
     // Simulated submission logic
     console.log({
-      id: uid,
+      id:
+        data.platform === 'tiktok'
+          ? loginId
+          : data.platform === 'facebook'
+          ? facebookLink
+          : uid,
       password: data.platform === 'garena' ? password : undefined,
+      tiktokPassword: data.platform === 'tiktok' ? tiktokPassword : undefined,
+      loginMethod: data.platform === 'tiktok' ? loginMethod : undefined,
+      facebookLink: data.platform === 'facebook' ? facebookLink : undefined,
       phone,
       platform: data.platform,
       amount: data.amount,
@@ -117,6 +165,10 @@ export default function TopupPaymentPage() {
           ? `${data.duration} Netflix account`
           : data.platform === 'youtube-premium'
           ? `${data.duration} YouTube Premium account`
+          : data.platform === 'tiktok'
+          ? `${data.amount} TikTok coins`
+          : data.platform === 'facebook'
+          ? `${data.amount} Facebook boost`
           : `${data.amount} ${data.type}`
       }. Admin will verify it soon.`
     );
@@ -124,7 +176,11 @@ export default function TopupPaymentPage() {
     // Reset form
     setUid('');
     setPassword('');
+    setTiktokPassword('');
+    setLoginId('');
+    setLoginMethod('');
     setPhone('');
+    setFacebookLink('');
     setReceipt(null);
     setReferredBy('');
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -147,6 +203,20 @@ export default function TopupPaymentPage() {
           for {data.duration}
         </strong>{' '}
         for <strong>₹ {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'tiktok') {
+    summary = (
+      <>
+        You're buying <strong>{data.amount} TikTok Coins</strong> for{' '}
+        <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'facebook' && data.type === 'followers') {
+    summary = (
+      <>
+        You're buying <strong>{data.amount} Facebook Followers</strong> for{' '}
+        <strong>NPR {data.price}</strong>
       </>
     );
   } else {
@@ -181,19 +251,97 @@ export default function TopupPaymentPage() {
         info may delay your delivery.
       </p>
 
-      {/* UID or Email */}
-      <div>
-        <label className="block mb-1 font-medium text-gray-700">
-          {idLabel} <span className="text-red-500">*</span>
-        </label>
-        <input
-          type={idType}
-          placeholder={idPlaceholder}
-          value={uid}
-          onChange={(e) => setUid(e.target.value)}
-          className="w-full px-4 py-2 border rounded-lg"
-        />
-      </div>
+      {/* TikTok Login Fields */}
+      {data.platform === 'tiktok' && (
+        <div className="space-y-3">
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              TikTok Login ID <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your TikTok Login ID"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              TikTok Password <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Enter your TikTok password"
+              value={tiktokPassword}
+              onChange={(e) => setTiktokPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg"
+              autoComplete="current-password"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Login Method <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-6">
+              <label className="flex items-center gap-2 cursor-pointer font-medium">
+                <input
+                  type="radio"
+                  value="google"
+                  checked={loginMethod === 'google'}
+                  onChange={() => setLoginMethod('google')}
+                  className="accent-[#ff0050]"
+                />
+                Google
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-medium">
+                <input
+                  type="radio"
+                  value="facebook"
+                  checked={loginMethod === 'facebook'}
+                  onChange={() => setLoginMethod('facebook')}
+                  className="accent-[#1877f2]"
+                />
+                Facebook
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Facebook Link Field */}
+      {data.platform === 'facebook' && (
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Facebook को Profile वा Page को Link{' '}
+            <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="url"
+            placeholder="https://facebook.com/yourpage"
+            value={facebookLink}
+            onChange={(e) => setFacebookLink(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+            required
+          />
+        </div>
+      )}
+
+      {/* UID or Email (hide for TikTok/Facebook) */}
+      {data.platform !== 'tiktok' && data.platform !== 'facebook' && (
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            {idLabel} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type={idType}
+            placeholder={idPlaceholder}
+            value={uid}
+            onChange={(e) => setUid(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+        </div>
+      )}
 
       {/* Garena Password */}
       {data.platform === 'garena' && (
