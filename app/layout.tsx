@@ -3,9 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 
-import { Toaster } from 'sonner';
-import HeaderSection from '@/components/header';
-import FooterSection from '@/components/FooterSection';
+import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'Topup Ghar || Instant Game Topups and Digital Services',
@@ -26,10 +24,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="font-sans">
-        <HeaderSection />
-        <main>{children}</main>
-        <FooterSection />
-        <Toaster />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

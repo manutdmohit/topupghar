@@ -96,8 +96,7 @@ const FooterSection = () => {
         <div className="border-t border-purple-500/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 mb-4 md:mb-0">
-              &copy; GameShop. All rights reserved. | Instant delivery
-              guaranteed worldwide
+              &copy; {new Date().getFullYear()} Topup Ghar. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
               <Link
