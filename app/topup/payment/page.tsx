@@ -84,6 +84,22 @@ export default function TopupPaymentPage() {
     idLabel = 'Gmail Account ID';
     idPlaceholder = 'Enter your Google Account ID';
     idType = 'email';
+  } else if (data.platform === 'poppo') {
+    idLabel = 'Poppo ID';
+    idPlaceholder = 'Enter your Poppo ID';
+    idType = 'text';
+  } else if (data.platform === 'canva' && data.type === 'pro') {
+    idLabel = 'Email Address';
+    idPlaceholder = 'Enter your email address';
+    idType = 'email';
+  } else if (data.platform === 'paypal') {
+    idLabel = 'PayPal Email';
+    idPlaceholder = 'Enter your PayPal email';
+    idType = 'email';
+  } else if (data.platform === 'skrill') {
+    idLabel = 'Skrill Email';
+    idPlaceholder = 'Enter your Skrill email';
+    idType = 'email';
   }
 
   // ----------- Submission Logic -----------
@@ -231,6 +247,8 @@ export default function TopupPaymentPage() {
             ? 'Shells'
             : data.type === 'followers'
             ? 'Followers'
+            : data.type === 'usd'
+            ? 'USD'
             : data.type}
         </strong>{' '}
         for <strong>NPR {data.price}</strong>
@@ -241,7 +259,8 @@ export default function TopupPaymentPage() {
   return (
     <div className="max-w-xl mx-auto px-4 py-10 space-y-8">
       <h1 className="text-3xl font-bold text-purple-700 text-center capitalize">
-        {data.platform} {data.type} Payment
+        {data.platform}{' '}
+        {data.type === 'usd' ? data.type.toUpperCase() : data.type} Payment
       </h1>
 
       <p className="text-center text-lg mb-2">{summary}</p>
