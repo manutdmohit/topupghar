@@ -18,6 +18,7 @@ export default function TopupPaymentPage() {
   });
 
   const [uid, setUid] = useState('');
+  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
   const [referredBy, setReferredBy] = useState('');
@@ -59,23 +60,26 @@ export default function TopupPaymentPage() {
     idLabel = 'Garena Account ID';
     idPlaceholder = 'Enter your Garena Account ID';
   } else if (data.platform === 'netflix') {
-    idLabel = 'Netflix Email Address';
-    idPlaceholder = 'Enter your Netflix email';
+    idLabel = 'Email Address';
+    idPlaceholder = 'Enter your email address';
     idType = 'email';
   } else if (data.platform === 'spotify') {
-    // Spotify
     idLabel = 'Spotify Username';
     idPlaceholder = 'Enter your Spotify username';
     idType = 'text';
   } else if (data.platform === 'youtube-premium') {
-    // YouTube Premium
     idLabel = 'Gmail Account ID';
     idPlaceholder = 'Enter your Google Account ID';
     idType = 'email';
   }
 
   const handleSubmit = () => {
-    if (!uid || !phone || !receipt) {
+    if (
+      !uid ||
+      !phone ||
+      !receipt ||
+      (data.platform === 'garena' && !password)
+    ) {
       toast.error('Please fill in all required fields and upload the receipt.');
       return;
     }
@@ -84,7 +88,10 @@ export default function TopupPaymentPage() {
       toast.error('Please enter a valid email address for Netflix.');
       return;
     }
-
+    if (data.platform === 'youtube-premium' && !validateEmail(uid)) {
+      toast.error('Please enter a valid Gmail address for YouTube Premium.');
+      return;
+    }
     if (!validatePhone(phone)) {
       toast.error('Please enter a valid Nepali phone number.');
       return;
@@ -93,6 +100,7 @@ export default function TopupPaymentPage() {
     // Simulated submission logic
     console.log({
       id: uid,
+      password: data.platform === 'garena' ? password : undefined,
       phone,
       platform: data.platform,
       amount: data.amount,
@@ -107,12 +115,15 @@ export default function TopupPaymentPage() {
       `🎉 Order placed for ${
         data.platform === 'netflix'
           ? `${data.duration} Netflix account`
+          : data.platform === 'youtube-premium'
+          ? `${data.duration} YouTube Premium account`
           : `${data.amount} ${data.type}`
       }. Admin will verify it soon.`
     );
 
     // Reset form
     setUid('');
+    setPassword('');
     setPhone('');
     setReceipt(null);
     setReferredBy('');
@@ -183,6 +194,23 @@ export default function TopupPaymentPage() {
           className="w-full px-4 py-2 border rounded-lg"
         />
       </div>
+
+      {/* Garena Password */}
+      {data.platform === 'garena' && (
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Garena Password <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="password"
+            placeholder="Enter your Garena password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+            autoComplete="current-password"
+          />
+        </div>
+      )}
 
       {/* Phone */}
       <div>
