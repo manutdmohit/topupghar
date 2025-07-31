@@ -1,4 +1,5 @@
 import { Gamepad2 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -10,14 +11,20 @@ const FooterSection = () => {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Gamepad2 className="w-7 h-7 text-white" />
+                <Image
+                  src="/logo.jpg"
+                  alt="Game Shop Logo"
+                  width={40}
+                  height={40}
+                  className="object-cover rounded-lg"
+                />
               </div>
               <div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  GAME SHOP
+                  Topup घर
                 </span>
                 <div className="text-sm text-purple-300">
-                  Premium Gaming Store
+                  डिजिटल दुनियाँको तपाईंको भरपर्दो साथी
                 </div>
               </div>
             </div>
@@ -89,7 +96,7 @@ const FooterSection = () => {
         <div className="border-t border-purple-500/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 mb-4 md:mb-0">
-              &copy; 2024 GameShop. All rights reserved. | Instant delivery
+              &copy; GameShop. All rights reserved. | Instant delivery
               guaranteed worldwide
             </p>
             <div className="flex space-x-6 text-sm">
