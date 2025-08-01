@@ -64,6 +64,18 @@ export default function GameShopClone() {
 
   const popularItems = [
     {
+      title: 'Free Fire Level-Up Package',
+      image: '/freefire-level-pass.jpg',
+      href: '/freefire-level-pass',
+      badge: 'TRENDING',
+      price: '$9.99',
+      originalPrice: '$14.99',
+      rating: 4.8,
+      reviews: 3421,
+      deliveryTime: 'Instant',
+      inStock: true,
+    },
+    {
       title: 'TikTok Coins',
       image: '/tiktok-banner.jpg',
       href: '/tiktok-coin',

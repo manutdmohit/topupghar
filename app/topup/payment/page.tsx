@@ -15,6 +15,8 @@ export default function TopupPaymentPage() {
     amount: '',
     price: '',
     duration: '',
+    level: '',
+    diamonds: '',
   });
 
   // Common fields
@@ -44,6 +46,8 @@ export default function TopupPaymentPage() {
       amount: searchParams.get('amount') || '',
       price: searchParams.get('price') || '',
       duration: searchParams.get('duration') || '',
+      level: searchParams.get('level') || '',
+      diamonds: searchParams.get('diamonds') || '',
     });
     setReferredBy(searchParams.get('referredBy') || '');
   }, [searchParams]);
@@ -262,6 +266,13 @@ export default function TopupPaymentPage() {
       <>
         You're buying <strong> AirDrop</strong> for{' '}
         <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'freefire' && data.type === 'level-up') {
+    summary = (
+      <>
+        You're buying <strong> Level {data.level} Level-Up Package</strong> with{' '}
+        {data.diamonds} diamonds for <strong>NPR {data.price}</strong>
       </>
     );
   } else {
