@@ -72,7 +72,7 @@ export default function FreeFireDiamondPage() {
       </div>
 
       {/* Package Grid */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2  md:grid-cols-3 gap-6">
         {diamondPackages.map((pkg) => (
           <div
             key={pkg.id}
