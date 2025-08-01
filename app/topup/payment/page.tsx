@@ -436,6 +436,33 @@ export default function TopupPaymentPage() {
         />
       </div>
 
+      {/* Nepali Warning Message */}
+      <div className="bg-red-50 border border-red-400 rounded-lg p-4 mb-4 text-red-800 text-sm font-semibold flex items-center gap-3">
+        <svg
+          className="w-5 h-5 text-red-500 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-4v4"
+          ></path>
+        </svg>
+        <span>
+          कृपया <span className="font-bold text-red-600">Payment Remarks</span>{' '}
+          वा <span className="font-bold text-red-600">Purpose</span> मा{' '}
+          <span className="font-bold text-red-600">Product नाम</span> (जस्तै
+          "Free Fire", "TikTok", आदि){' '}
+          <span className="font-bold">नलेख्नुहोस्</span>। यदि लेखिएको पाइयो भने{' '}
+          <span className="font-bold text-red-600">
+            तपाईंको भुक्तानी अस्वीकृत (discard) गरिनेछ।
+          </span>
+        </span>
+      </div>
+
       {/* Payment Methods */}
       <div>
         <p className="text-center text-lg font-semibold text-gray-700 mb-4">
