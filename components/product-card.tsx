@@ -64,7 +64,6 @@ export function ProductCard({
 
           {/* Top Badges Row */}
           <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
-            {/* Badge */}
             <Badge
               className={`font-bold text-xs px-3 py-1 shadow-lg ${
                 badge === 'BESTSELLER'
@@ -111,7 +110,7 @@ export function ProductCard({
           </h3>
 
           {/* Rating */}
-          <div className="flex items-center gap-2 mb-3">
+          {/* <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -131,7 +130,7 @@ export function ProductCard({
             >
               {rating} ({reviews.toLocaleString()})
             </span>
-          </div>
+          </div> */}
 
           {/* Delivery info */}
           <div className="flex items-center gap-1 mb-5">
