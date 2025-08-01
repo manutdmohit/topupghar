@@ -21,6 +21,21 @@ interface ProductCardProps {
   inStock?: boolean;
 }
 
+const badgeIcon = (type: string) => {
+  switch (type) {
+    case 'BESTSELLER':
+      return '⭐';
+    case 'HOT DEAL':
+      return '🔥';
+    case 'EXCLUSIVE':
+      return '💎';
+    case 'TRENDING':
+      return '📈';
+    default:
+      return '✨';
+  }
+};
+
 export function ProductCard({
   title,
   href = '#',
@@ -36,15 +51,16 @@ export function ProductCard({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Link href={href} className="block h-full">
+    <Link href={href} className="block h-full focus:outline-none">
       <Card
-        className={`overflow-hidden transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-2xl bg-white border-0 shadow-lg h-full flex flex-col`}
+        className={`overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-1.5 hover:shadow-2xl bg-white border-0 shadow-lg h-full flex flex-col active:scale-[0.98]`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        tabIndex={0}
       >
         <div className="relative">
           {/* Responsive Image */}
-          <div className={`w-full aspect-[4/3] bg-gray-100`}>
+          <div className="w-full aspect-[4/3] bg-gray-100 relative">
             <Image
               src={image || '/placeholder.svg'}
               alt={title}
@@ -60,8 +76,10 @@ export function ProductCard({
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             {/* Top Badges Row */}
             <div className="absolute top-3 left-3 right-3 flex flex-wrap justify-between items-start z-10 gap-2">
+              {/* Main badge with icon/text */}
               <Badge
-                className={`font-bold text-xs px-3 py-1 shadow-lg ${
+                className={`font-bold text-xs px-3 py-1 shadow-lg flex items-center gap-1
+                ${
                   badge === 'BESTSELLER'
                     ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
                     : badge === 'HOT DEAL'
@@ -71,23 +89,29 @@ export function ProductCard({
                     : badge === 'TRENDING'
                     ? 'bg-gradient-to-r from-green-500 to-emerald-500'
                     : 'bg-gradient-to-r from-blue-500 to-cyan-500'
-                }`}
+                }
+              `}
               >
-                {badge}
+                <span className="inline sm:hidden">{badgeIcon(badge)}</span>
+                <span className="hidden sm:inline">{badge}</span>
               </Badge>
+
               <div className="flex gap-2">
                 {isPopular && (
-                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 shadow-lg">
-                    🔥 Hot
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 shadow-lg flex items-center gap-1">
+                    <span className="inline sm:hidden">🔥</span>
+                    <span className="hidden sm:inline">Hot</span>
                   </Badge>
                 )}
                 {inStock ? (
-                  <Badge className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs font-bold px-2 py-1 shadow-lg">
-                    ✅ In Stock
+                  <Badge className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs font-bold px-2 py-1 shadow-lg flex items-center gap-1">
+                    <span className="inline sm:hidden">✅</span>
+                    <span className="hidden sm:inline">In Stock</span>
                   </Badge>
                 ) : (
-                  <Badge className="bg-gray-500 text-white text-xs font-bold px-2 py-1">
-                    ❌ Out of Stock
+                  <Badge className="bg-gray-500 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
+                    <span className="inline sm:hidden">❌</span>
+                    <span className="hidden sm:inline">Out of Stock</span>
                   </Badge>
                 )}
               </div>
@@ -108,7 +132,6 @@ export function ProductCard({
             >
               {title}
             </h3>
-
             {/* Delivery info */}
             <div className="flex items-center gap-1 mb-4">
               <Zap className="text-green-500 w-4 h-4" />
@@ -123,6 +146,7 @@ export function ProductCard({
             className={`w-full border-purple-500 text-purple-700 hover:bg-purple-50 hover:text-purple-800 transition-all duration-300 font-semibold ${
               compact ? 'text-xs py-2' : 'text-sm py-3'
             }`}
+            tabIndex={-1}
           >
             View More
           </Button>
