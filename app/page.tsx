@@ -76,7 +76,7 @@ export default function GameShopClone() {
       inStock: true,
     },
     {
-      title: 'Garena Shells',
+      title: 'Garena Shells(my)',
       image: '/garena-banner.jpg',
       href: '/garena-shell',
       badge: 'TRENDING',
