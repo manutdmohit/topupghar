@@ -235,6 +235,35 @@ export default function TopupPaymentPage() {
         <strong>NPR {data.price}</strong>
       </>
     );
+  } else if (
+    data.platform === 'freefire' &&
+    data.type === 'weekly-membership'
+  ) {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong> Weekly Membership({data.amount} diamonds )</strong> for{' '}
+        <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (
+    data.platform === 'freefire' &&
+    data.type === 'monthly-membership'
+  ) {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong> Monthly Membership({data.amount} diamonds )</strong> for{' '}
+        <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'freefire' && data.type === 'airdrop') {
+    summary = (
+      <>
+        You're buying <strong> AirDrop</strong> for{' '}
+        <strong>NPR {data.price}</strong>
+      </>
+    );
   } else {
     summary = (
       <>

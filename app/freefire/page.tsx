@@ -6,25 +6,37 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
 const diamondPackages = [
-  { id: 1, label: '25💎', diamonds: 25, price: 30 },
-  { id: 2, label: '50💎', diamonds: 50, price: 55 },
-  { id: 3, label: '115💎', diamonds: 115, price: 95 },
-  { id: 4, label: '240💎', diamonds: 240, price: 185 },
-  { id: 5, label: '355💎', diamonds: 355, price: 285 },
-  { id: 6, label: '480💎', diamonds: 480, price: 385 },
-  { id: 7, label: '530💎', diamonds: 530, price: 425 },
-  { id: 8, label: '610💎', diamonds: 610, price: 465 },
-  { id: 9, label: '725💎', diamonds: 725, price: 570 },
-  { id: 10, label: '850💎', diamonds: 850, price: 660 },
-  { id: 11, label: '1090💎', diamonds: 1090, price: 860 },
-  { id: 12, label: '1240💎', diamonds: 1240, price: 940 },
-  { id: 13, label: '1355💎', diamonds: 1355, price: 1090 },
-  { id: 14, label: '1480💎', diamonds: 1480, price: 1190 },
-  { id: 15, label: '1595💎', diamonds: 1595, price: 1290 },
-  { id: 16, label: '1720💎', diamonds: 1720, price: 1390 },
-  { id: 17, label: 'Weekly Membership (455💎)', diamonds: 455, price: 185 },
-  { id: 18, label: 'Monthly Membership (2500💎)', diamonds: 2500, price: 930 },
-  { id: 19, label: 'Airdrop', diamonds: 0, price: 150 },
+  { id: 1, label: '25💎', type: 'diamonds', diamonds: 25, price: 30 },
+  { id: 2, label: '50💎', type: 'diamonds', diamonds: 50, price: 55 },
+  { id: 3, label: '115💎', type: 'diamonds', diamonds: 115, price: 95 },
+  { id: 4, label: '240💎', type: 'diamonds', diamonds: 240, price: 185 },
+  { id: 5, label: '355💎', type: 'diamonds', diamonds: 355, price: 285 },
+  { id: 6, label: '480💎', type: 'diamonds', diamonds: 480, price: 385 },
+  { id: 7, label: '530💎', type: 'diamonds', diamonds: 530, price: 425 },
+  { id: 8, label: '610💎', type: 'diamonds', diamonds: 610, price: 465 },
+  { id: 9, label: '725💎', type: 'diamonds', diamonds: 725, price: 570 },
+  { id: 10, label: '850💎', type: 'diamonds', diamonds: 850, price: 660 },
+  { id: 11, label: '1090💎', type: 'diamonds', diamonds: 1090, price: 860 },
+  { id: 12, label: '1240💎', type: 'diamonds', diamonds: 1240, price: 940 },
+  { id: 13, label: '1355💎', type: 'diamonds', diamonds: 1355, price: 1090 },
+  { id: 14, label: '1480💎', type: 'diamonds', diamonds: 1480, price: 1190 },
+  { id: 15, label: '1595💎', type: 'diamonds', diamonds: 1595, price: 1290 },
+  { id: 16, label: '1720💎', type: 'diamonds', diamonds: 1720, price: 1390 },
+  {
+    id: 17,
+    label: 'Weekly Membership (455💎)',
+    type: 'weekly-membership',
+    diamonds: 455,
+    price: 185,
+  },
+  {
+    id: 18,
+    label: 'Monthly Membership (2500💎)',
+    type: 'monthly-membership',
+    diamonds: 2500,
+    price: 930,
+  },
+  { id: 19, label: 'Airdrop', type: 'airdrop', diamonds: 0, price: 150 },
 ];
 
 export default function FreeFireDiamondPage() {
@@ -41,7 +53,7 @@ export default function FreeFireDiamondPage() {
 
     const query = new URLSearchParams({
       platform: 'freefire',
-      type: 'diamonds',
+      type: pkg.type, // use the correct type
       amount: pkg.diamonds.toString(),
       price: pkg.price.toString(),
     });
@@ -72,7 +84,7 @@ export default function FreeFireDiamondPage() {
       </div>
 
       {/* Package Grid */}
-      <div className="grid grid-cols-2  md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {diamondPackages.map((pkg) => (
           <div
             key={pkg.id}
