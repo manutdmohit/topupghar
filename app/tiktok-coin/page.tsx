@@ -67,7 +67,7 @@ export default function TikTokCoinPage() {
             Select your package. Login details will be required on the next
             step.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+          <div className="grid grid-cols-2 gap-4 mb-10">
             {tiktokPackages.map((pkg) => (
               <button
                 type="button"
@@ -96,7 +96,7 @@ export default function TikTokCoinPage() {
                   NPR {pkg.price.toLocaleString('en-US')}
                 </div>
                 {selectedId === pkg.id && (
-                  <span className="absolute top-3 right-4 text-xs font-semibold text-[#ff0050] bg-[#fff1f5] rounded-full px-3 py-1 shadow">
+                  <span className="absolute top-1 right-4 text-xs font-semibold text-[#ff0050] bg-[#fff1f5] rounded-full px-3 py-1 shadow">
                     Selected
                   </span>
                 )}

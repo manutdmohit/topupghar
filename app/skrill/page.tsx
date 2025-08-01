@@ -37,7 +37,7 @@ export default function SkrillPage() {
     <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-[#7225a3] flex items-center justify-center gap-2">
+        <h1 className="md:text-4xl font-bold text-[#7225a3] flex items-center justify-center gap-2">
           <Image
             src="/skrill-logo.jpg"
             width={100}
@@ -53,7 +53,7 @@ export default function SkrillPage() {
       </div>
 
       {/* Package Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+      <div className="grid grid-cols-2 gap-5 mb-8">
         {skrillPackages.map((pkg) => (
           <button
             key={pkg.id}
@@ -74,7 +74,7 @@ export default function SkrillPage() {
               NPR {pkg.price.toLocaleString('en-US')}
             </span>
             {selected === pkg.id && (
-              <span className="absolute top-3 right-4 text-xs font-semibold text-[#7225a3] bg-[#f3e8fd] rounded-full px-3 py-1 shadow">
+              <span className="absolute top-1 right-4 text-xs font-semibold text-[#7225a3] bg-[#f3e8fd] rounded-full px-3 py-1 shadow">
                 Selected
               </span>
             )}

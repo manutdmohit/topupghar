@@ -49,13 +49,13 @@ export default function FacebookFollowersPage() {
 
         {/* Right: Product grid */}
         <div>
-          <h1 className="text-3xl font-bold text-blue-700 mb-3">
+          <h1 className="text-center text-xl md:text-3xl font-bold text-blue-700 mb-3">
             Facebook Followers Top-Up
           </h1>
           <p className="text-gray-600 mb-8">
             Instantly boost your Facebook profile with real followers!
           </p>
-          <div className="grid gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {fbPackages.map((pkg) => (
               <div
                 key={pkg.id}

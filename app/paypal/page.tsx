@@ -38,7 +38,7 @@ export default function PayPalPage() {
     <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-blue-600 flex items-center justify-center gap-2">
+        <h1 className="md:text-4xl font-bold text-blue-600 flex items-center justify-center gap-2">
           <Image
             src="/paypal-logo.jpg"
             width={100}
@@ -54,7 +54,7 @@ export default function PayPalPage() {
       </div>
 
       {/* Package Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+      <div className="grid grid-cols-2 gap-5 mb-8">
         {paypalPackages.map((pkg) => (
           <button
             key={pkg.id}

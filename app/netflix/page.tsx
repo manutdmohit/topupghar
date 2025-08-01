@@ -58,7 +58,7 @@ export default function NetflixPage() {
             Choose your subscription period and enjoy Netflix instantly!
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {netflixPackages.map((pkg) => (
               <div
                 key={pkg.id}

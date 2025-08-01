@@ -55,7 +55,7 @@ export default function YouTubePremiumPage() {
           <p className="text-gray-600 mb-8">
             Enjoy ad-free YouTube, background play, and more!
           </p>
-          <div className="grid gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {ytPackages.map((pkg) => (
               <div
                 key={pkg.id}

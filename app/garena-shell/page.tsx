@@ -38,8 +38,8 @@ export default function GarenaShellPage() {
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-amber-600">
-          Garena Shell Top-Up
+        <h1 className=" text-2xl md:text-4xl font-bold text-amber-600">
+          Garena Shell(my) Top-Up
         </h1>
         <p className="text-gray-600 mt-2">
           Buy Garena Shells instantly using local payment methods.
@@ -56,7 +56,7 @@ export default function GarenaShellPage() {
       </div>
 
       {/* Packages */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {garenaPackages.map((pkg) => (
           <div
             key={pkg.id}
