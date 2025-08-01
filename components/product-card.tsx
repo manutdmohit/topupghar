@@ -13,36 +13,17 @@ interface ProductCardProps {
   href?: string;
   image: string;
   badge: string;
-  rating?: number;
-  reviews?: number;
   isPopular?: boolean;
   deliveryTime?: string;
   compact?: boolean;
   inStock?: boolean;
 }
 
-const badgeIcon = (type: string) => {
-  switch (type) {
-    case 'BESTSELLER':
-      return '⭐';
-    case 'HOT DEAL':
-      return '🔥';
-    case 'EXCLUSIVE':
-      return '💎';
-    case 'TRENDING':
-      return '📈';
-    default:
-      return '✨';
-  }
-};
-
 export function ProductCard({
   title,
   href = '#',
   image,
   badge,
-  rating = 4.8,
-  reviews = 1250,
   isPopular = false,
   deliveryTime = 'Instant',
   compact = false,
@@ -53,99 +34,77 @@ export function ProductCard({
   return (
     <Link href={href} className="block h-full focus:outline-none">
       <Card
-        className={`overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-1.5 hover:shadow-2xl bg-white border-0 shadow-lg h-full flex flex-col active:scale-[0.98]`}
+        className={`
+          overflow-hidden transition-all duration-300 cursor-pointer
+          hover:-translate-y-1 hover:shadow-xl
+          bg-white border-0 shadow h-full flex flex-col active:scale-[0.98]
+        `}
+        style={{
+          minHeight: compact ? '190px' : '240px',
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         tabIndex={0}
       >
-        <div className="relative">
-          {/* Responsive Image */}
-          <div className="w-full aspect-[4/3] bg-gray-100 relative">
-            <Image
-              src={image || '/placeholder.svg'}
-              alt={title}
-              fill
-              className={`object-cover transition-transform duration-500 rounded-t-2xl ${
-                isHovered ? 'scale-105 brightness-110' : ''
-              }`}
-              sizes="(max-width: 640px) 100vw, 400px"
-              priority={compact}
-              style={{ objectPosition: 'center' }}
-            />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            {/* Top Badges Row */}
-            <div className="absolute top-3 left-3 right-3 flex flex-wrap justify-between items-start z-10 gap-2">
-              {/* Main badge with icon/text */}
-              <Badge
-                className={`font-bold text-xs px-3 py-1 shadow-lg flex items-center gap-1
-                ${
-                  badge === 'BESTSELLER'
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                    : badge === 'HOT DEAL'
-                    ? 'bg-gradient-to-r from-red-500 to-pink-500'
-                    : badge === 'EXCLUSIVE'
-                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500'
-                    : badge === 'TRENDING'
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                    : 'bg-gradient-to-r from-blue-500 to-cyan-500'
-                }
-              `}
-              >
-                <span className="inline sm:hidden">{badgeIcon(badge)}</span>
-                <span className="hidden sm:inline">{badge}</span>
-              </Badge>
-
-              <div className="flex gap-2">
-                {isPopular && (
-                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 shadow-lg flex items-center gap-1">
-                    <span className="inline sm:hidden">🔥</span>
-                    <span className="hidden sm:inline">Hot</span>
-                  </Badge>
-                )}
-                {inStock ? (
-                  <Badge className="bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs font-bold px-2 py-1 shadow-lg flex items-center gap-1">
-                    <span className="inline sm:hidden">✅</span>
-                    <span className="hidden sm:inline">In Stock</span>
-                  </Badge>
-                ) : (
-                  <Badge className="bg-gray-500 text-white text-xs font-bold px-2 py-1 flex items-center gap-1">
-                    <span className="inline sm:hidden">❌</span>
-                    <span className="hidden sm:inline">Out of Stock</span>
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Image */}
+        <div className="w-full aspect-[4/3] bg-gray-100 relative">
+          <Image
+            src={image || '/placeholder.svg'}
+            alt={title}
+            fill
+            className={`
+              object-cover transition-transform duration-500 rounded-t-xl 
+              ${isHovered ? 'scale-105 brightness-110' : ''}
+            `}
+            sizes="(max-width: 640px) 100vw, 400px"
+            priority={compact}
+          />
         </div>
-
+        {/* Content */}
         <CardContent
-          className={`${
-            compact ? 'p-3' : 'p-4 md:p-5'
-          } relative flex-1 flex flex-col justify-between`}
+          className={`
+            flex-1 flex flex-col justify-between pt-2 pb-2 px-2
+            ${compact ? 'min-h-[60px]' : ''}
+          `}
         >
           <div>
-            <h3
-              className={`font-bold text-gray-800 mb-1 line-clamp-2 ${
-                compact ? 'text-base' : 'text-lg'
-              }`}
-            >
+            {/* FIXED HEIGHT TITLE */}
+            <h3 className="font-semibold text-gray-800 text-xs sm:text-sm mb-1 leading-snug block w-full line-clamp-2 min-h-[2.6em]">
               {title}
             </h3>
-            {/* Delivery info */}
-            <div className="flex items-center gap-1 mb-4">
-              <Zap className="text-green-500 w-4 h-4" />
-              <span className="text-green-600 font-medium text-sm">
-                {deliveryTime} Delivery
-              </span>
+            {/* Badges row: always starts at the same Y-position */}
+            <div className="flex flex-wrap items-center gap-1 mt-0 min-h-[1.5rem] mb-2 w-full">
+              <Badge className="text-[10px] px-2 py-0.5">{badge}</Badge>
+              {isPopular && (
+                <Badge className="text-[10px] px-2 py-0.5 bg-orange-400 text-white">
+                  Hot
+                </Badge>
+              )}
+              {inStock ? (
+                <Badge className="text-[10px] px-2 py-0.5 bg-green-500 text-white">
+                  In Stock
+                </Badge>
+              ) : (
+                <Badge className="text-[10px] px-2 py-0.5 bg-gray-400 text-white">
+                  Out of Stock
+                </Badge>
+              )}
+              {deliveryTime && (
+                <Badge className="text-[10px] px-2 py-0.5 bg-purple-500 text-white flex items-center gap-0.5">
+                  <Zap className="w-3 h-3" /> {deliveryTime}
+                </Badge>
+              )}
             </div>
           </div>
-          {/* View More */}
+          {/* View More Button */}
           <Button
             variant="outline"
-            className={`w-full border-purple-500 text-purple-700 hover:bg-purple-50 hover:text-purple-800 transition-all duration-300 font-semibold ${
-              compact ? 'text-xs py-2' : 'text-sm py-3'
-            }`}
+            className={`
+              w-full border-purple-500 text-purple-700 
+              hover:bg-purple-50 hover:text-purple-800 
+              transition-all duration-300 font-semibold
+              py-2 text-xs
+            `}
             tabIndex={-1}
           >
             View More

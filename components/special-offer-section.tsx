@@ -13,7 +13,7 @@ import { ProductCard } from '@/components/product-card';
 
 const specialOffers = [
   {
-    title: 'Free Fire Diamond Package',
+    title: 'Free Fire Diamond Package(NP/BD Server)',
     href: '/freefire',
     image: '/free-fire.jpg',
     badge: 'BESTSELLER',
