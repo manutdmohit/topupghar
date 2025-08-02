@@ -104,7 +104,10 @@ export default function TopupPaymentPage() {
     idLabel = 'Skrill Email';
     idPlaceholder = 'Enter your Skrill email';
     idType = 'email';
-  } else if (data.platform === 'chatgpt') {
+  } else if (
+    data.platform === 'chatgpt' ||
+    data.platform === 'chatgpt-one-year'
+  ) {
     idLabel = 'Enter your email address';
     idPlaceholder = 'Enter your email address';
     idType = 'email';
@@ -284,6 +287,14 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong>1 Month {data.type.toUpperCase()} ChatGPT Plus Account </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'chatgpt-one-year') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>1 Year {data.type.toUpperCase()} ChatGPT Plus Account </strong>{' '}
         for <strong>NPR {data.price}</strong>
       </>
     );
