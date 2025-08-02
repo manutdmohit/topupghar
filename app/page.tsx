@@ -241,30 +241,25 @@ export default function GameShopClone() {
 
   const testimonials = [
     {
-      name: 'Alex Chen',
-      avatar:
-        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&w=150&h=150&fit=crop&crop=face',
+      name: 'Giyan Bahadur',
+      avatar: 'giyan-bahadur.jpg',
       rating: 5,
       comment:
-        'Amazing service! Got my Free Fire diamonds instantly. Will definitely use again!',
-      game: 'Free Fire Player',
+        'NextGen Digital Store le malai game logo design garera diyeko thiyo. Design ekdam ramro, professional ra budget ma. Aba ma sabai graphic design ka kaam yahi bata garauchhu. Thank you ❤️❤️',
     },
     {
-      name: 'Sarah Johnson',
-      avatar:
-        'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&w=150&h=150&fit=crop&crop=face',
+      name: 'Lokndar Raikal',
+      avatar: '/lokndar-raikal.jpg',
       rating: 5,
       comment:
-        "Best prices I've found anywhere. Customer support is fantastic too!",
-      game: 'PUBG Enthusiast',
+        'Maile NextGen Digital Store bata Free Fire ko diamond kinẽ, ekdam sasto ma ra instant mero ID ma aayo! Yo store ekdam reliable chha. Aba ma sabai game item yaha bata nai kinchhu. Dhanyabaad NextGen team',
     },
     {
-      name: 'Mike Rodriguez',
-      avatar:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=150&h=150&fit=crop&crop=face',
+      name: 'Rohit Rauniyar',
+      avatar: 'rohit-rauniyar.jpg',
       rating: 5,
-      comment: 'Reliable and fast. Been using GameShop for over a year now!',
-      game: 'Mobile Legends Pro',
+      comment:
+        'Best topop center❤️. Fast service and trusted. Dhukka vayara topop garda hunxa.',
     },
   ];
 

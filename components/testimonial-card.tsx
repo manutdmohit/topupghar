@@ -1,17 +1,23 @@
-"use client"
+'use client';
 
-import Image from "next/image"
-import { Star } from "lucide-react"
+import Image from 'next/image';
+import { Star } from 'lucide-react';
 
 interface TestimonialCardProps {
-  name: string
-  avatar: string
-  rating: number
-  comment: string
-  game: string
+  name: string;
+  avatar: string;
+  rating: number;
+  comment: string;
+  game?: string;
 }
 
-export function TestimonialCard({ name, avatar, rating, comment, game }: TestimonialCardProps) {
+export function TestimonialCard({
+  name,
+  avatar,
+  rating,
+  comment,
+  game,
+}: TestimonialCardProps) {
   return (
     <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -20,18 +26,25 @@ export function TestimonialCard({ name, avatar, rating, comment, game }: Testimo
         {/* Rating */}
         <div className="flex items-center mb-4">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className={`w-5 h-5 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
+            <Star
+              key={i}
+              className={`w-5 h-5 ${
+                i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+              }`}
+            />
           ))}
         </div>
 
         {/* Comment */}
-        <p className="text-gray-700 mb-6 leading-relaxed italic text-lg">"{comment}"</p>
+        <p className=" min-h-24 text-gray-700 mb-6 leading-relaxed italic text-xs">
+          "{comment}"
+        </p>
 
         {/* User info */}
         <div className="flex items-center">
           <div className="relative">
             <Image
-              src={avatar || "/placeholder.svg"}
+              src={avatar || '/placeholder.svg'}
               alt={name}
               width={60}
               height={60}
@@ -46,5 +59,5 @@ export function TestimonialCard({ name, avatar, rating, comment, game }: Testimo
         </div>
       </div>
     </div>
-  )
+  );
 }
