@@ -104,6 +104,10 @@ export default function TopupPaymentPage() {
     idLabel = 'Skrill Email';
     idPlaceholder = 'Enter your Skrill email';
     idType = 'email';
+  } else if (data.platform === 'chatgpt') {
+    idLabel = 'Enter your email address';
+    idPlaceholder = 'Enter your email address';
+    idType = 'email';
   }
 
   // ----------- Submission Logic -----------
@@ -275,6 +279,14 @@ export default function TopupPaymentPage() {
         {data.diamonds} diamonds for <strong>NPR {data.price}</strong>
       </>
     );
+  } else if (data.platform === 'chatgpt') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>1 Month {data.type.toUpperCase()} ChatGPT Plus Account </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
   } else {
     summary = (
       <>
@@ -297,7 +309,7 @@ export default function TopupPaymentPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-10 space-y-8">
+    <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
       <h1 className="text-3xl font-bold text-purple-700 text-center capitalize">
         {data.platform}{' '}
         {data.type === 'usd' ? data.type.toUpperCase() : data.type} Payment

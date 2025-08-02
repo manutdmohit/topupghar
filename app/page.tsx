@@ -169,6 +169,18 @@ export default function GameShopClone() {
       deliveryTime: 'Instant',
       inStock: true,
     },
+    {
+      title: 'CHAT GPT PLUS ( 1 MONTH )',
+      image: '/chatgpt-plus-banner.jpg',
+      href: '/chatgpt-plus',
+      badge: 'TRENDING',
+      price: '$700',
+      originalPrice: '$700',
+      rating: 4.8,
+      reviews: 3421,
+      deliveryTime: 'Instant',
+      inStock: true,
+    },
     // {
     //   title: 'Free Fire Diamonds',
     //   image: '/free-fire.jpg',

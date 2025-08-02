@@ -68,7 +68,7 @@ export default function PoppoLiveCoinPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
+          <div className="grid grid-cols-2 gap-5 mb-10">
             {poppoPackages.map((pkg) => (
               <button
                 type="button"
