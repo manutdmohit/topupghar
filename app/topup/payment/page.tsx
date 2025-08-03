@@ -191,34 +191,40 @@ export default function TopupPaymentPage() {
       }
     }
 
-    // Simulated submission logic
-    const orderData = {
-      uid_email:
-        data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid,
+    // Create a FormData object to send the file and other data
+    const formData = new FormData();
 
-      password: data.platform === 'garena' ? password : undefined,
-      tiktokPassword:
-        data.platform === 'tiktok' && data.type === 'coins'
-          ? tiktokPassword
-          : undefined,
-      loginMethod:
-        data.platform === 'tiktok' && data.type === 'coins'
-          ? loginMethod
-          : undefined,
-      phone,
-      platform: data.platform,
-      amount: data.amount,
-      type: data.type,
-      price: data.price,
-      duration: data.duration,
-      level: data.level,
-      diamonds: data.diamonds,
-      storage: data.storage,
-      receiptUrl: 'a.jpg',
-      referredBy: referredBy.trim(),
-    };
+    // Common fields
+    formData.append(
+      'uid_email',
+      data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid
+    );
+    formData.append('phone', phone);
+    formData.append('platform', data.platform);
+    formData.append('type', data.type);
+    if (data.amount) formData.append('amount', data.amount);
+    if (data.price) formData.append('price', data.price);
+    if (data.duration) formData.append('duration', data.duration);
+    if (data.level) formData.append('level', data.level);
+    if (data.diamonds) formData.append('diamonds', data.diamonds);
+    if (data.storage) formData.append('storage', data.storage);
+    if (referredBy.trim()) formData.append('referredBy', referredBy.trim());
 
-    console.log(orderData);
+    // Conditional fields
+    if (data.platform === 'garena' && password) {
+      formData.append('password', password);
+    }
+    if (data.platform === 'tiktok' && data.type === 'coins') {
+      formData.append('tiktokPassword', tiktokPassword);
+      formData.append('loginMethod', loginMethod);
+    }
+
+    // Append the file
+    if (receipt) {
+      formData.append('receipt', receipt);
+    }
+
+    console.log(Object.fromEntries(formData));
 
     // Here you would typically send this data to your backend API
     // For example:
@@ -227,10 +233,7 @@ export default function TopupPaymentPage() {
       // Send the request
       const response = await fetch('/api/orders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
+        body: formData, // The browser will automatically set the 'Content-Type' to 'multipart/form-data'
       });
 
       if (!response.ok) {
@@ -716,7 +719,8 @@ export default function TopupPaymentPage() {
             htmlFor="age-confirm"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            I confirm that I am 16+ years old.
+            By continuing, you confirm you are 16 years or older. Orders from
+            users under 16 may be canceled.
           </label>
         </div>
         <Button

@@ -1,21 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Order from '@/models/Order';
 import connectDB from '@/config/db';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
+
+// Helper function to upload image to Cloudinary
+async function uploadImage(file: File) {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'topupghar-receipts', // Optional: organize uploads
+      },
+      (err: any, result: UploadApiResponse | undefined) => {
+        if (err) {
+          console.error('Cloudinary Error:', err);
+          return reject(new Error('Image upload failed.'));
+        }
+        if (result) {
+          resolve(result);
+        } else {
+          reject(new Error('Cloudinary did not return a result.'));
+        }
+      }
+    );
+    uploadStream.end(buffer);
+  });
+}
 
 export const POST = async (req: NextRequest) => {
   try {
     await connectDB(); // Ensure database connection is established
 
-    const order = await req.json();
-    console.log('Received order data:', order);
+    const formData = await req.formData();
+    const receipt = formData.get('receipt') as File | null;
 
-    const newOrder = new Order(order);
+    if (!receipt) {
+      return NextResponse.json(
+        { message: 'Receipt image is required.' },
+        { status: 400 }
+      );
+    }
+
+    // Upload receipt to Cloudinary
+    const uploadResult = (await uploadImage(receipt)) as UploadApiResponse;
+
+    // Prepare order data from form fields
+    const orderData: { [key: string]: any } = {};
+    formData.forEach((value, key) => {
+      if (key !== 'receipt') {
+        // Exclude the file itself from the order data object
+        orderData[key] = value;
+      }
+    });
+
+    // Create a new order with the Cloudinary URL
+    const newOrder = new Order({
+      ...orderData,
+      receiptUrl: uploadResult.secure_url,
+    });
+
     await newOrder.save();
-    return NextResponse.json(newOrder);
+    return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {
     console.error('Error in POST /orders:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { message: 'Failed to create order', error: errorMessage },
       { status: 500 }
     );
   }
