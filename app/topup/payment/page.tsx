@@ -129,6 +129,10 @@ export default function TopupPaymentPage() {
         ? 'Enter your Facebook username(Paste your username)'
         : 'Enter your Facebook post link(Paste your post link)';
     idType = 'text';
+  } else if (data.platform === 'youtube') {
+    idLabel = 'YouTube Channel URL';
+    idPlaceholder = 'Enter your YouTube channel URL';
+    idType = 'text';
   }
 
   // ----------- Submission Logic -----------
@@ -413,6 +417,16 @@ export default function TopupPaymentPage() {
             : data.type === 'views'
             ? 'Views'
             : 'Likes'}
+        </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'youtube' && data.type === 'subscribers') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>
+          {data.amount} {data.type == 'subscribers' ? 'Subscribers' : 'Views'}
         </strong>{' '}
         for <strong>NPR {data.price}</strong>
       </>
