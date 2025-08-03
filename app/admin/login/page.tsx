@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
+  const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [showPw, setShowPw] = useState(false);
@@ -30,7 +33,7 @@ export default function AdminLoginPage() {
       setLoading(false);
       if (email === 'admin@topupghar.com' && pw === 'admin123') {
         setMsg({ type: 'success', text: 'Login successful! Redirecting…' });
-        // redirect logic here, e.g. router.push('/admin/dashboard')
+        router.push('/admin/dashboard');
       } else {
         setMsg({ type: 'error', text: 'Invalid email or password.' });
       }

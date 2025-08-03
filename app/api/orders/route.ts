@@ -81,3 +81,20 @@ export const POST = async (req: NextRequest) => {
     );
   }
 };
+
+export const GET = async (req: NextRequest) => {
+  try {
+    await connectDB(); // Ensure database connection is established
+
+    const orders = await Order.find({}).sort({ createdAt: -1 });
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error('Error in GET /orders:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json(
+      { message: 'Failed to fetch orders', error: errorMessage },
+      { status: 500 }
+    );
+  }
+};
