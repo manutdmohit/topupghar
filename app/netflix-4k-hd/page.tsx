@@ -8,17 +8,31 @@ import Image from 'next/image';
 const netflixPackages = [
   {
     id: 1,
-    label: '4K Full Account (1 Month)',
-    type: 'full',
+    label: '4K 1 Screen (1 Month)',
+    type: '1 screen',
     duration: '1 Month',
-    price: 500,
+    price: 299,
   },
   {
     id: 2,
-    label: '4K 1 Screen (1 Month)',
-    type: 'single-screen',
+    label: '4K 2 Screen (1 Month)',
+    type: '2 screen',
     duration: '1 Month',
-    price: 140,
+    price: 499,
+  },
+  {
+    id: 3,
+    label: '4K 3 Screen (1 Month)',
+    type: '3 screen',
+    duration: '1 Month',
+    price: 550,
+  },
+  {
+    id: 4,
+    label: '4K 4 Screen (1 Month)',
+    type: '4 screen',
+    duration: '1 Month',
+    price: 699,
   },
 ];
 

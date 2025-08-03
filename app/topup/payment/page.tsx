@@ -133,6 +133,10 @@ export default function TopupPaymentPage() {
     idLabel = 'YouTube Channel URL';
     idPlaceholder = 'Enter your YouTube channel URL';
     idType = 'text';
+  } else if (data.platform === 'tiktok' && data.type !== 'coins') {
+    idLabel = 'YouTube Channel URL';
+    idPlaceholder = 'Enter your YouTube channel URL';
+    idType = 'text';
   }
 
   // ----------- Submission Logic -----------
@@ -254,11 +258,21 @@ export default function TopupPaymentPage() {
         for <strong>₹ {data.price}</strong>
       </>
     );
-  } else if (data.platform === 'tiktok') {
+  } else if (data.platform === 'tiktok' && data.type === 'coins') {
     summary = (
       <>
         You're buying <strong>{data.amount} TikTok Coins</strong> for{' '}
         <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'tiktok' && data.type !== 'coins') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>
+          {data.amount} TikTok {data.type}
+        </strong>{' '}
+        for <strong>NPR {data.price}</strong>
       </>
     );
   } else if (
@@ -335,8 +349,7 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong className="text-sm">
-          1 Month {data.type === 'full' ? '4K Full Account' : '4K 1 Screen'}{' '}
-          Netflix
+          1 Month 4K HD {data.type} Netflix Subscription Netflix
         </strong>{' '}
         for <strong>NPR {data.price}</strong>
       </>
@@ -467,7 +480,7 @@ export default function TopupPaymentPage() {
       </p>
 
       {/* TikTok Login Fields */}
-      {data.platform === 'tiktok' && (
+      {data.platform === 'tiktok' && data.type === 'coins' && (
         <div className="space-y-3">
           <div>
             <label className="block mb-1 font-medium text-gray-700">
@@ -524,6 +537,63 @@ export default function TopupPaymentPage() {
         </div>
       )}
 
+      {/* {data.platform === 'tiktok' && data.type !== 'coins' && (
+        <div className="space-y-3">
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              TikTok Login ID <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your TikTok Login ID"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              TikTok Password <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Enter your TikTok password"
+              value={tiktokPassword}
+              onChange={(e) => setTiktokPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg"
+              autoComplete="current-password"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Login Method <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-6">
+              <label className="flex items-center gap-2 cursor-pointer font-medium">
+                <input
+                  type="radio"
+                  value="google"
+                  checked={loginMethod === 'google'}
+                  onChange={() => setLoginMethod('google')}
+                  className="accent-[#ff0050]"
+                />
+                Google
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-medium">
+                <input
+                  type="radio"
+                  value="facebook"
+                  checked={loginMethod === 'facebook'}
+                  onChange={() => setLoginMethod('facebook')}
+                  className="accent-[#1877f2]"
+                />
+                Facebook
+              </label>
+            </div>
+          </div>
+        </div>
+      )} */}
+
       {/* Facebook Link Field */}
       {/* {data.platform === 'facebook' && (
         <div>
@@ -573,6 +643,27 @@ export default function TopupPaymentPage() {
           />
         </div>
       )}
+
+      {data.platform === 'tiktok' && data.type !== 'coins'}
+      {
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            {data.type === 'followers' ? 'TikTok Username' : 'TikTok Post Link'}{' '}
+            <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder={
+              data.type === 'followers'
+                ? 'Enter your TikTok username(Paste your username)'
+                : 'Enter your TikTok post link(Paste your post link)'
+            }
+            value={loginId}
+            onChange={(e) => setLoginId(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+        </div>
+      }
 
       {/* Phone */}
       <div>

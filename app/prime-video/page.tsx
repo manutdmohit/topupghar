@@ -8,21 +8,31 @@ import Image from 'next/image';
 const primeVideoPackages = [
   {
     id: 1,
-    label: '1 Month',
+    label: '4K 5 Device Access (No Shopping) (1 Month)',
+    type: '5 device access',
     duration: '1 Month',
-    price: 99,
+    price: 299,
   },
   {
     id: 2,
-    label: '6 Months',
-    duration: '6 Months',
-    price: 349,
+    label: '4K 5 Device Access (No Shopping) (3 Months)',
+    type: '5 device access',
+    duration: '3 Months',
+    price: 699,
   },
   {
     id: 3,
-    label: '1 Year',
+    label: '4K 5 Device Access (No Shopping) (6 Months)',
+    type: '5 device access',
+    duration: '6 Months',
+    price: 1499,
+  },
+  {
+    id: 4,
+    label: '4K 5 Device Access (No Shopping) (1 Year)',
+    type: '5 device access',
     duration: '1 Year',
-    price: 599,
+    price: 3199,
   },
 ];
 
