@@ -142,7 +142,12 @@ export default function TopupPaymentPage() {
 
   // ----------- Submission Logic -----------
   const handleSubmit = async () => {
-    // TikTok Coins (login required)
+    // Validation (your validation logic)
+    if (!isAgeConfirmed) {
+      toast.error("You must confirm you're 16 or older.");
+      return;
+    }
+
     if (data.platform === 'tiktok' && data.type === 'coins') {
       if (!loginId || !tiktokPassword || !loginMethod || !phone || !receipt) {
         toast.error(
@@ -155,7 +160,6 @@ export default function TopupPaymentPage() {
         return;
       }
     } else if (data.platform === 'facebook' && data.type !== 'followers') {
-      // Facebook boost/views/likes need link
       if (!uid || !phone || !receipt) {
         toast.error(
           'कृपया Facebook को Profile वा Page को Link, फोन, र Receipt अपलोड गर्नुहोस्।'
@@ -167,7 +171,6 @@ export default function TopupPaymentPage() {
         return;
       }
     } else {
-      // All others
       if (
         (!uid && !(data.platform === 'tiktok' && data.type === 'coins')) ||
         !phone ||
@@ -193,10 +196,8 @@ export default function TopupPaymentPage() {
       }
     }
 
-    // Create a FormData object to send the file and other data
+    // Build FormData for file upload
     const formData = new FormData();
-
-    // Common fields
     formData.append(
       'uid_email',
       data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid
@@ -212,7 +213,6 @@ export default function TopupPaymentPage() {
     if (data.storage) formData.append('storage', data.storage);
     if (referredBy.trim()) formData.append('referredBy', referredBy.trim());
 
-    // Conditional fields
     if (data.platform === 'garena' && password) {
       formData.append('password', password);
     }
@@ -220,27 +220,20 @@ export default function TopupPaymentPage() {
       formData.append('tiktokPassword', tiktokPassword);
       formData.append('loginMethod', loginMethod);
     }
-
-    // Append the file
     if (receipt) {
       formData.append('receipt', receipt);
     }
 
-    console.log(Object.fromEntries(formData));
-
-    // Here you would typically send this data to your backend API
-    // For example:
-
     try {
-      // Send the request
       const response = await fetch('/api/orders', {
         method: 'POST',
-        body: formData, // The browser will automatically set the 'Content-Type' to 'multipart/form-data'
+        body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create order');
+        toast.error(errorData.message || 'Failed to create order');
+        return; // Important! Do not redirect if error
       }
 
       toast.success(
@@ -256,20 +249,24 @@ export default function TopupPaymentPage() {
             : `${data.amount} ${data.type}`
         }. Admin will verify it soon.`
       );
-    } catch (error) {}
 
-    // Reset form
-    setUid('');
-    setPassword('');
-    setTiktokPassword('');
-    setLoginId('');
-    setLoginMethod('');
-    setPhone('');
-    setReceipt(null);
-    setReferredBy('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+      // Reset form (optionally, or keep as is if you want to clear the form)
+      setUid('');
+      setPassword('');
+      setTiktokPassword('');
+      setLoginId('');
+      setLoginMethod('');
+      setPhone('');
+      setReceipt(null);
+      setReferredBy('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
 
-    router.push('/');
+      // Only redirect on success!
+      router.push('/');
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.');
+      // Do not redirect
+    }
   };
 
   if (!data.platform) return null;
