@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const facebookFollowersPackages = [
+const instagramFollowersPackages = [
   { id: 1, label: '1,000 Followers', amount: 1000, price: 689 },
   { id: 2, label: '2,000 Followers', amount: 2000, price: 1199 },
   { id: 3, label: '5,000 Followers', amount: 5000, price: 2399 },
@@ -15,7 +15,7 @@ const facebookFollowersPackages = [
   { id: 7, label: '100,000 Followers', amount: 100000, price: 27300 },
 ];
 
-export default function FacebookFollowersPage() {
+export default function InstagramFollowersPage() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const router = useRouter();
 
@@ -24,11 +24,13 @@ export default function FacebookFollowersPage() {
   };
 
   const handleBuyNow = () => {
-    const pkg = facebookFollowersPackages.find((p) => p.id === selectedPackage);
+    const pkg = instagramFollowersPackages.find(
+      (p) => p.id === selectedPackage
+    );
     if (!pkg) return;
 
     const query = new URLSearchParams({
-      platform: 'facebook',
+      platform: 'instagram',
       type: 'followers',
       amount: pkg.amount.toString(),
       price: pkg.price.toString(),
@@ -42,16 +44,16 @@ export default function FacebookFollowersPage() {
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-purple-700">
-          Facebook Followers Packages
+          Instagram Followers Packages
         </h1>
         <p className="text-gray-600 mt-2">
-          Boost your Facebook profile or page with authentic followers. Choose
-          your preferred package.
+          Instantly boost your Instagram profile with genuine followers. Select
+          your plan below!
         </p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/facebook-followers.jpg"
-            alt="Facebook Followers"
+            src="/instagram-followers.jpg"
+            alt="Instagram Followers"
             width={300}
             height={300}
             className="rounded-xl shadow-lg bg-white"
@@ -60,8 +62,8 @@ export default function FacebookFollowersPage() {
       </div>
 
       {/* Packages */}
-      <div className="grid grid-cols-2 gap-6">
-        {facebookFollowersPackages.map((pkg) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        {instagramFollowersPackages.map((pkg) => (
           <div
             key={pkg.id}
             onClick={() => handleSelect(pkg.id)}

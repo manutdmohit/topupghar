@@ -5,17 +5,24 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const facebookFollowersPackages = [
-  { id: 1, label: '1,000 Followers', amount: 1000, price: 689 },
-  { id: 2, label: '2,000 Followers', amount: 2000, price: 1199 },
-  { id: 3, label: '5,000 Followers', amount: 5000, price: 2399 },
-  { id: 4, label: '10,000 Followers', amount: 10000, price: 5149 },
-  { id: 5, label: '20,000 Followers', amount: 20000, price: 6549 },
-  { id: 6, label: '50,000 Followers', amount: 50000, price: 15349 },
-  { id: 7, label: '100,000 Followers', amount: 100000, price: 27300 },
+const nordvpnPackages = [
+  {
+    id: 1,
+    label: 'NordVPN (1 Year)',
+    duration: '1 Year',
+    price: 1899,
+    type: '1year',
+  },
+  {
+    id: 2,
+    label: 'NordVPN (2 Year)',
+    duration: '2 Years',
+    price: 3249,
+    type: '2year',
+  },
 ];
 
-export default function FacebookFollowersPage() {
+export default function NordVpnPage() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const router = useRouter();
 
@@ -24,13 +31,13 @@ export default function FacebookFollowersPage() {
   };
 
   const handleBuyNow = () => {
-    const pkg = facebookFollowersPackages.find((p) => p.id === selectedPackage);
+    const pkg = nordvpnPackages.find((p) => p.id === selectedPackage);
     if (!pkg) return;
 
     const query = new URLSearchParams({
-      platform: 'facebook',
-      type: 'followers',
-      amount: pkg.amount.toString(),
+      platform: 'nordvpn',
+      type: pkg.type,
+      duration: pkg.duration,
       price: pkg.price.toString(),
     });
 
@@ -42,16 +49,15 @@ export default function FacebookFollowersPage() {
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-purple-700">
-          Facebook Followers Packages
+          NordVPN – Subscription
         </h1>
         <p className="text-gray-600 mt-2">
-          Boost your Facebook profile or page with authentic followers. Choose
-          your preferred package.
+          Secure your internet with NordVPN. Choose your plan below.
         </p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/facebook-followers.jpg"
-            alt="Facebook Followers"
+            src="/nord-vpn.jpg"
+            alt="NordVPN"
             width={300}
             height={300}
             className="rounded-xl shadow-lg bg-white"
@@ -61,7 +67,7 @@ export default function FacebookFollowersPage() {
 
       {/* Packages */}
       <div className="grid grid-cols-2 gap-6">
-        {facebookFollowersPackages.map((pkg) => (
+        {nordvpnPackages.map((pkg) => (
           <div
             key={pkg.id}
             onClick={() => handleSelect(pkg.id)}
@@ -78,7 +84,7 @@ export default function FacebookFollowersPage() {
               NPR {pkg.price.toLocaleString('en-US')}
             </p>
             <div className="mt-2 text-xs text-gray-500">
-              100% Real Followers | Fast Delivery
+              {pkg.duration} Plan
             </div>
             {selectedPackage === pkg.id && (
               <div className="mt-3 text-sm text-purple-700 font-medium">

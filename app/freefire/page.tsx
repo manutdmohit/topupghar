@@ -65,8 +65,9 @@ export default function FreeFireDiamondPage() {
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-purple-700">
-          Free Fire Diamond Top-Up
+        <h1 className="text-xl text-left font-bold text-purple-700">
+          Get Free Fire Diamonds instantly at the best price in Nepal! Recharge
+          your Free Fire account safely and securely through Topup Ghar.
         </h1>
         <p className="text-gray-600 mt-2">
           Select a package below and pay using your preferred method. Only UID

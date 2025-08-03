@@ -5,17 +5,26 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const facebookFollowersPackages = [
-  { id: 1, label: '1,000 Followers', amount: 1000, price: 689 },
-  { id: 2, label: '2,000 Followers', amount: 2000, price: 1199 },
-  { id: 3, label: '5,000 Followers', amount: 5000, price: 2399 },
-  { id: 4, label: '10,000 Followers', amount: 10000, price: 5149 },
-  { id: 5, label: '20,000 Followers', amount: 20000, price: 6549 },
-  { id: 6, label: '50,000 Followers', amount: 50000, price: 15349 },
-  { id: 7, label: '100,000 Followers', amount: 100000, price: 27300 },
+const ms365Packages = [
+  {
+    id: 1,
+    label: 'With 100GB Storage (1 Year)',
+    storage: '100GB',
+    duration: '1 Year',
+    price: 2599,
+    type: 'with-storage',
+  },
+  {
+    id: 2,
+    label: 'Without Storage (1 Year)',
+    storage: 'No Extra',
+    duration: '1 Year',
+    price: 2099,
+    type: 'without-storage',
+  },
 ];
 
-export default function FacebookFollowersPage() {
+export default function Microsoft365Page() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
   const router = useRouter();
 
@@ -24,14 +33,15 @@ export default function FacebookFollowersPage() {
   };
 
   const handleBuyNow = () => {
-    const pkg = facebookFollowersPackages.find((p) => p.id === selectedPackage);
+    const pkg = ms365Packages.find((p) => p.id === selectedPackage);
     if (!pkg) return;
 
     const query = new URLSearchParams({
-      platform: 'facebook',
-      type: 'followers',
-      amount: pkg.amount.toString(),
+      platform: 'microsoft-365',
+      type: pkg.type,
+      duration: pkg.duration,
       price: pkg.price.toString(),
+      storage: pkg.storage,
     });
 
     router.push(`/topup/payment?${query.toString()}`);
@@ -42,18 +52,18 @@ export default function FacebookFollowersPage() {
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-purple-700">
-          Facebook Followers Packages
+          Microsoft 365 (1 Year)
         </h1>
         <p className="text-gray-600 mt-2">
-          Boost your Facebook profile or page with authentic followers. Choose
-          your preferred package.
+          Choose your preferred storage option for your annual Microsoft 365
+          subscription. Instant delivery after payment!
         </p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/facebook-followers.jpg"
-            alt="Facebook Followers"
-            width={300}
-            height={300}
+            src="/microsoft-365.jpg"
+            alt="Microsoft 365"
+            width={500}
+            height={500}
             className="rounded-xl shadow-lg bg-white"
           />
         </div>
@@ -61,7 +71,7 @@ export default function FacebookFollowersPage() {
 
       {/* Packages */}
       <div className="grid grid-cols-2 gap-6">
-        {facebookFollowersPackages.map((pkg) => (
+        {ms365Packages.map((pkg) => (
           <div
             key={pkg.id}
             onClick={() => handleSelect(pkg.id)}
@@ -71,14 +81,16 @@ export default function FacebookFollowersPage() {
                 : 'hover:shadow-md'
             }`}
           >
-            <h3 className="text-xl font-semibold text-purple-700">
+            <h3 className="text-lg font-semibold text-purple-700">
               {pkg.label}
             </h3>
             <p className="text-gray-700 mt-2 font-medium">
               NPR {pkg.price.toLocaleString('en-US')}
             </p>
             <div className="mt-2 text-xs text-gray-500">
-              100% Real Followers | Fast Delivery
+              {pkg.storage === '100GB'
+                ? 'Includes 100GB OneDrive Storage'
+                : 'No Extra Cloud Storage'}
             </div>
             {selectedPackage === pkg.id && (
               <div className="mt-3 text-sm text-purple-700 font-medium">

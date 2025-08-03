@@ -17,6 +17,7 @@ export default function TopupPaymentPage() {
     duration: '',
     level: '',
     diamonds: '',
+    storage: '',
   });
 
   // Common fields
@@ -48,6 +49,7 @@ export default function TopupPaymentPage() {
       duration: searchParams.get('duration') || '',
       level: searchParams.get('level') || '',
       diamonds: searchParams.get('diamonds') || '',
+      storage: searchParams.get('storage') || '',
     });
     setReferredBy(searchParams.get('referredBy') || '');
   }, [searchParams]);
@@ -63,8 +65,8 @@ export default function TopupPaymentPage() {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   // UID/Email label and placeholder logic
-  let idLabel = 'Your Game UID';
-  let idPlaceholder = 'Enter your game UID';
+  let idLabel = 'Email Address';
+  let idPlaceholder = 'Enter your email address';
   let idType: 'text' | 'email' = 'text';
 
   if (data.platform === 'freefire') {
@@ -111,6 +113,22 @@ export default function TopupPaymentPage() {
     idLabel = 'Enter your email address';
     idPlaceholder = 'Enter your email address';
     idType = 'email';
+  } else if (data.platform === 'instagram') {
+    idLabel =
+      data.type === 'followers' ? 'Instagram Username' : 'Instagram Post Link';
+    idPlaceholder =
+      data.type === 'followers'
+        ? 'Enter your Instagram username(Paste your username)'
+        : 'Enter your Instagram post link(Paste your post link)';
+    idType = 'text';
+  } else if (data.platform === 'facebook') {
+    idLabel =
+      data.type === 'followers' ? 'Facebook Username' : 'Facebook Post Link';
+    idPlaceholder =
+      data.type === 'followers'
+        ? 'Enter your Facebook username(Paste your username)'
+        : 'Enter your Facebook post link(Paste your post link)';
+    idType = 'text';
   }
 
   // ----------- Submission Logic -----------
@@ -239,13 +257,6 @@ export default function TopupPaymentPage() {
         <strong>NPR {data.price}</strong>
       </>
     );
-  } else if (data.platform === 'facebook' && data.type === 'followers') {
-    summary = (
-      <>
-        You're buying <strong>{data.amount} Facebook Followers</strong> for{' '}
-        <strong>NPR {data.price}</strong>
-      </>
-    );
   } else if (
     data.platform === 'freefire' &&
     data.type === 'weekly-membership'
@@ -298,12 +309,120 @@ export default function TopupPaymentPage() {
         for <strong>NPR {data.price}</strong>
       </>
     );
-  } else {
+  } else if (data.platform === 'perplexity') {
+    summary = (
+      <>
+        You're buying <strong>{data.duration} Perplexity AI Pro </strong> for{' '}
+        <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'prime video') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong className="text-sm">
+          {data.duration} Prime Video 4K HD Subscription(5 device Access){' '}
+        </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'netflix 4k hd') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong className="text-sm">
+          1 Month {data.type === 'full' ? '4K Full Account' : '4K 1 Screen'}{' '}
+          Netflix
+        </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'adobe' && data.type === 'creative-cloud') {
+    summary = (
+      <>
+        <strong className="text-sm">
+          You're buying {data.duration} Adobe Creative Cloud for NPR{' '}
+          {data.price}
+        </strong>
+      </>
+    );
+  } else if (data.platform === 'microsoft-365') {
+    summary = (
+      <>
+        <strong className="text-sm">
+          You're buying {data.duration} Microsoft 365 for NPR {data.price} with{' '}
+          {data.storage} storage
+        </strong>
+      </>
+    );
+  } else if (data.platform === 'coursera') {
+    summary = (
+      <>
+        <strong className="text-sm">
+          You're buying {data.duration} Coursera Plus for NPR {data.price}
+        </strong>
+      </>
+    );
+  } else if (
+    data.platform === 'linkedin' ||
+    data.platform === 'figma' ||
+    data.platform === 'you.com' ||
+    data.platform === 'nordvpn'
+  ) {
+    // Add your platform here
+    summary = // Add your platform here
+      (
+        <>
+          <strong className="text-sm">
+            {data.platform === 'linkedin'
+              ? 'You are buying LinkedIn Premium of 1 Year for NPR'
+              : data.platform === 'figma'
+              ? 'You are buying Figma Professional of 1 Year for NPR'
+              : data.platform === 'you.com'
+              ? 'You are buying You.com subsscription of 1 Year for NPR'
+              : data.platform === 'nordvpn'
+              ? `You are buying NordVPN subscription of ${data.duration}  for NPR`
+              : 'You are buying LinkedIn Premium for NPR'}{' '}
+            {data.price}
+          </strong>
+        </>
+      );
+  } else if (data.platform === 'instagram') {
     summary = (
       <>
         You're buying{' '}
         <strong>
           {data.amount}{' '}
+          {data.type == 'followers'
+            ? 'Followers'
+            : data.type === 'views'
+            ? 'Views'
+            : 'Likes'}
+        </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else if (data.platform === 'facebook') {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>
+          {data.amount}{' '}
+          {data.type == 'followers'
+            ? 'Followers'
+            : data.type === 'views'
+            ? 'Views'
+            : 'Likes'}
+        </strong>{' '}
+        for <strong>NPR {data.price}</strong>
+      </>
+    );
+  } else {
+    summary = (
+      <>
+        You're buying{' '}
+        <strong>
+          {data.amount}
           {data.type === 'uc'
             ? 'UC'
             : data.type === 'shell'
@@ -392,11 +511,10 @@ export default function TopupPaymentPage() {
       )}
 
       {/* Facebook Link Field */}
-      {data.platform === 'facebook' && (
+      {/* {data.platform === 'facebook' && (
         <div>
           <label className="block mb-1 font-medium text-gray-700">
-            Facebook को Profile वा Page को Link{' '}
-            <span className="text-red-500">*</span>
+            Facebook Link <span className="text-red-500">*</span>
           </label>
           <input
             type="url"
@@ -407,10 +525,10 @@ export default function TopupPaymentPage() {
             required
           />
         </div>
-      )}
+      )} */}
 
       {/* UID or Email (hide for TikTok/Facebook) */}
-      {data.platform !== 'tiktok' && data.platform !== 'facebook' && (
+      {data.platform !== 'tiktok' && (
         <div>
           <label className="block mb-1 font-medium text-gray-700">
             {idLabel} <span className="text-red-500">*</span>
@@ -489,7 +607,7 @@ export default function TopupPaymentPage() {
           कृपया <span className="font-bold text-red-600">Payment Remarks</span>{' '}
           वा <span className="font-bold text-red-600">Purpose</span> मा{' '}
           <span className="font-bold text-red-600">Product नाम</span> (जस्तै
-          "Free Fire", "TikTok", आदि){' '}
+          "Free Fire", "TikTok", Topup, आदि){' '}
           <span className="font-bold">नलेख्नुहोस्</span>। यदि लेखिएको पाइयो भने{' '}
           <span className="font-bold text-red-600">
             तपाईंको भुक्तानी अस्वीकृत (discard) गरिनेछ।

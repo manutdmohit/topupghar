@@ -57,7 +57,7 @@ export default function CanvaProPage() {
         >
           <span className="block text-[#00c4cc] text-xl">Canva Pro 1 Year</span>
           <span className="block mt-2 text-gray-700 font-semibold text-lg">
-            NPR 1,500
+            NPR 899
           </span>
           {selected && (
             <span className="absolute top-3 right-4 text-xs font-semibold text-[#00c4cc] bg-[#e6fcff] rounded-full px-3 py-1 shadow">
