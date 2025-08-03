@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 export default function TopupPaymentPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [data, setData] = useState({
@@ -267,9 +269,7 @@ export default function TopupPaymentPage() {
     setReferredBy('');
     if (fileInputRef.current) fileInputRef.current.value = '';
 
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
+    router.push('/');
   };
 
   if (!data.platform) return null;
