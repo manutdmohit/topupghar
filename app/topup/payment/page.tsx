@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 export default function TopupPaymentPage() {
@@ -27,6 +28,7 @@ export default function TopupPaymentPage() {
   const [receipt, setReceipt] = useState<File | null>(null);
   const [referredBy, setReferredBy] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
 
   // TikTok login fields (for coins only)
   const [loginId, setLoginId] = useState('');
@@ -705,8 +707,21 @@ export default function TopupPaymentPage() {
 
       {/* Submit */}
       <div className="text-center">
+        <div className="flex items-center justify-center space-x-2 mb-4">
+          <Checkbox
+            id="age-confirm"
+            onCheckedChange={(checked) => setIsAgeConfirmed(checked as boolean)}
+          />
+          <label
+            htmlFor="age-confirm"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            I confirm that I am 16+ years old.
+          </label>
+        </div>
         <Button
           onClick={handleSubmit}
+          disabled={!isAgeConfirmed}
           className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700"
         >
           Submit for Verification
