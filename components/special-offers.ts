@@ -314,6 +314,18 @@ export const popularItems = [
     reviews: 3421,
     deliveryTime: 'Instant',
   },
+  {
+    title: 'Free Fire Evo Access',
+    image: '/free-fire.jpg',
+    href: '/freefire-evo-access',
+    badge: 'TRENDING',
+    price: '$5.99',
+    originalPrice: '$8.99',
+    rating: 4.8,
+    reviews: 3421,
+    deliveryTime: 'Instant',
+    inStock: true,
+  },
 
   // {
   //   title: 'Free Fire Diamonds',

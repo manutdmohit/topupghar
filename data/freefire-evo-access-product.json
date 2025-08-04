@@ -1,0 +1,39 @@
+{
+  "name": "Free Fire Evo Access",
+  "platform": "freefire",
+  "type": "evo-access",
+  "description": "Free Fire Evo Access membership packages. Unlock exclusive features, rewards, and premium content with Evo Access.",
+  "image": "/free-fire.jpg",
+  "variants": [
+    {
+      "label": "3 Days Evo Access",
+      "duration": "3 Days",
+      "price": 95,
+      "inStock": true
+    },
+    {
+      "label": "7 Days Evo Access",
+      "duration": "7 Days",
+      "price": 135,
+      "inStock": true
+    },
+    {
+      "label": "30 Days Evo Access",
+      "duration": "30 Days",
+      "price": 370,
+      "inStock": true
+    }
+  ],
+  "features": [
+    "Exclusive Evo Rewards",
+    "Premium Battle Pass",
+    "Special Evo Events",
+    "Unique Character Skins",
+    "Bonus Diamonds",
+    "Priority Support"
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-01-27T00:00:00.000Z",
+  "updatedAt": "2025-01-27T00:00:00.000Z"
+}

@@ -1,59 +1,105 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const diamondPackages = [
-  { id: 1, label: '25💎', type: 'diamonds', diamonds: 25, price: 30 },
-  { id: 2, label: '50💎', type: 'diamonds', diamonds: 50, price: 55 },
-  { id: 3, label: '115💎', type: 'diamonds', diamonds: 115, price: 95 },
-  { id: 4, label: '240💎', type: 'diamonds', diamonds: 240, price: 185 },
-  { id: 5, label: '355💎', type: 'diamonds', diamonds: 355, price: 285 },
-  { id: 6, label: '480💎', type: 'diamonds', diamonds: 480, price: 385 },
-  { id: 7, label: '530💎', type: 'diamonds', diamonds: 530, price: 425 },
-  { id: 8, label: '610💎', type: 'diamonds', diamonds: 610, price: 465 },
-  { id: 9, label: '725💎', type: 'diamonds', diamonds: 725, price: 570 },
-  { id: 10, label: '850💎', type: 'diamonds', diamonds: 850, price: 660 },
-  { id: 11, label: '1090💎', type: 'diamonds', diamonds: 1090, price: 860 },
-  { id: 12, label: '1240💎', type: 'diamonds', diamonds: 1240, price: 940 },
-  { id: 13, label: '1355💎', type: 'diamonds', diamonds: 1355, price: 1090 },
-  { id: 14, label: '1480💎', type: 'diamonds', diamonds: 1480, price: 1190 },
-  { id: 15, label: '1595💎', type: 'diamonds', diamonds: 1595, price: 1290 },
-  { id: 16, label: '1720💎', type: 'diamonds', diamonds: 1720, price: 1390 },
-  {
-    id: 17,
-    label: 'Weekly Membership (455💎)',
-    type: 'weekly-membership',
-    diamonds: 455,
-    price: 185,
-  },
-  {
-    id: 18,
-    label: 'Monthly Membership (2500💎)',
-    type: 'monthly-membership',
-    diamonds: 2500,
-    price: 930,
-  },
-  { id: 19, label: 'Airdrop', type: 'airdrop', diamonds: 0, price: 150 },
-];
+interface ProductVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description?: string;
+  image?: string;
+  variants: ProductVariant[];
+  inStock: boolean;
+  isActive: boolean;
+}
+
+interface Package {
+  id: number;
+  label: string;
+  type: string;
+  diamonds: number;
+  price: number;
+}
 
 export default function FreeFireDiamondPage() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [diamondPackages, setDiamondPackages] = useState<Package[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchFreefireData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/freefire');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Freefire data');
+        }
+
+        const product: Product = await response.json();
+
+        // Transform product variants to packages
+        const packages: Package[] = product.variants.map((variant, index) => {
+          // Extract diamond amount from label (e.g., "25💎" -> 25)
+          const diamondMatch = variant.duration.match(/(\d+)/);
+          const diamonds = diamondMatch ? parseInt(diamondMatch[1]) : 0;
+
+          // Determine type based on label
+          let type = 'diamonds';
+          if (variant.label.includes('Weekly Membership')) {
+            type = 'weekly-membership';
+          } else if (variant.label.includes('Monthly Membership')) {
+            type = 'monthly-membership';
+          } else if (variant.label.includes('Weekly Lite')) {
+            type = 'weekly-lite';
+          } else if (variant.label.includes('Airdrop')) {
+            type = 'airdrop';
+          }
+
+          return {
+            id: index + 1,
+            label: variant.label,
+            type,
+            diamonds,
+            price: variant.price,
+          };
+        });
+
+        setDiamondPackages(packages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching Freefire data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFreefireData();
+  }, []);
 
   const handleSelect = (id: number) => {
     setSelectedPackage((prev) => (prev === id ? null : id));
   };
 
   const handleBuyNow = () => {
-    const pkg = diamondPackages.find((p) => p.id === selectedPackage);
+    const pkg = diamondPackages.find((p: Package) => p.id === selectedPackage);
     if (!pkg) return;
 
     const query = new URLSearchParams({
       platform: 'freefire',
-      type: pkg.type, // use the correct type
+      type: pkg.type,
       amount: pkg.diamonds.toString(),
       price: pkg.price.toString(),
     });
@@ -84,32 +130,49 @@ export default function FreeFireDiamondPage() {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <p className="mt-2 text-gray-600">Loading Freefire packages...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading packages: {error}</p>
+        </div>
+      )}
+
       {/* Package Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {diamondPackages.map((pkg) => (
-          <div
-            key={pkg.id}
-            onClick={() => handleSelect(pkg.id)}
-            className={`border p-5 rounded-xl text-center cursor-pointer transition-all duration-300 ${
-              selectedPackage === pkg.id
-                ? 'bg-purple-100 border-purple-600 scale-[1.02]'
-                : 'hover:shadow-md'
-            }`}
-          >
-            <h3 className="text-xl font-semibold text-purple-700">
-              {pkg.label}
-            </h3>
-            <p className="text-gray-600 mt-2 font-medium">
-              NPR {pkg.price.toLocaleString('en-US')}
-            </p>
-            {selectedPackage === pkg.id && (
-              <div className="mt-3 text-sm text-purple-700 font-medium">
-                ✅ Selected
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {!loading && !error && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {diamondPackages.map((pkg) => (
+            <div
+              key={pkg.id}
+              onClick={() => handleSelect(pkg.id)}
+              className={`border p-5 rounded-xl text-center cursor-pointer transition-all duration-300 ${
+                selectedPackage === pkg.id
+                  ? 'bg-purple-100 border-purple-600 scale-[1.02]'
+                  : 'hover:shadow-md'
+              }`}
+            >
+              <h3 className="text-xl font-semibold text-purple-700">
+                {pkg.label}
+              </h3>
+              <p className="text-gray-600 mt-2 font-medium">
+                NPR {pkg.price.toLocaleString('en-US')}
+              </p>
+              {selectedPackage === pkg.id && (
+                <div className="mt-3 text-sm text-purple-700 font-medium">
+                  ✅ Selected
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Call to Action */}
       <div className="mt-10 text-center">
