@@ -1,0 +1,324 @@
+[
+  {
+    "name": "Netflix",
+    "platform": "netflix",
+    "type": "account",
+    "description": "Netflix account subscription packages.",
+    "image": "/netflix-banner.jpg",
+    "variants": [
+      {
+        "label": "1 Month",
+        "duration": "1 Month",
+        "price": 425,
+        "inStock": true
+      },
+      {
+        "label": "3 Months",
+        "duration": "3 Months",
+        "price": 1175,
+        "inStock": true
+      },
+      {
+        "label": "6 Months",
+        "duration": "6 Months",
+        "price": 2200,
+        "inStock": true
+      },
+      {
+        "label": "12 Months",
+        "duration": "12 Months",
+        "price": 3450,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "Free Fire",
+    "platform": "freefire",
+    "type": "diamonds",
+    "description": "Free Fire diamond packages and memberships for enhanced gaming experience.",
+    "image": "/freefire-banner.jpg",
+    "variants": [
+      {
+        "label": "100 Diamonds",
+        "duration": "100 Diamonds",
+        "price": 199,
+        "inStock": true
+      },
+      {
+        "label": "500 Diamonds",
+        "duration": "500 Diamonds",
+        "price": 899,
+        "inStock": true
+      },
+      {
+        "label": "1000 Diamonds",
+        "duration": "1000 Diamonds",
+        "price": 1699,
+        "inStock": true
+      },
+      {
+        "label": "2000 Diamonds",
+        "duration": "2000 Diamonds",
+        "price": 3199,
+        "inStock": true
+      },
+      {
+        "label": "5000 Diamonds",
+        "duration": "5000 Diamonds",
+        "price": 7499,
+        "inStock": true
+      },
+      {
+        "label": "10000 Diamonds",
+        "duration": "10000 Diamonds",
+        "price": 13999,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "PUBG Mobile",
+    "platform": "pubg",
+    "type": "uc",
+    "description": "PUBG Mobile UC (Unknown Cash) packages for in-game purchases and premium content.",
+    "image": "/pubg-banner.jpg",
+    "variants": [
+      { "label": "60 UC", "duration": "60 UC", "price": 99, "inStock": true },
+      {
+        "label": "325 UC",
+        "duration": "325 UC",
+        "price": 499,
+        "inStock": true
+      },
+      {
+        "label": "660 UC",
+        "duration": "660 UC",
+        "price": 999,
+        "inStock": true
+      },
+      {
+        "label": "1800 UC",
+        "duration": "1800 UC",
+        "price": 2699,
+        "inStock": true
+      },
+      {
+        "label": "3850 UC",
+        "duration": "3850 UC",
+        "price": 5799,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "Instagram Followers",
+    "platform": "instagram",
+    "type": "followers",
+    "description": "Instantly boost your Instagram profile with genuine followers. 100% real followers with fast delivery.",
+    "image": "/instagram-followers.jpg",
+    "variants": [
+      {
+        "label": "1,000 Followers",
+        "duration": "1,000 Followers",
+        "price": 689,
+        "inStock": true
+      },
+      {
+        "label": "2,000 Followers",
+        "duration": "2,000 Followers",
+        "price": 1199,
+        "inStock": true
+      },
+      {
+        "label": "5,000 Followers",
+        "duration": "5,000 Followers",
+        "price": 2399,
+        "inStock": true
+      },
+      {
+        "label": "10,000 Followers",
+        "duration": "10,000 Followers",
+        "price": 5149,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "TikTok Followers",
+    "platform": "tiktok",
+    "type": "followers",
+    "description": "Grow your TikTok presence with real followers. Boost your account visibility and engagement.",
+    "image": "/tiktok-followers.jpg",
+    "variants": [
+      {
+        "label": "500 Followers",
+        "duration": "500 Followers",
+        "price": 399,
+        "inStock": true
+      },
+      {
+        "label": "1,000 Followers",
+        "duration": "1,000 Followers",
+        "price": 699,
+        "inStock": true
+      },
+      {
+        "label": "2,500 Followers",
+        "duration": "2,500 Followers",
+        "price": 1499,
+        "inStock": true
+      },
+      {
+        "label": "5,000 Followers",
+        "duration": "5,000 Followers",
+        "price": 2699,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "YouTube Premium",
+    "platform": "youtube-premium",
+    "type": "account",
+    "description": "Enjoy ad-free YouTube, background play, and more with YouTube Premium subscription.",
+    "image": "/youtube-premium-banner.jpg",
+    "variants": [
+      {
+        "label": "1 Month",
+        "duration": "1 Month",
+        "price": 159,
+        "inStock": true
+      },
+      {
+        "label": "1 Year",
+        "duration": "1 Year",
+        "price": 1699,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "Microsoft 365",
+    "platform": "microsoft-365",
+    "type": "account",
+    "description": "Microsoft 365 subscription with Office apps, cloud storage, and productivity tools.",
+    "image": "/microsoft-365.jpg",
+    "variants": [
+      {
+        "label": "With 100GB Storage (1 Year)",
+        "duration": "1 Year",
+        "price": 2599,
+        "inStock": true
+      },
+      {
+        "label": "Without Storage (1 Year)",
+        "duration": "1 Year",
+        "price": 2099,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "ChatGPT Plus",
+    "platform": "chatgpt-plus",
+    "type": "account",
+    "description": "ChatGPT Plus subscription with GPT-4 access, faster response times, and priority support.",
+    "image": "/chatgpt-plus.jpg",
+    "variants": [
+      {
+        "label": "1 Month",
+        "duration": "1 Month",
+        "price": 799,
+        "inStock": true
+      },
+      {
+        "label": "3 Months",
+        "duration": "3 Months",
+        "price": 2199,
+        "inStock": true
+      },
+      {
+        "label": "6 Months",
+        "duration": "6 Months",
+        "price": 4199,
+        "inStock": true
+      },
+      {
+        "label": "12 Months",
+        "duration": "12 Months",
+        "price": 7999,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  },
+  {
+    "name": "PayPal Balance",
+    "platform": "paypal",
+    "type": "balance",
+    "description": "Add funds to your PayPal account for secure online payments and international transfers.",
+    "image": "/paypal.jpg",
+    "variants": [
+      {
+        "label": "NPR 500",
+        "duration": "NPR 500",
+        "price": 500,
+        "inStock": true
+      },
+      {
+        "label": "NPR 1,000",
+        "duration": "NPR 1,000",
+        "price": 1000,
+        "inStock": true
+      },
+      {
+        "label": "NPR 2,500",
+        "duration": "NPR 2,500",
+        "price": 2500,
+        "inStock": true
+      },
+      {
+        "label": "NPR 5,000",
+        "duration": "NPR 5,000",
+        "price": 5000,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "isActive": true,
+    "createdAt": "2025-08-04T00:00:00.000Z",
+    "updatedAt": "2025-08-04T00:00:00.000Z"
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "name": "Instagram Followers",
+  "platform": "instagram",
+  "type": "followers",
+  "description": "Instantly boost your Instagram profile with genuine followers. 100% real followers with fast delivery.",
+  "image": "/instagram-followers.jpg",
+  "variants": [
+    {
+      "label": "1,000 Followers",
+      "duration": "1,000 Followers",
+      "price": 689,
+      "inStock": true
+    },
+    {
+      "label": "2,000 Followers",
+      "duration": "2,000 Followers",
+      "price": 1199,
+      "inStock": true
+    },
+    {
+      "label": "5,000 Followers",
+      "duration": "5,000 Followers",
+      "price": 2399,
+      "inStock": true
+    },
+    {
+      "label": "10,000 Followers",
+      "duration": "10,000 Followers",
+      "price": 5149,
+      "inStock": true
+    },
+    {
+      "label": "20,000 Followers",
+      "duration": "20,000 Followers",
+      "price": 6549,
+      "inStock": true
+    },
+    {
+      "label": "50,000 Followers",
+      "duration": "50,000 Followers",
+      "price": 15349,
+      "inStock": true
+    },
+    {
+      "label": "100,000 Followers",
+      "duration": "100,000 Followers",
+      "price": 27300,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

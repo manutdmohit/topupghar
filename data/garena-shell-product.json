@@ -1,0 +1,49 @@
+{
+  "name": "Garena Shell",
+  "platform": "garena-shell",
+  "type": "shell",
+  "description": "Garena Shell credits for Free Fire and other Garena games. Purchase in-game items and premium content.",
+  "image": "/garena-shell.jpg",
+  "variants": [
+    {
+      "label": "100 Shells",
+      "duration": "100 Shells",
+      "price": 199,
+      "inStock": true
+    },
+    {
+      "label": "500 Shells",
+      "duration": "500 Shells",
+      "price": 899,
+      "inStock": true
+    },
+    {
+      "label": "1,000 Shells",
+      "duration": "1,000 Shells",
+      "price": 1699,
+      "inStock": true
+    },
+    {
+      "label": "2,000 Shells",
+      "duration": "2,000 Shells",
+      "price": 3199,
+      "inStock": true
+    },
+    {
+      "label": "5,000 Shells",
+      "duration": "5,000 Shells",
+      "price": 7499,
+      "inStock": true
+    },
+    {
+      "label": "10,000 Shells",
+      "duration": "10,000 Shells",
+      "price": 13999,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

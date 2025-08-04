@@ -1,0 +1,19 @@
+{
+  "name": "ChatGPT Plus (1 Year)",
+  "platform": "chatgpt-plus-one-year",
+  "type": "account",
+  "description": "ChatGPT Plus annual subscription with GPT-4 access and all premium features for one full year.",
+  "image": "/chatgpt-plus-one-year.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 7999,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

@@ -1,0 +1,37 @@
+{
+  "name": "LinkedIn Premium",
+  "platform": "linkedin",
+  "type": "account",
+  "description": "LinkedIn Premium subscription with advanced networking features, insights, and career tools.",
+  "image": "/linkedin.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 599,
+      "inStock": true
+    },
+    {
+      "label": "3 Months",
+      "duration": "3 Months",
+      "price": 1599,
+      "inStock": true
+    },
+    {
+      "label": "6 Months",
+      "duration": "6 Months",
+      "price": 2999,
+      "inStock": true
+    },
+    {
+      "label": "12 Months",
+      "duration": "12 Months",
+      "price": 5499,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

@@ -1,0 +1,25 @@
+{
+  "name": "Microsoft 365",
+  "platform": "microsoft-365",
+  "type": "account",
+  "description": "Microsoft 365 subscription with Office apps, cloud storage, and productivity tools.",
+  "image": "/microsoft-365.jpg",
+  "variants": [
+    {
+      "label": "With 100GB Storage (1 Year)",
+      "duration": "1 Year",
+      "price": 2599,
+      "inStock": true
+    },
+    {
+      "label": "Without Storage (1 Year)",
+      "duration": "1 Year",
+      "price": 2099,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

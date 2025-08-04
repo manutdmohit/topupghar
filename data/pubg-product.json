@@ -1,0 +1,43 @@
+{
+  "name": "PUBG Mobile",
+  "platform": "pubg",
+  "type": "uc",
+  "description": "PUBG Mobile UC (Unknown Cash) top-up packages. Recharge UC instantly using local payment methods.",
+  "image": "/pubg-banner.jpg",
+  "variants": [
+    {
+      "label": "60 UC",
+      "duration": "60 Unknown Cash",
+      "price": 150,
+      "inStock": true
+    },
+    {
+      "label": "120 UC",
+      "duration": "120 Unknown Cash",
+      "price": 280,
+      "inStock": true
+    },
+    {
+      "label": "325 UC",
+      "duration": "325 Unknown Cash",
+      "price": 710,
+      "inStock": true
+    },
+    {
+      "label": "660 UC",
+      "duration": "660 Unknown Cash",
+      "price": 1420,
+      "inStock": true
+    },
+    {
+      "label": "1800 UC",
+      "duration": "1800 Unknown Cash",
+      "price": 3450,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

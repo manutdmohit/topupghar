@@ -1,0 +1,37 @@
+{
+  "name": "Adobe Creative Cloud",
+  "platform": "adobe-creative-cloud",
+  "type": "account",
+  "description": "Complete Adobe Creative Cloud suite with Photoshop, Illustrator, Premiere Pro, and more.",
+  "image": "/adobe-creative-cloud.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 899,
+      "inStock": true
+    },
+    {
+      "label": "3 Months",
+      "duration": "3 Months",
+      "price": 2399,
+      "inStock": true
+    },
+    {
+      "label": "6 Months",
+      "duration": "6 Months",
+      "price": 4499,
+      "inStock": true
+    },
+    {
+      "label": "12 Months",
+      "duration": "12 Months",
+      "price": 7999,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

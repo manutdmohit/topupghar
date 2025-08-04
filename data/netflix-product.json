@@ -1,0 +1,36 @@
+{
+  "name": "Netflix",
+  "platform": "netflix",
+  "type": "account",
+  "description": "Netflix account subscription packages.",
+  "image": "/netflix-banner.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 425,
+      "inStock": true
+    },
+    {
+      "label": "3 Months",
+      "duration": "3 Months",
+      "price": 1175,
+      "inStock": true
+    },
+    {
+      "label": "6 Months",
+      "duration": "6 Months",
+      "price": 2200,
+      "inStock": true
+    },
+    {
+      "label": "12 Months",
+      "duration": "12 Months",
+      "price": 3450,
+      "inStock": true
+    }
+  ],
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

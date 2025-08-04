@@ -33,3 +33,38 @@ export const GET = async (req: NextRequest, context: any) => {
     );
   }
 };
+
+export const PATCH = async (req: NextRequest, context: any) => {
+  try {
+    await connectDB();
+
+    const { id } = context.params;
+    const body = await req.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { message: 'Order ID is required.' },
+        { status: 400 }
+      );
+    }
+
+    const order = await Order.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!order) {
+      return NextResponse.json({ message: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error('Error in PATCH /orders/:id:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json(
+      { message: 'Failed to update order', error: errorMessage },
+      { status: 500 }
+    );
+  }
+};

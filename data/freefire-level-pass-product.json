@@ -1,0 +1,31 @@
+{
+  "name": "Free Fire Level Pass",
+  "platform": "freefire-level-pass",
+  "type": "pass",
+  "description": "Free Fire Elite Pass with exclusive rewards, skins, and premium content for enhanced gaming experience.",
+  "image": "/freefire-level-pass.jpg",
+  "variants": [
+    {
+      "label": "Elite Pass",
+      "duration": "1 Season",
+      "price": 599,
+      "inStock": true
+    },
+    {
+      "label": "Elite Pass + 25 Levels",
+      "duration": "1 Season + 25 Levels",
+      "price": 899,
+      "inStock": true
+    },
+    {
+      "label": "Elite Pass + 50 Levels",
+      "duration": "1 Season + 50 Levels",
+      "price": 1299,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

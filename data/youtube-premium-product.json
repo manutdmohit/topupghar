@@ -1,0 +1,25 @@
+{
+  "name": "YouTube Premium",
+  "platform": "youtube-premium",
+  "type": "account",
+  "description": "Enjoy ad-free YouTube, background play, and more with YouTube Premium subscription.",
+  "image": "/youtube-premium-banner.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 159,
+      "inStock": true
+    },
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 1699,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}

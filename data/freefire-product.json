@@ -1,0 +1,127 @@
+{
+  "name": "Free Fire",
+  "platform": "freefire",
+  "type": "diamonds",
+  "description": "Free Fire diamond packages and membership subscriptions. Get diamonds instantly for your Free Fire account.",
+  "image": "/free-fire.jpg",
+  "variants": [
+    {
+      "label": "25💎",
+      "duration": "25 Diamonds",
+      "price": 30,
+      "inStock": true
+    },
+    {
+      "label": "50💎",
+      "duration": "50 Diamonds",
+      "price": 55,
+      "inStock": true
+    },
+    {
+      "label": "115💎",
+      "duration": "115 Diamonds",
+      "price": 95,
+      "inStock": true
+    },
+    {
+      "label": "240💎",
+      "duration": "240 Diamonds",
+      "price": 185,
+      "inStock": true
+    },
+    {
+      "label": "355💎",
+      "duration": "355 Diamonds",
+      "price": 285,
+      "inStock": true
+    },
+    {
+      "label": "480💎",
+      "duration": "480 Diamonds",
+      "price": 385,
+      "inStock": true
+    },
+    {
+      "label": "530💎",
+      "duration": "530 Diamonds",
+      "price": 425,
+      "inStock": true
+    },
+    {
+      "label": "610💎",
+      "duration": "610 Diamonds",
+      "price": 465,
+      "inStock": true
+    },
+    {
+      "label": "725💎",
+      "duration": "725 Diamonds",
+      "price": 570,
+      "inStock": true
+    },
+    {
+      "label": "850💎",
+      "duration": "850 Diamonds",
+      "price": 660,
+      "inStock": true
+    },
+    {
+      "label": "1090💎",
+      "duration": "1090 Diamonds",
+      "price": 860,
+      "inStock": true
+    },
+    {
+      "label": "1240💎",
+      "duration": "1240 Diamonds",
+      "price": 940,
+      "inStock": true
+    },
+    {
+      "label": "1355💎",
+      "duration": "1355 Diamonds",
+      "price": 1090,
+      "inStock": true
+    },
+    {
+      "label": "1480💎",
+      "duration": "1480 Diamonds",
+      "price": 1190,
+      "inStock": true
+    },
+    {
+      "label": "1595💎",
+      "duration": "1595 Diamonds",
+      "price": 1290,
+      "inStock": true
+    },
+    {
+      "label": "1720💎",
+      "duration": "1720 Diamonds",
+      "price": 1390,
+      "inStock": true
+    },
+    {
+      "label": "Weekly Membership (455💎)",
+      "duration": "7 Days",
+      "price": 185,
+      "inStock": true
+    },
+    {
+      "label": "Monthly Membership (2500💎)",
+      "duration": "30 Days",
+      "price": 930,
+      "inStock": true
+    },
+    {
+      "label": "Airdrop",
+      "duration": "Special Event",
+      "price": 150,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z"
+}
