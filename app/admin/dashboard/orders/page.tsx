@@ -37,7 +37,7 @@ const statusColors = {
   rejected: 'bg-red-200 text-red-800',
 };
 
-export default function AdminDashboard() {
+export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
