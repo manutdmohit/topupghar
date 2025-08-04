@@ -72,7 +72,9 @@ export default function NetflixPage() {
                 <h3 className="text-xl font-semibold text-red-700">
                   {pkg.label}
                 </h3>
-                <p className="text-gray-600 mt-2 font-medium">₹ {pkg.price}</p>
+                <p className="text-gray-600 mt-2 font-medium">
+                  NPR {pkg.price}
+                </p>
                 {selectedId === pkg.id && (
                   <div className="mt-3 text-sm text-red-700 font-medium">
                     ✅ Selected
