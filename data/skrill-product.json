@@ -6,40 +6,34 @@
   "image": "/skrill.jpg",
   "variants": [
     {
-      "label": "NPR 500",
-      "duration": "NPR 500",
-      "price": 500,
-      "inStock": true
+      "label": "$5 USD",
+      "duration": "$5 USD",
+      "price": 790
     },
     {
-      "label": "NPR 1,000",
-      "duration": "NPR 1,000",
-      "price": 1000,
-      "inStock": true
+      "label": "$10 USD",
+      "duration": "$10 USD",
+      "price": 1470
     },
     {
-      "label": "NPR 2,500",
-      "duration": "NPR 2,500",
-      "price": 2500,
-      "inStock": true
+      "label": "$15 USD",
+      "duration": "$15 USD",
+      "price": 2170
     },
     {
-      "label": "NPR 5,000",
-      "duration": "NPR 5,000",
-      "price": 5000,
-      "inStock": true
+      "label": "$20 USD",
+      "duration": "$20 USD",
+      "price": 2850
     },
     {
-      "label": "NPR 10,000",
-      "duration": "NPR 10,000",
-      "price": 10000,
-      "inStock": true
+      "label": "$25 USD",
+      "duration": "$25 USD",
+      "price": 3520
     },
     {
-      "label": "NPR 25,000",
-      "duration": "NPR 25,000",
-      "price": 25000,
-      "inStock": true
+      "label": "$30 USD",
+      "duration": "$30 USD",
+      "price": 4190
     }
   ],
   "inStock": true,

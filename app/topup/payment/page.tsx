@@ -31,6 +31,7 @@ export default function TopupPaymentPage() {
   const [referredBy, setReferredBy] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // TikTok login fields (for coins only)
   const [loginId, setLoginId] = useState('');
@@ -142,6 +143,9 @@ export default function TopupPaymentPage() {
 
   // ----------- Submission Logic -----------
   const handleSubmit = async () => {
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+
     // Validation (your validation logic)
     if (!isAgeConfirmed) {
       toast.error("You must confirm you're 16 or older.");
@@ -225,6 +229,7 @@ export default function TopupPaymentPage() {
     }
 
     try {
+      setIsSubmitting(true);
       const response = await fetch('/api/orders', {
         method: 'POST',
         body: formData,
@@ -233,6 +238,7 @@ export default function TopupPaymentPage() {
       if (!response.ok) {
         const errorData = await response.json();
         toast.error(errorData.message || 'Failed to create order');
+        setIsSubmitting(false);
         return; // Important! Do not redirect if error
       }
 
@@ -265,7 +271,10 @@ export default function TopupPaymentPage() {
       router.push('/');
     } catch (error) {
       toast.error('Something went wrong. Please try again.');
+      setIsSubmitting(false);
       // Do not redirect
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -656,31 +665,34 @@ export default function TopupPaymentPage() {
         </p>
         <div className="grid sm:grid-cols-2 gap-6">
           {[
-            { label: 'eSewa', id: '9860000000' },
-            { label: 'Khalti', id: 'khalti@yourname' },
+            {
+              label: 'eSewa',
+              qrImage: '/esewa.jpg',
+            },
+            {
+              label: 'Khalti/IME',
+              qrImage: '/khalti.jpg',
+            },
             {
               label: 'Bank Transfer',
               id: '1234567890',
-              extra: 'NIC Asia | Bijay Ghimire',
+              qrImage: '/bank.jpg',
             },
-            { label: 'IME Pay', id: '9800000000' },
           ].map((method, idx) => (
             <div
               key={idx}
               className="border rounded-xl p-4 text-center bg-white shadow-sm"
             >
-              <Image
-                src="/free-fire.jpg"
-                alt={`${method.label} QR`}
-                width={180}
-                height={180}
-                className="mx-auto mb-2"
-              />
+              <div className="w-48 h-48 mx-auto mb-2 flex items-center justify-center">
+                <Image
+                  src={method.qrImage}
+                  alt={`${method.label} QR`}
+                  width={180}
+                  height={180}
+                  className="object-contain w-full h-full"
+                />
+              </div>
               <p className="font-medium text-gray-700">{method.label}</p>
-              <p className="text-sm text-gray-500">ID: {method.id}</p>
-              {method.extra && (
-                <p className="text-sm text-gray-500">{method.extra}</p>
-              )}
             </div>
           ))}
         </div>
@@ -722,10 +734,10 @@ export default function TopupPaymentPage() {
         </div>
         <Button
           onClick={handleSubmit}
-          disabled={!isAgeConfirmed}
-          className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700"
+          disabled={!isAgeConfirmed || isSubmitting}
+          className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Submit for Verification
+          {isSubmitting ? 'Submitting...' : 'Submit for Verification'}
         </Button>
       </div>
     </div>
