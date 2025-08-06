@@ -1,23 +1,87 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const levelPackages = [
-  { id: 1, label: 'Level 6 (120💎)', level: 6, diamonds: 120, price: 70 },
-  { id: 2, label: 'Level 10 (200💎)', level: 10, diamonds: 200, price: 115 },
-  { id: 3, label: 'Level 15 (200💎)', level: 15, diamonds: 200, price: 115 },
-  { id: 4, label: 'Level 20 (200💎)', level: 20, diamonds: 200, price: 115 },
-  { id: 5, label: 'Level 25 (200💎)', level: 25, diamonds: 200, price: 115 },
-  { id: 6, label: 'Level 30 (350💎)', level: 30, diamonds: 350, price: 140 },
-  { id: 7, label: 'Level 30+ (1270💎)', level: 31, diamonds: 1270, price: 660 },
-];
+interface ProductVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description?: string;
+  image?: string;
+  variants: ProductVariant[];
+  inStock: boolean;
+  isActive: boolean;
+}
+
+interface Package {
+  id: number;
+  label: string;
+  level: number | string;
+  diamonds: number;
+  price: number;
+}
 
 export default function FreeFireLevelUpPage() {
+  const [levelPackages, setLevelPackages] = useState<Package[]>([]);
+  const [image, setImage] = useState<string>('');
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchLevelPassProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/freefire-level-pass');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Free Fire Level Pass product');
+        }
+
+        const product: Product = await response.json();
+
+        setImage(product.image ?? '');
+
+        // Transform product variants to packages
+        const packages: Package[] = product.variants.map((variant, index) => {
+          // Extract level and diamonds from label (e.g., "Level 30 (350💎)" -> level: 30, diamonds: 350)
+          const levelMatch = variant.label.match(/Level (\d+)/);
+          const diamondMatch = variant.label.match(/\((\d+)💎\)/);
+
+          const level = levelMatch ? parseInt(levelMatch[1]) : 0;
+          const diamonds = diamondMatch ? parseInt(diamondMatch[1]) : 0;
+
+          return {
+            id: index + 1,
+            label: variant.label,
+            level: variant.label.includes('Level 30+') ? '30(+)' : level,
+            diamonds,
+            price: variant.price,
+          };
+        });
+
+        setLevelPackages(packages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching Free Fire Level Pass product:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLevelPassProduct();
+  }, []);
 
   const handleSelect = (id: number) => {
     setSelectedPackage((prev) => (prev === id ? null : id));
@@ -38,6 +102,31 @@ export default function FreeFireLevelUpPage() {
     router.push(`/topup/payment?${query.toString()}`);
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          <p className="mt-2 text-gray-600">
+            Loading Free Fire Level Pass packages...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <p className="text-red-600">
+            Error loading Free Fire Level Pass packages: {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
@@ -51,7 +140,7 @@ export default function FreeFireLevelUpPage() {
         </p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/freefire-level-pass.jpg"
+            src={image || '/freefire-level-pass.jpg'}
             alt="Free Fire Level Up"
             width={500}
             height={250}

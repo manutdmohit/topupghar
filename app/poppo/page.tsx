@@ -1,25 +1,84 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const poppoPackages = [
-  { id: 1, coins: 1000, label: '1,000 Coins', price: 80 },
-  { id: 2, coins: 10000, label: '10,000 Coins', price: 220 },
-  { id: 3, coins: 20000, label: '20,000 Coins', price: 380 },
-  { id: 4, coins: 24600, label: '24,600 Coins', price: 460 },
-  { id: 5, coins: 25500, label: '25,500 Coins', price: 490 },
-  { id: 6, coins: 50000, label: '50,000 Coins', price: 850 },
-  { id: 7, coins: 83000, label: '83,000 Coins', price: 1320 },
-  { id: 8, coins: 100000, label: '100,000 Coins', price: 1630 },
-  { id: 9, coins: 200000, label: '200,000 Coins', price: 3250 },
-];
+interface ProductVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description?: string;
+  image?: string;
+  variants: ProductVariant[];
+  inStock: boolean;
+  isActive: boolean;
+}
+
+interface Package {
+  id: number;
+  label: string;
+  coins: number;
+  price: number;
+}
 
 export default function PoppoLiveCoinPage() {
+  const [poppoPackages, setPoppoPackages] = useState<Package[]>([]);
+  const [image, setImage] = useState<string>('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchPoppoProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/poppo');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Poppo product');
+        }
+
+        const product: Product = await response.json();
+
+        setImage(product.image ?? '');
+
+        // Transform product variants to packages
+        const packages: Package[] = product.variants.map((variant, index) => {
+          // Extract coin amount from label (e.g., "1,000 Coins" -> 1000)
+          const coinMatch = variant.duration.match(/(\d+(?:,\d+)*)/);
+          const coins = coinMatch
+            ? parseInt(coinMatch[1].replace(/,/g, ''))
+            : 0;
+
+          return {
+            id: index + 1,
+            label: variant.label,
+            coins,
+            price: variant.price,
+          };
+        });
+
+        setPoppoPackages(packages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching Poppo product:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPoppoProduct();
+  }, []);
 
   const handleSelect = (id: number) => {
     setSelectedId((prev) => (prev === id ? null : id));
@@ -39,19 +98,45 @@ export default function PoppoLiveCoinPage() {
     router.push(`/topup/payment?${query.toString()}`);
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 sm:px-6 py-12">
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+          <p className="mt-2 text-gray-600">Loading Poppo packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 sm:px-6 py-12">
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading Poppo packages: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-6 py-12">
       <div className="grid md:grid-cols-2 gap-12 items-center">
-        {/* Left: Poppo Banner */}
+        {/* Left: Poppo Product Graphic */}
         <div className="w-full flex justify-center md:justify-end animate-fade-in">
-          <Image
-            src="/poppo-banner.jpg"
-            alt="Poppo Live Coins"
-            width={340}
-            height={340}
-            className="rounded-3xl shadow-2xl object-cover border-4 border-pink-200"
-            priority
-          />
+          <div className="relative w-[340px] h-[340px] rounded-3xl shadow-2xl overflow-hidden">
+            {/* Gradient background */}
+
+            {/* Poppo LIVE logo */}
+            <Image
+              src={image}
+              alt="Poppo Live Coins"
+              width={340}
+              height={340}
+              className="rounded-3xl shadow-2xl object-cover border-4 border-pink-200"
+              priority
+            />
+          </div>
         </div>
 
         {/* Right: Product Grid & Details */}
@@ -109,7 +194,7 @@ export default function PoppoLiveCoinPage() {
             ))}
           </div>
 
-          <div className="sticky bottom-0 bg-white/90 pt-2 pb-6 sm:pt-0 sm:pb-0 z-30">
+          <div>
             <Button
               disabled={selectedId === null}
               onClick={handleBuyNow}

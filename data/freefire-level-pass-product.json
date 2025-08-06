@@ -6,22 +6,39 @@
   "image": "/freefire-level-pass.jpg",
   "variants": [
     {
-      "label": "Elite Pass",
-      "duration": "1 Season",
-      "price": 599,
-      "inStock": true
+      "label": "Level 6 (120💎)",
+      "duration": "Level 6",
+      "price": 70
     },
     {
-      "label": "Elite Pass + 25 Levels",
-      "duration": "1 Season + 25 Levels",
-      "price": 899,
-      "inStock": true
+      "label": "Level 10 (200💎)",
+      "duration": "Level 10",
+      "price": 115
     },
     {
-      "label": "Elite Pass + 50 Levels",
-      "duration": "1 Season + 50 Levels",
-      "price": 1299,
-      "inStock": true
+      "label": "Level 15 (200💎)",
+      "duration": "Level 15",
+      "price": 115
+    },
+    {
+      "label": "Level 20 (200💎)",
+      "duration": "Level 20",
+      "price": 115
+    },
+    {
+      "label": "Level 25 (200💎)",
+      "duration": "Level 25",
+      "price": 115
+    },
+    {
+      "label": "Level 30 (350💎)",
+      "duration": "Level 30",
+      "price": 140
+    },
+    {
+      "label": "Level 30+ (1270💎)",
+      "duration": "Level 31",
+      "price": 660
     }
   ],
   "inStock": true,

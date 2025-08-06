@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 
 import AppShell from '@/components/AppShell';
+import WelcomeModal from '@/components/WelcomeModal';
 
 export const metadata: Metadata = {
   title: 'Topup Ghar || Instant Game Topups and Digital Services',
@@ -25,6 +26,7 @@ export default function RootLayout({
     >
       <body className="font-sans">
         <AppShell>{children}</AppShell>
+        <WelcomeModal />
       </body>
     </html>
   );

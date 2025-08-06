@@ -1,22 +1,77 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const skrillPackages = [
-  { id: 1, usd: 5, price: 790 },
-  { id: 2, usd: 10, price: 1470 },
-  { id: 3, usd: 15, price: 2170 },
-  { id: 4, usd: 20, price: 2850 },
-  { id: 5, usd: 25, price: 3520 },
-  { id: 6, usd: 30, price: 4190 },
-];
+interface ProductVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description?: string;
+  image?: string;
+  variants: ProductVariant[];
+  inStock: boolean;
+  isActive: boolean;
+}
+
+interface Package {
+  id: number;
+  usd: number;
+  price: number;
+}
 
 export default function SkrillPage() {
+  const [skrillPackages, setSkrillPackages] = useState<Package[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchSkrillProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/skrill');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Skrill product');
+        }
+
+        const product: Product = await response.json();
+
+        // Transform product variants to packages
+        const packages: Package[] = product.variants.map((variant, index) => {
+          // Extract USD amount from label (e.g., "$5 USD" -> 5)
+          const usdMatch = variant.label.match(/\$(\d+)/);
+          const usd = usdMatch ? parseInt(usdMatch[1]) : 0;
+
+          return {
+            id: index + 1,
+            usd,
+            price: variant.price,
+          };
+        });
+
+        setSkrillPackages(packages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching Skrill product:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSkrillProduct();
+  }, []);
 
   const handleSelect = (id: number) => setSelected(id === selected ? null : id);
 
@@ -27,11 +82,32 @@ export default function SkrillPage() {
     const query = new URLSearchParams({
       platform: 'skrill',
       type: 'usd',
-      amount: pkg.usd.toString(),
+      amount: pkg.usd.toString() + ' ',
       price: pkg.price.toString(),
     });
     router.push(`/topup/payment?${query.toString()}`);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#7225a3]"></div>
+          <p className="mt-2 text-gray-600">Loading Skrill packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading Skrill packages: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">

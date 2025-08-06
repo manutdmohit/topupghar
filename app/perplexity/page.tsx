@@ -1,55 +1,111 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
-const perplexityPackages = [
-  {
-    id: 1,
-    label: 'Perplexity AI Pro (1 Year)',
-    duration: '1 Year',
-    price: 1600,
-  },
-];
+interface PerplexityVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface PerplexityProduct {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description: string;
+  image: string;
+  variants: PerplexityVariant[];
+  isActive: boolean;
+}
 
 export default function PerplexityYearlyPage() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [product, setProduct] = useState<PerplexityProduct | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchPerplexityProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/perplexity');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Perplexity product');
+        }
+
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        console.error('Error fetching Perplexity product:', err);
+        setError('Failed to load product data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPerplexityProduct();
+  }, []);
 
   const handleSelect = (id: number) => {
     setSelectedPackage((prev) => (prev === id ? null : id));
   };
 
   const handleBuyNow = () => {
-    const pkg = perplexityPackages.find((p) => p.id === selectedPackage);
-    if (!pkg) return;
+    if (!product || selectedPackage === null) return;
+
+    const selectedVariant = product.variants[selectedPackage - 1]; // Convert to 0-based index
+    if (!selectedVariant) return;
 
     const query = new URLSearchParams({
       platform: 'perplexity',
       type: 'pro',
-      duration: pkg.duration,
-      price: pkg.price.toString(),
+      duration: selectedVariant.duration,
+      price: selectedVariant.price.toString(),
     });
 
     router.push(`/topup/payment?${query.toString()}`);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading Perplexity packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <p className="text-red-600 mb-4">{error || 'Product not found'}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-purple-700">
-          Perplexity AI 1 Year Pro
+          {product.name} 1 Year Pro
         </h1>
-        <p className="text-gray-600 mt-2">
-          Get Perplexity Pro for a full year at the best price. Fast, reliable
-          delivery after payment.
-        </p>
+        <p className="text-gray-600 mt-2">{product.description}</p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/perplexity.jpg"
+            src={product.image || '/perplexity.jpg'}
             alt="Perplexity AI"
             width={300}
             height={300}
@@ -60,23 +116,23 @@ export default function PerplexityYearlyPage() {
 
       {/* Packages */}
       <div className="grid grid-cols-1 gap-6">
-        {perplexityPackages.map((pkg) => (
+        {product.variants.map((variant, index) => (
           <div
-            key={pkg.id}
-            onClick={() => handleSelect(pkg.id)}
+            key={index + 1}
+            onClick={() => handleSelect(index + 1)}
             className={`border p-6 rounded-xl text-center cursor-pointer transition-all duration-300 ${
-              selectedPackage === pkg.id
+              selectedPackage === index + 1
                 ? 'bg-purple-100 border-purple-600 scale-[1.02]'
                 : 'hover:shadow-md'
             }`}
           >
             <h3 className="text-xl font-semibold text-purple-700">
-              {pkg.label}
+              {product.name} ({variant.label})
             </h3>
             <p className="text-gray-600 mt-2 text-base font-medium">
-              NPR {pkg.price.toLocaleString('en-US')}
+              NPR {variant.price.toLocaleString('en-US')}
             </p>
-            {selectedPackage === pkg.id && (
+            {selectedPackage === index + 1 && (
               <div className="mt-3 text-sm text-purple-700 font-medium">
                 ✅ Selected
               </div>

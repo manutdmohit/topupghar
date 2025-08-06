@@ -86,6 +86,10 @@ export default function TopupPaymentPage() {
     idLabel = 'Email Address';
     idPlaceholder = 'Enter your email address';
     idType = 'email';
+  } else if (data.platform === 'prime-video') {
+    idLabel = 'Email Address';
+    idPlaceholder = 'Enter your email address';
+    idType = 'email';
   } else if (data.platform === 'spotify') {
     idLabel = 'Spotify Username';
     idPlaceholder = 'Enter your Spotify username';
@@ -369,12 +373,12 @@ export default function TopupPaymentPage() {
         <strong>NPR {data.price}</strong>
       </>
     );
-  } else if (data.platform === 'prime video') {
+  } else if (data.platform === 'prime-video') {
     summary = (
       <>
         You're buying{' '}
         <strong className="text-sm">
-          {data.duration} Prime Video 4K HD Subscription(5 device Access){' '}
+          {data.duration} Prime Video 4K HD Subscription (5 Device Access){' '}
         </strong>{' '}
         for <strong>NPR {data.price}</strong>
       </>
@@ -384,7 +388,7 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong className="text-sm">
-          1 Month 4K HD {data.type} Netflix Subscription Netflix
+          1 Month 4K HD {data.type} Netflix Subscription
         </strong>{' '}
         for <strong>NPR {data.price}</strong>
       </>
@@ -414,6 +418,13 @@ export default function TopupPaymentPage() {
           You're buying {data.duration} Coursera Plus for NPR {data.price}
         </strong>
       </>
+    );
+  } else if (data.platform === 'freefire' && data.type === 'evo-access') {
+    summary = (
+      <strong>
+        You're buying <strong>Evo Access for {data.duration}</strong> for{' '}
+        <strong>NPR {data.price}</strong>
+      </strong>
     );
   } else if (
     data.platform === 'linkedin' ||

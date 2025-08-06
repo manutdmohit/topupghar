@@ -1,78 +1,114 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const primeVideoPackages = [
-  {
-    id: 1,
-    label: '4K 5 Device Access (No Shopping) (1 Month)',
-    type: '5 device access',
-    duration: '1 Month',
-    price: 299,
-  },
-  {
-    id: 2,
-    label: '4K 5 Device Access (No Shopping) (3 Months)',
-    type: '5 device access',
-    duration: '3 Months',
-    price: 699,
-  },
-  {
-    id: 3,
-    label: '4K 5 Device Access (No Shopping) (6 Months)',
-    type: '5 device access',
-    duration: '6 Months',
-    price: 1499,
-  },
-  {
-    id: 4,
-    label: '4K 5 Device Access (No Shopping) (1 Year)',
-    type: '5 device access',
-    duration: '1 Year',
-    price: 3199,
-  },
-];
+interface Variant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description?: string;
+  image?: string;
+  variants: Variant[];
+  inStock: boolean;
+  isActive: boolean;
+}
 
 export default function PrimeVideoPage() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSelect = (id: number) => {
-    setSelectedPackage((prev) => (prev === id ? null : id));
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch('/api/products/prime-video');
+        if (!response.ok) {
+          throw new Error('Failed to fetch product data');
+        }
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
+  const handleSelect = (index: number) => {
+    setSelectedPackage((prev) => (prev === index ? null : index));
   };
 
   const handleBuyNow = () => {
-    const pkg = primeVideoPackages.find((p) => p.id === selectedPackage);
-    if (!pkg) return;
+    if (!product || selectedPackage === null) return;
+
+    const selectedVariant = product.variants[selectedPackage];
+    if (!selectedVariant) return;
 
     const query = new URLSearchParams({
-      platform: 'prime video',
-      type: 'subscription',
-      duration: pkg.duration,
-      price: pkg.price.toString(),
+      platform: 'prime-video',
+      type: product.type,
+      duration: selectedVariant.duration,
+      price: selectedVariant.price.toString(),
     });
 
     router.push(`/topup/payment?${query.toString()}`);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading Prime Video packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-10">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <p className="text-gray-600">
+            {error ||
+              'Failed to load Prime Video packages. Please try again later.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-purple-700">
-          Prime Video 4K HD Subscription
+          {product.name} 4K HD Subscription
         </h1>
         <p className="text-gray-600 mt-2">
-          No shopping. Up to 5 device access. Choose your preferred plan below
-          and top up instantly!
+          {product.description ||
+            'No shopping. Up to 5 device access. Choose your preferred plan below and top up instantly!'}
         </p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="prime-video.jpg"
-            alt="Prime Video"
+            src={product.image || '/prime-video.jpg'}
+            alt={product.name}
             width={500}
             height={500}
             className="rounded-xl shadow-lg bg-white"
@@ -82,26 +118,26 @@ export default function PrimeVideoPage() {
 
       {/* Packages */}
       <div className="grid grid-cols-2 gap-6">
-        {primeVideoPackages.map((pkg) => (
+        {product.variants.map((variant, index) => (
           <div
-            key={pkg.id}
-            onClick={() => handleSelect(pkg.id)}
+            key={index}
+            onClick={() => handleSelect(index)}
             className={`border p-6 rounded-xl text-center cursor-pointer transition-all duration-300 ${
-              selectedPackage === pkg.id
+              selectedPackage === index
                 ? 'bg-purple-100 border-purple-600 scale-[1.02]'
                 : 'hover:shadow-md'
             }`}
           >
             <h3 className="text-lg font-semibold text-purple-700">
-              {pkg.label} Plan
+              {variant.label} Plan
             </h3>
             <p className="text-gray-700 mt-2 font-medium">
-              NPR {pkg.price.toLocaleString('en-US')}
+              NPR {variant.price.toLocaleString('en-US')}
             </p>
             <div className="mt-2 text-xs text-gray-500">
               4K HD, No Shopping, <b>5 Device Access</b>
             </div>
-            {selectedPackage === pkg.id && (
+            {selectedPackage === index && (
               <div className="mt-3 text-sm text-purple-700 font-medium">
                 ✅ Selected
               </div>
@@ -113,11 +149,15 @@ export default function PrimeVideoPage() {
       {/* Call to Action */}
       <div className="mt-10 text-center">
         <Button
-          disabled={selectedPackage === null}
+          disabled={selectedPackage === null || !product.inStock}
           onClick={handleBuyNow}
-          className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-3 text-lg rounded-xl transition-all duration-300"
+          className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-3 text-lg rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {selectedPackage === null ? 'Select Package' : 'Buy Now'}
+          {!product.inStock
+            ? 'Out of Stock'
+            : selectedPackage === null
+            ? 'Select Package'
+            : 'Buy Now'}
         </Button>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 // --- SEO FOR APP DIRECTORY --- //
@@ -60,26 +61,63 @@ import Image from 'next/image';
 </Head>
 */
 
-const gptPackages = [
-  {
-    id: 1,
-    label: 'On Mail',
-    description: 'Delivered to your email',
-    price: 700,
-  },
-  { id: 2, label: 'Shared', description: 'Shared access', price: 500 },
-];
+interface ChatGptVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface ChatGptProduct {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description: string;
+  image: string;
+  variants: ChatGptVariant[];
+  isActive: boolean;
+}
+
+// Helper function to transform API variants to packages
+const transformVariantsToPackages = (variants: ChatGptVariant[]) => {
+  return variants.map((variant, index) => ({
+    id: index + 1,
+    label: variant.label,
+    description: `${variant.duration} subscription`,
+    price: variant.price,
+    type: variant.label.toLowerCase().replace(' ', '-'),
+  }));
+};
 
 export default function ChatGPTPlusPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [product, setProduct] = useState<ChatGptProduct | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [buying, setBuying] = useState(false);
   const router = useRouter();
 
-  // Simulate fetch/loading skeleton on mount
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 1100); // 1.1s skeleton
-    return () => clearTimeout(timeout);
+    const fetchChatGptProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/chatgpt-plus');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch ChatGPT Plus product');
+        }
+
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        console.error('Error fetching ChatGPT Plus product:', err);
+        setError('Failed to load product data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChatGptProduct();
   }, []);
 
   const handleSelect = (id: number) => {
@@ -87,129 +125,131 @@ export default function ChatGPTPlusPage() {
   };
 
   const handleBuyNow = async () => {
-    if (selectedId === null) return;
+    if (selectedId === null || !product) return;
     setBuying(true);
 
     // Simulate payment redirect/loading
     setTimeout(() => {
-      const selected = gptPackages.find((p) => p.id === selectedId);
+      const packages = transformVariantsToPackages(product.variants);
+      const selected = packages.find((p) => p.id === selectedId);
       if (!selected) return;
       const query = new URLSearchParams({
         platform: 'chatgpt',
-        type: selected.label.toLowerCase().replace(' ', '-'),
-        duration: '1 Month',
+        type: selected.type,
+        duration: selected.label,
         price: selected.price.toString(),
       });
       router.push(`/topup/payment?${query.toString()}`);
     }, 1000);
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading ChatGPT Plus packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <p className="text-red-600 mb-4">{error || 'Product not found'}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* --- Banner and Title --- */}
       <div className="grid md:grid-cols-2 gap-10 items-center">
         <div className="w-full flex justify-center md:justify-end">
-          {loading ? (
-            <div className="w-[440px] h-[260px] rounded-2xl bg-gray-200 animate-pulse" />
-          ) : (
-            <Image
-              src="/chatgpt-plus-banner.jpg"
-              alt="ChatGPT Plus"
-              width={440}
-              height={260}
-              className="rounded-2xl shadow-2xl object-cover"
-              priority
-            />
-          )}
+          <Image
+            src={product.image || '/chatgpt-plus-banner.jpg'}
+            alt="ChatGPT Plus"
+            width={440}
+            height={260}
+            className="rounded-2xl shadow-2xl object-cover"
+            priority
+          />
         </div>
 
         <div>
           <h1 className="text-4xl font-bold text-blue-700 mb-3">
-            ChatGPT Plus (1 Month)
+            {product.name} (1 Month)
           </h1>
-          <p className="text-gray-600 mb-8">
-            Choose your preferred delivery mode and unlock ChatGPT Plus today!
-          </p>
+          <p className="text-gray-600 mb-8">{product.description}</p>
 
-          {/* --- Skeleton or Grid --- */}
-          {loading ? (
-            <div className="grid grid-cols-2 gap-6">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="border p-6 rounded-xl text-center bg-gray-200 animate-pulse h-32"
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-6">
-              {gptPackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  onClick={() => handleSelect(pkg.id)}
-                  className={`border p-6 rounded-xl text-center cursor-pointer transition-all duration-300 ${
-                    selectedId === pkg.id
-                      ? 'bg-blue-100 border-blue-700 scale-[1.03]'
-                      : 'hover:shadow-lg'
-                  }`}
-                >
-                  <h3 className="text-xl font-semibold text-blue-800">
-                    {pkg.label}
-                  </h3>
-                  <p className="text-gray-600 mt-1">{pkg.description}</p>
-                  <p className="text-lg text-blue-600 mt-2 font-semibold">
-                    NPR {pkg.price}
-                  </p>
-                  {selectedId === pkg.id && (
-                    <div className="mt-3 text-sm text-blue-700 font-medium">
-                      ✅ Selected
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* --- CTA Skeleton or Real Button --- */}
-          <div className="mt-8 text-center">
-            {loading ? (
-              <div className="w-full h-12 rounded-xl bg-gray-200 animate-pulse" />
-            ) : (
-              <Button
-                disabled={selectedId === null || buying}
-                onClick={handleBuyNow}
-                className="bg-blue-700 text-white hover:bg-blue-800 px-6 py-3 text-lg rounded-xl transition-all duration-300 w-full flex items-center justify-center gap-2"
+          {/* --- Package Grid --- */}
+          <div className="grid grid-cols-2 gap-6">
+            {transformVariantsToPackages(product.variants).map((pkg) => (
+              <div
+                key={pkg.id}
+                onClick={() => handleSelect(pkg.id)}
+                className={`border p-6 rounded-xl text-center cursor-pointer transition-all duration-300 ${
+                  selectedId === pkg.id
+                    ? 'bg-blue-100 border-blue-700 scale-[1.03]'
+                    : 'hover:shadow-lg'
+                }`}
               >
-                {buying ? (
-                  <>
-                    <svg
-                      className="w-5 h-5 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8H4z"
-                      />
-                    </svg>
-                    Redirecting...
-                  </>
-                ) : selectedId === null ? (
-                  'Select a Package'
-                ) : (
-                  'Buy Now'
+                <h3 className="text-xl font-semibold text-blue-800">
+                  {pkg.label}
+                </h3>
+                <p className="text-gray-600 mt-1">{pkg.description}</p>
+                <p className="text-lg text-blue-600 mt-2 font-semibold">
+                  NPR {pkg.price}
+                </p>
+                {selectedId === pkg.id && (
+                  <div className="mt-3 text-sm text-blue-700 font-medium">
+                    ✅ Selected
+                  </div>
                 )}
-              </Button>
-            )}
+              </div>
+            ))}
+          </div>
+
+          {/* --- CTA Button --- */}
+          <div className="mt-8 text-center">
+            <Button
+              disabled={selectedId === null || buying}
+              onClick={handleBuyNow}
+              className="bg-blue-700 text-white hover:bg-blue-800 px-6 py-3 text-lg rounded-xl transition-all duration-300 w-full flex items-center justify-center gap-2"
+            >
+              {buying ? (
+                <>
+                  <svg
+                    className="w-5 h-5 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                  Redirecting...
+                </>
+              ) : selectedId === null ? (
+                'Select a Package'
+              ) : (
+                'Buy Now'
+              )}
+            </Button>
           </div>
         </div>
       </div>

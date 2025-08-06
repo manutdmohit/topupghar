@@ -1,45 +1,94 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const tiktokPackages = [
-  { id: 1, coins: 50, label: '50 Coins', price: 90 },
-  { id: 2, coins: 100, label: '100 Coins', price: 185 },
-  { id: 3, coins: 200, label: '200 Coins', price: 360 },
-  { id: 4, coins: 300, label: '300 Coins', price: 550 },
-  { id: 5, coins: 400, label: '400 Coins', price: 710 },
-  { id: 6, coins: 500, label: '500 Coins', price: 880 },
-  { id: 7, coins: 600, label: '600 Coins', price: 1050 },
-  { id: 8, coins: 700, label: '700 Coins', price: 1230 },
-  { id: 9, coins: 800, label: '800 Coins', price: 1400 },
-  { id: 10, coins: 900, label: '900 Coins', price: 1580 },
-  { id: 11, coins: 1000, label: '1000 Coins', price: 1770 },
-];
+interface Variant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  name: string;
+  description: string;
+  image: string;
+  variants: Variant[];
+}
 
 export default function TikTokCoinPage() {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSelect = (id: number) => {
-    setSelectedId((prev) => (prev === id ? null : id));
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch('/api/products/tiktok-coin');
+        if (!response.ok) {
+          throw new Error('Failed to fetch product data');
+        }
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
+  const handleSelect = (index: number) => {
+    setSelectedPackage((prev) => (prev === index ? null : index));
   };
 
   const handleBuyNow = () => {
-    const selected = tiktokPackages.find((p) => p.id === selectedId);
-    if (!selected) return;
+    if (!product || selectedPackage === null) return;
+
+    const selectedVariant = product.variants[selectedPackage];
+    if (!selectedVariant) return;
+
+    // Extract amount from duration (e.g., "400 Coins" -> "400")
+    const amount = selectedVariant.duration.replace(/[^\d]/g, '');
 
     const query = new URLSearchParams({
       platform: 'tiktok',
       type: 'coins',
-      amount: selected.coins.toString(),
-      price: selected.price.toString(),
+      amount: amount,
+      price: selectedVariant.price.toString(),
     });
 
     router.push(`/topup/payment?${query.toString()}`);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 sm:px-8 py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff0050] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-5xl mx-auto px-2 sm:px-8 py-12">
+        <div className="text-center">
+          <p className="text-red-600">
+            Error: {error || 'Failed to load product data'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-8 py-12">
@@ -47,7 +96,7 @@ export default function TikTokCoinPage() {
         {/* Left: TikTok Banner */}
         <div className="w-full flex justify-center md:justify-end">
           <Image
-            src="/tiktok-banner.jpg"
+            src={product.image || '/tiktok-banner.jpg'}
             alt="TikTok Coins"
             width={500}
             height={500}
@@ -59,20 +108,15 @@ export default function TikTokCoinPage() {
         {/* Right: Product Details & Grid */}
         <div className="w-full">
           <h1 className="text-4xl font-black text-black mb-2 tracking-tight flex items-center gap-2">
-            <span className="text-[#ff0050]">TikTok</span>
-            <span className="text-[#00f2ea]">Coin</span>
-            <span>Top-Up</span>
+            <span className="text-[#ff0050]">{product.name}</span>
           </h1>
-          <p className="text-gray-700 mb-3">
-            Select your package. Login details will be required on the next
-            step.
-          </p>
+          <p className="text-gray-700 mb-3">{product.description}</p>
           <div className="grid grid-cols-2 gap-4 mb-10">
-            {tiktokPackages.map((pkg) => (
+            {product.variants.map((variant, index) => (
               <button
                 type="button"
-                key={pkg.id}
-                onClick={() => handleSelect(pkg.id)}
+                key={index}
+                onClick={() => handleSelect(index)}
                 className={`
                   group border 
                   rounded-2xl 
@@ -83,19 +127,19 @@ export default function TikTokCoinPage() {
                   shadow-sm
                   focus-visible:ring-2 focus-visible:ring-[#ff0050]
                   ${
-                    selectedId === pkg.id
+                    selectedPackage === index
                       ? 'border-[#ff0050] ring-2 ring-[#ff0050]/30 bg-[#fff1f5] scale-[1.04] shadow-lg'
                       : 'hover:scale-105 hover:border-[#ff0050]'
                   }
                 `}
               >
                 <span className="text-lg font-bold text-[#ff0050]">
-                  {pkg.label}
+                  {variant.label}
                 </span>
                 <div className="text-gray-700 mt-2 text-base font-medium tracking-wide">
-                  NPR {pkg.price.toLocaleString('en-US')}
+                  NPR {variant.price.toLocaleString('en-US')}
                 </div>
-                {selectedId === pkg.id && (
+                {selectedPackage === index && (
                   <span className="absolute top-1 right-4 text-xs font-semibold text-[#ff0050] bg-[#fff1f5] rounded-full px-3 py-1 shadow">
                     Selected
                   </span>
@@ -103,13 +147,13 @@ export default function TikTokCoinPage() {
               </button>
             ))}
           </div>
-          <div className="sticky bottom-0 bg-white/90 pt-2 pb-6 sm:pt-0 sm:pb-0 z-30">
+          <div>
             <Button
-              disabled={selectedId === null}
+              disabled={selectedPackage === null}
               onClick={handleBuyNow}
               className="w-full bg-gradient-to-r from-[#ff0050] to-[#00f2ea] text-white hover:from-[#e60046] hover:to-[#06d8da] text-lg rounded-xl shadow-md py-3 transition-all"
             >
-              {selectedId === null ? 'Select a Package' : 'Buy Now'}
+              {selectedPackage === null ? 'Select a Package' : 'Buy Now'}
             </Button>
           </div>
         </div>

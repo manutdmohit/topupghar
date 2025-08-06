@@ -1,20 +1,82 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const garenaPackages = [
-  { id: 1, shells: 200, label: '200 Shell', price: 550 },
-  { id: 2, shells: 500, label: '500 Shell', price: 1390 },
-  { id: 3, shells: 1000, label: '1000 Shell', price: 2780 },
-  { id: 4, shells: 3000, label: '3000 Shell', price: 8270 },
-];
+interface ProductVariant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  platform: string;
+  type: string;
+  description?: string;
+  image?: string;
+  variants: ProductVariant[];
+  inStock: boolean;
+  isActive: boolean;
+}
+
+interface Package {
+  id: number;
+  label: string;
+  shells: number;
+  price: number;
+}
 
 export default function GarenaShellPage() {
+  const [garenaPackages, setGarenaPackages] = useState<Package[]>([]);
+  const [image, setImage] = useState<string>('');
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchGarenaProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/garena-shell');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Garena Shell product');
+        }
+
+        const product: Product = await response.json();
+
+        setImage(product.image ?? '');
+
+        // Transform product variants to packages
+        const packages: Package[] = product.variants.map((variant, index) => {
+          // Extract shell amount from label (e.g., "200 Shell" -> 200)
+          const shellMatch = variant.label.match(/(\d+)/);
+          const shells = shellMatch ? parseInt(shellMatch[1]) : 0;
+
+          return {
+            id: index + 1,
+            label: variant.label,
+            shells,
+            price: variant.price,
+          };
+        });
+
+        setGarenaPackages(packages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error fetching Garena Shell product:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGarenaProduct();
+  }, []);
 
   const handleSelect = (id: number) => {
     setSelectedId((prev) => (prev === id ? null : id));
@@ -34,6 +96,29 @@ export default function GarenaShellPage() {
     router.push(`/topup/payment?${query.toString()}`);
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+          <p className="mt-2 text-gray-600">Loading Garena Shell packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="text-center py-8">
+          <p className="text-red-600">
+            Error loading Garena Shell packages: {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Header */}
@@ -46,7 +131,7 @@ export default function GarenaShellPage() {
         </p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/garena-banner.jpg"
+            src={image || '/garena-banner.jpg'}
             alt="Garena Shell"
             width={600}
             height={300}

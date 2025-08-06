@@ -1,71 +1,103 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-const evoAccessPackages = [
-  {
-    id: 1,
-    label: '3 Days Evo Access',
-    type: 'evo-access',
-    duration: '3 Days',
-    price: 95,
-  },
-  {
-    id: 2,
-    label: '7 Days Evo Access',
-    type: 'evo-access',
-    duration: '7 Days',
-    price: 135,
-  },
-  {
-    id: 3,
-    label: '30 Days Evo Access',
-    type: 'evo-access',
-    duration: '30 Days',
-    price: 370,
-  },
-];
+interface Variant {
+  label: string;
+  duration: string;
+  price: number;
+}
+
+interface Product {
+  name: string;
+  description: string;
+  image: string;
+  variants: Variant[];
+}
 
 export default function FreeFireEvoAccessPage() {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSelect = (id: number) => {
-    setSelectedPackage((prev) => (prev === id ? null : id));
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch('/api/products/freefire-evo-access');
+        if (!response.ok) {
+          throw new Error('Failed to fetch product data');
+        }
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
+  const handleSelect = (index: number) => {
+    setSelectedPackage((prev) => (prev === index ? null : index));
   };
 
   const handleBuyNow = () => {
-    const pkg = evoAccessPackages.find((p) => p.id === selectedPackage);
-    if (!pkg) return;
+    if (!product || selectedPackage === null) return;
+
+    const selectedVariant = product.variants[selectedPackage];
+    if (!selectedVariant) return;
 
     const query = new URLSearchParams({
       platform: 'freefire',
-      type: pkg.type,
-      duration: pkg.duration,
-      price: pkg.price.toString(),
+      type: 'evo-access',
+      duration: selectedVariant.duration,
+      price: selectedVariant.price.toString(),
     });
 
     router.push(`/topup/payment?${query.toString()}`);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading packages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="text-center">
+          <p className="text-red-600">
+            Error: {error || 'Failed to load product data'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-xl text-left font-bold text-purple-700">
-          Get Free Fire Evo Access instantly at the best price in Nepal! Unlock
-          exclusive features and rewards with Evo Access membership.
+          {product.name}
         </h1>
-        <p className="text-gray-600 mt-2">
-          Select a duration below and pay using your preferred method. Only UID
-          required 🤩
-        </p>
+        <p className="text-gray-600 mt-2">{product.description}</p>
         <div className="mt-6 flex justify-center">
           <Image
-            src="/free-fire.jpg"
+            src={product.image || '/free-fire.jpg'}
             alt="Free Fire Evo Access"
             width={600}
             height={300}
@@ -76,12 +108,12 @@ export default function FreeFireEvoAccessPage() {
 
       {/* Package Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {evoAccessPackages.map((pkg) => (
+        {product.variants.map((variant, index) => (
           <div
-            key={pkg.id}
-            onClick={() => handleSelect(pkg.id)}
+            key={index}
+            onClick={() => handleSelect(index)}
             className={`border p-6 rounded-xl text-center cursor-pointer transition-all duration-300 ${
-              selectedPackage === pkg.id
+              selectedPackage === index
                 ? 'bg-purple-100 border-purple-600 scale-[1.02]'
                 : 'hover:shadow-md'
             }`}
@@ -91,21 +123,21 @@ export default function FreeFireEvoAccessPage() {
                 <span className="text-2xl">⚡</span>
               </div>
               <h3 className="text-xl font-semibold text-purple-700">
-                {pkg.label}
+                {variant.label}
               </h3>
             </div>
             <div className="space-y-2">
               <p className="text-gray-600 font-medium">
-                Duration: {pkg.duration}
+                Duration: {variant.duration}
               </p>
               <p className="text-2xl font-bold text-purple-700">
-                NPR {pkg.price.toLocaleString('en-US')}
+                NPR {variant.price.toLocaleString('en-US')}
               </p>
               <p className="text-sm text-gray-500">
                 Exclusive Evo Access benefits
               </p>
             </div>
-            {selectedPackage === pkg.id && (
+            {selectedPackage === index && (
               <div className="mt-4 text-sm text-purple-700 font-medium">
                 ✅ Selected
               </div>

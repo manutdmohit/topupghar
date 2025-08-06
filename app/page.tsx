@@ -19,7 +19,8 @@ import Link from 'next/link';
 import HeroSection from '@/components/hero-section';
 import SpecialOfferSection from '@/components/special-offer-section';
 import FeatureSection from '@/components/features';
-import { popularItems } from '@/components/special-offers';
+import PopularNow from '@/components/special-offers';
+// import { popularItems } from '@/components/special-offers';
 
 export default function GameShopClone() {
   const specialOffers = [
@@ -113,32 +114,7 @@ export default function GameShopClone() {
       <SpecialOfferSection />
 
       {/* Popular Now Section */}
-      <section className="bg-gradient-to-br from-gray-50 to-blue-50 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-6">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-purple-300"></div>
-              <div className="flex items-center gap-3 px-8">
-                <Trophy className="w-8 h-8 text-purple-600" />
-                <h2 className="text-4xl font-bold text-gray-800">
-                  Popular Now
-                </h2>
-                <Trophy className="w-8 h-8 text-purple-600" />
-              </div>
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-purple-300"></div>
-            </div>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Most loved products by our gaming community worldwide
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            {popularItems.map((item, index) => (
-              <ProductCard key={index} {...item} compact />
-            ))}
-          </div>
-        </div>
-      </section>
+      <PopularNow />
 
       {/* Features Section */}
       <FeatureSection />
