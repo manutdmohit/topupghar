@@ -6,26 +6,28 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
-interface CanvaVariant {
+interface Variant {
   label: string;
   duration: string;
   price: number;
+  inStock: boolean;
 }
 
-interface CanvaProduct {
+interface Product {
   _id: string;
   name: string;
   platform: string;
   type: string;
   description: string;
   image: string;
-  variants: CanvaVariant[];
+  variants: Variant[];
+  inStock: boolean;
   isActive: boolean;
 }
 
 export default function CanvaProPage() {
-  const [selected, setSelected] = useState(false);
-  const [product, setProduct] = useState<CanvaProduct | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -53,18 +55,24 @@ export default function CanvaProPage() {
     fetchCanvaProduct();
   }, []);
 
-  const handleSelect = () => setSelected((v) => !v);
+  const handleSelect = (index: number) => {
+    setSelectedVariant(selectedVariant === index ? null : index);
+  };
 
   const handleBuyNow = () => {
+    if (!product || selectedVariant === null) return;
+
+    const variant = product.variants[selectedVariant];
+    if (!variant) return;
+
     const query = new URLSearchParams({
       platform: 'canva',
       type: 'pro',
-      amount: '1 year ',
-      price: '3199',
+      amount: variant.duration + ' ',
+      price: variant.price.toString(),
     });
 
-    const url = `/topup/payment?${query.toString()}`;
-    window.location.href = url;
+    router.push(`/topup/payment?${query.toString()}`);
   };
 
   if (loading) {
@@ -108,46 +116,52 @@ export default function CanvaProPage() {
         <h1 className="text-4xl font-extrabold mb-2 text-[#00c4cc] flex items-center gap-3">
           {product.name} <span className="text-[#8b3dff]">Pro</span>
         </h1>
-        <p className="text-gray-700 mb-6">
-          {product.description}
-          <br />
-          <span className="text-[#8b3dff] font-medium">
-            1 year license only NPR{' '}
-            {product.variants.find((v) => v.duration === '12 Months')?.price ||
-              3199}
-          </span>
-        </p>
-        <button
-          type="button"
-          onClick={handleSelect}
-          className={`group border-2 rounded-2xl px-7 py-6 text-center font-bold text-lg transition-all duration-300
-            shadow-md relative bg-white
-            ${
-              selected
-                ? 'border-[#00c4cc] ring-2 ring-[#00c4cc]/30 scale-[1.04]'
-                : 'hover:border-[#00c4cc] hover:scale-105'
-            }
-          `}
-        >
-          <span className="block text-[#00c4cc] text-xl">
-            {product.name} 1 Year
-          </span>
-          <span className="block mt-2 text-gray-700 font-semibold text-lg">
-            NPR{' '}
-            {product.variants.find((v) => v.duration === '12 Months')?.price ||
-              3199}
-          </span>
-          {selected && (
-            <span className="absolute top-3 right-4 text-xs font-semibold text-[#00c4cc] bg-[#e6fcff] rounded-full px-3 py-1 shadow">
-              Selected
-            </span>
-          )}
-        </button>
+        <p className="text-gray-700 mb-6">{product.description}</p>
+
+        {/* Variants */}
+        <div className="w-full space-y-4 mb-6">
+          {product.variants.map((variant, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => handleSelect(index)}
+              disabled={!variant.inStock}
+              className={`group border-2 rounded-2xl px-7 py-6 text-center font-bold text-lg transition-all duration-300
+                shadow-md relative bg-white w-full
+                ${
+                  selectedVariant === index
+                    ? 'border-[#00c4cc] ring-2 ring-[#00c4cc]/30 scale-[1.02]'
+                    : 'hover:border-[#00c4cc] hover:scale-105'
+                }
+                ${!variant.inStock ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <span className="block text-[#00c4cc] text-xl">
+                {variant.label}
+              </span>
+              <span className="block mt-2 text-gray-700 font-semibold text-lg">
+                NPR {variant.price.toLocaleString('en-US')}
+              </span>
+              {selectedVariant === index && (
+                <span className="absolute top-3 right-4 text-xs font-semibold text-[#00c4cc] bg-[#e6fcff] rounded-full px-3 py-1 shadow">
+                  Selected
+                </span>
+              )}
+              {!variant.inStock && (
+                <span className="absolute top-3 right-4 text-xs font-semibold text-red-500 bg-red-50 rounded-full px-3 py-1 shadow">
+                  Out of Stock
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
         <Button
+          disabled={selectedVariant === null || !product.inStock}
           onClick={handleBuyNow}
-          className="mt-8 w-full bg-gradient-to-r from-[#00c4cc] to-[#8b3dff] text-white hover:from-[#03a5ab] hover:to-[#6941c6] text-lg rounded-xl shadow-md py-3 transition-all"
+          className="mt-8 w-full bg-gradient-to-r from-[#00c4cc] to-[#8b3dff] text-white hover:from-[#03a5ab] hover:to-[#6941c6] text-lg rounded-xl shadow-md py-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Buy Now
+          {selectedVariant === null ? 'Select Package' : 'Buy Now'}
         </Button>
       </div>
     </div>
