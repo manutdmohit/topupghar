@@ -68,15 +68,17 @@ const HeaderSection = () => {
                   : 'opacity-0 invisible scale-95'
               }`}
             >
-              {['Gaming', 'Gift Cards', 'Subscription'].map((item, idx) => (
-                <Link
-                  key={idx}
-                  href="#"
-                  className="block px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/10 hover:text-purple-300 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-                >
-                  {item}
-                </Link>
-              ))}
+              {['Gaming', 'Social Media', 'Subscription', 'Load Balance'].map(
+                (item, idx) => (
+                  <Link
+                    key={idx}
+                    href={`/products/${item.toLowerCase().replace(' ', '-')}`}
+                    className="block px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/10 hover:text-purple-300 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
+                  >
+                    {item}
+                  </Link>
+                )
+              )}
             </div>
           </div>
 

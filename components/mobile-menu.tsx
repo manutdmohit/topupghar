@@ -12,6 +12,7 @@ import {
   Gamepad2,
   Gift,
   ShoppingCart,
+  DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -78,13 +79,18 @@ export function MobileMenu() {
         },
         {
           icon: <Gift className="w-4 h-4" />,
-          label: 'Gift Cards',
-          href: '/gift-cards',
+          label: 'Social Media',
+          href: '/social-media',
         },
         {
           icon: <ShoppingCart className="w-4 h-4" />,
-          label: 'Shopping',
-          href: '/shopping',
+          label: 'Subscription',
+          href: '/subscription',
+        },
+        {
+          icon: <DollarSign className="w-4 h-4" />,
+          label: 'Load Balance',
+          href: '/load-balance',
         },
       ],
     },
