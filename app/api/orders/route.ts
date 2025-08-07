@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import Order from '@/models/Order';
 import connectDB from '@/config/db';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import {
+  sendOrderNotificationToAdmin,
+  sendSimpleOrderNotification,
+} from '@/lib/email-service';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -70,6 +74,36 @@ export const POST = async (req: NextRequest) => {
     });
 
     await newOrder.save();
+
+    // Send email notification to admin
+    try {
+      const emailData = {
+        orderId: newOrder.orderId,
+        platform: newOrder.platform,
+        type: newOrder.type,
+        amount: newOrder.amount,
+        price: newOrder.price,
+        customerName: newOrder.customerName,
+        customerPhone: newOrder.customerPhone,
+        customerEmail: newOrder.customerEmail,
+        receiptUrl: newOrder.receiptUrl,
+        createdAt: newOrder.createdAt,
+      };
+
+      // Try to send HTML email first, fallback to simple text email
+      try {
+        await sendOrderNotificationToAdmin(emailData);
+        console.log('HTML email notification sent successfully');
+      } catch (emailError) {
+        console.warn('HTML email failed, trying simple email:', emailError);
+        await sendSimpleOrderNotification(emailData);
+        console.log('Simple email notification sent successfully');
+      }
+    } catch (emailError) {
+      // Log email error but don't fail the order creation
+      console.error('Failed to send email notification:', emailError);
+    }
+
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {
     console.error('Error in POST /orders:', error);

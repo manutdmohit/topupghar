@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { generateFailedOrderId } from '@/lib/order-utils';
 
 export default function TopupPaymentPage() {
   const router = useRouter();
@@ -246,37 +247,32 @@ export default function TopupPaymentPage() {
         return; // Important! Do not redirect if error
       }
 
-      toast.success(
-        `🎉 Order placed for ${
-          data.platform === 'netflix'
-            ? `${data.duration} Netflix account`
-            : data.platform === 'youtube-premium'
-            ? `${data.duration} YouTube Premium account`
-            : data.platform === 'tiktok' && data.type === 'coins'
-            ? `${data.amount} TikTok coins`
-            : data.platform === 'facebook'
-            ? `${data.amount} Facebook boost`
-            : `${data.amount} ${data.type}`
-        }. Admin will verify it soon.`
-      );
+      // Get the created order data from response
+      const orderData = await response.json();
 
-      // Reset form (optionally, or keep as is if you want to clear the form)
-      setUid('');
-      setPassword('');
-      setTiktokPassword('');
-      setLoginId('');
-      setLoginMethod('');
-      setPhone('');
-      setReceipt(null);
-      setReferredBy('');
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      // Redirect to success page with order details
+      const successParams = new URLSearchParams({
+        platform: data.platform,
+        type: data.type,
+        amount: data.amount,
+        price: data.price,
+        orderId: orderData.orderId || orderData._id,
+      });
 
-      // Only redirect on success!
-      router.push('/');
+      router.push(`/topup/payment/success?${successParams}`);
     } catch (error) {
-      toast.error('Something went wrong. Please try again.');
-      setIsSubmitting(false);
-      // Do not redirect
+      // Redirect to failure page with error details
+      const failureParams = new URLSearchParams({
+        platform: data.platform,
+        type: data.type,
+        amount: data.amount,
+        price: data.price,
+        orderId: generateFailedOrderId(),
+        error:
+          error instanceof Error ? error.message : 'Payment processing failed',
+      });
+
+      router.push(`/topup/payment/failure?${failureParams}`);
     } finally {
       setIsSubmitting(false);
     }

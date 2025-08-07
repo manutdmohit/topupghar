@@ -2,6 +2,7 @@ import mongoose, { Document, Schema, model, models } from 'mongoose';
 
 // --- Order Interface ---
 export interface IOrder extends Document {
+  orderId: string; // Auto-generated unique order ID
   platform: string; // e.g. 'instagram', 'freefire'
   type: string; // e.g. 'followers', 'diamonds'
   amount?: number | string; // E.g. 1000 (followers) or '1 month' (subscription)
@@ -29,6 +30,27 @@ export interface IOrder extends Document {
 // --- Schema Definition ---
 const OrderSchema = new Schema<IOrder>(
   {
+    orderId: {
+      type: String,
+      required: true,
+      unique: true,
+      default: function () {
+        // Generate order ID with format: ORD-YYYYMMDD-HHMMSS-RANDOM
+        const now = new Date();
+        const dateStr =
+          now.getFullYear().toString() +
+          (now.getMonth() + 1).toString().padStart(2, '0') +
+          now.getDate().toString().padStart(2, '0');
+        const timeStr =
+          now.getHours().toString().padStart(2, '0') +
+          now.getMinutes().toString().padStart(2, '0') +
+          now.getSeconds().toString().padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000)
+          .toString()
+          .padStart(3, '0');
+        return `ORD-${dateStr}-${timeStr}-${random}`;
+      },
+    },
     platform: { type: String, required: true },
     uid_email: { type: String }, // Combined UID/Email for easier search
     type: { type: String, required: true },
@@ -60,6 +82,7 @@ const OrderSchema = new Schema<IOrder>(
 );
 
 // --- Indexes for Fast Search ---
+OrderSchema.index({ orderId: 1 }, { unique: true });
 OrderSchema.index({ phone: 1 });
 OrderSchema.index({ platform: 1 });
 OrderSchema.index({ type: 1 });

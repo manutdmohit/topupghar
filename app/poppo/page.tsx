@@ -91,7 +91,7 @@ export default function PoppoLiveCoinPage() {
     const query = new URLSearchParams({
       platform: 'poppo',
       type: 'coins',
-      amount: selected.coins.toString(),
+      amount: selected.coins.toString() + ' ',
       price: selected.price.toString(),
     });
 
