@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   slug: string; // e.g., "netflix"
   platform: string; // e.g., "netflix"
   type: string; // e.g., "account"
+  category: string; // e.g., "streaming"
   description?: string;
   image?: string;
   variants: IVariant[];
@@ -34,6 +35,7 @@ const ProductSchema = new Schema<IProduct>(
     name: { type: String, required: true },
     slug: { type: String, required: true },
     platform: { type: String, required: true },
+    category: { type: String, required: true },
     type: { type: String, default: 'account' },
     description: { type: String },
     image: { type: String },
