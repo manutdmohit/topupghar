@@ -8,6 +8,7 @@ export interface IVariant {
 
 export interface IProduct extends Document {
   name: string; // e.g., "Netflix"
+  slug: string; // e.g., "netflix"
   platform: string; // e.g., "netflix"
   type: string; // e.g., "account"
   description?: string;
@@ -31,6 +32,7 @@ const VariantSchema = new Schema<IVariant>(
 const ProductSchema = new Schema<IProduct>(
   {
     name: { type: String, required: true },
+    slug: { type: String, required: true },
     platform: { type: String, required: true },
     type: { type: String, default: 'account' },
     description: { type: String },
