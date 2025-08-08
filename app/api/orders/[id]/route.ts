@@ -1,6 +1,7 @@
 import connectDB from '@/config/db';
 import Order from '@/models/Order';
 import { NextRequest, NextResponse } from 'next/server';
+import { sendOrderStatusUpdateToTelegram } from '@/lib/telegram-service';
 
 export const GET = async (req: NextRequest, context: any) => {
   try {
@@ -55,6 +56,27 @@ export const PATCH = async (req: NextRequest, context: any) => {
 
     if (!order) {
       return NextResponse.json({ message: 'Order not found' }, { status: 404 });
+    }
+
+    // Send Telegram notification for status updates
+    if (
+      body.status &&
+      ['approved', 'rejected', 'processing'].includes(body.status)
+    ) {
+      try {
+        await sendOrderStatusUpdateToTelegram(
+          order.orderId,
+          body.status,
+          body.additionalInfo || body.note
+        );
+        console.log('Order status update sent to Telegram successfully');
+      } catch (telegramError) {
+        console.error(
+          'Failed to send order status update to Telegram:',
+          telegramError
+        );
+        // Don't fail the request if Telegram notification fails
+      }
     }
 
     return NextResponse.json(order);

@@ -6,6 +6,10 @@ import {
   sendOrderNotificationToAdmin,
   sendSimpleOrderNotification,
 } from '@/lib/email-service';
+import {
+  sendPaymentDetailsToTelegram,
+  sendSimpleNotificationToTelegram,
+} from '@/lib/telegram-service';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -102,6 +106,48 @@ export const POST = async (req: NextRequest) => {
     } catch (emailError) {
       // Log email error but don't fail the order creation
       console.error('Failed to send email notification:', emailError);
+    }
+
+    // Send Telegram notification
+    try {
+      const telegramData = {
+        orderId: newOrder.orderId,
+        platform: newOrder.platform,
+        type: newOrder.type,
+        amount: newOrder.amount,
+        price: newOrder.price,
+        duration: newOrder.duration,
+        level: newOrder.level,
+        diamonds: newOrder.diamonds,
+        storage: newOrder.storage,
+        uid: newOrder.uid,
+        phone: newOrder.phone,
+        uid_email: newOrder.uid_email,
+        receiptUrl: newOrder.receiptUrl,
+        referredBy: newOrder.referredBy,
+        createdAt: newOrder.createdAt,
+        status: newOrder.status,
+      };
+
+      await sendPaymentDetailsToTelegram(telegramData);
+      console.log('Telegram notification sent successfully');
+    } catch (telegramError) {
+      // Log telegram error but don't fail the order creation
+      console.error('Failed to send Telegram notification:', telegramError);
+
+      // Try to send a simple notification as fallback
+      try {
+        await sendSimpleNotificationToTelegram(
+          'New Payment Received',
+          `Order ID: ${newOrder.orderId}\nPlatform: ${newOrder.platform}\nType: ${newOrder.type}\nPrice: NPR ${newOrder.price}`
+        );
+        console.log('Simple Telegram notification sent as fallback');
+      } catch (fallbackError) {
+        console.error(
+          'Failed to send fallback Telegram notification:',
+          fallbackError
+        );
+      }
     }
 
     return NextResponse.json(newOrder, { status: 201 });
