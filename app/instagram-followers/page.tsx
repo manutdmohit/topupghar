@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import NotesWarning from '@/components/NotesWarning';
 
 interface Variant {
   label: string;
@@ -106,6 +107,9 @@ export default function InstagramFollowersPage() {
           />
         </div>
       </div>
+
+      {/* Notes Warning */}
+      <NotesWarning />
 
       {/* Packages */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">

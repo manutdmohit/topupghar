@@ -212,7 +212,7 @@ export function SearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto z-[9998]">
+    <div className="relative w-full max-w-4xl mx-auto">
       <form onSubmit={handleSearch} className="flex w-full relative">
         <div className="relative flex-1">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
