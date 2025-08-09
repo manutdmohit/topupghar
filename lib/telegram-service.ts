@@ -17,6 +17,7 @@ export interface PaymentDetails {
   uid_email?: string;
   receiptUrl: string;
   referredBy?: string;
+  paymentMethod?: string;
   createdAt: Date;
   status: 'pending' | 'approved' | 'rejected';
 }
@@ -112,6 +113,7 @@ function formatPaymentMessage(paymentDetails: PaymentDetails): string {
     uid_email,
     receiptUrl,
     referredBy,
+    paymentMethod,
     createdAt,
     status,
   } = paymentDetails;
@@ -168,6 +170,10 @@ function formatPaymentMessage(paymentDetails: PaymentDetails): string {
 
   if (referredBy) {
     message += `👥 Referred By: <code>${referredBy}</code>\n`;
+  }
+
+  if (paymentMethod) {
+    message += `💳 Payment Method: <b>${paymentMethod.toUpperCase()}</b>\n`;
   }
 
   message += `\n📅 <b>Order Info:</b>\n`;

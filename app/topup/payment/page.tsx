@@ -30,6 +30,8 @@ export default function TopupPaymentPage() {
   const [phone, setPhone] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
   const [referredBy, setReferredBy] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,6 +159,11 @@ export default function TopupPaymentPage() {
       return;
     }
 
+    if (!selectedPaymentMethod) {
+      toast.error('Please select a payment method.');
+      return;
+    }
+
     if (data.platform === 'tiktok' && data.type === 'coins') {
       if (!loginId || !tiktokPassword || !loginMethod || !phone || !receipt) {
         toast.error(
@@ -221,6 +228,7 @@ export default function TopupPaymentPage() {
     if (data.diamonds) formData.append('diamonds', data.diamonds);
     if (data.storage) formData.append('storage', data.storage);
     if (referredBy.trim()) formData.append('referredBy', referredBy.trim());
+    formData.append('paymentMethod', selectedPaymentMethod);
 
     if (data.platform === 'garena' && password) {
       formData.append('password', password);
@@ -668,41 +676,116 @@ export default function TopupPaymentPage() {
       {/* Payment Methods */}
       <div>
         <p className="text-center text-lg font-semibold text-gray-700 mb-4">
-          Choose any method below to make payment
+          Choose your payment method <span className="text-red-500">*</span>
         </p>
-        <div className="grid sm:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-3 gap-4">
           {[
             {
+              id: 'esewa',
               label: 'eSewa',
               qrImage: '/esewa.jpg',
+              color: 'from-orange-400 to-orange-600',
+              borderColor: 'border-orange-300',
+              selectedBorderColor: 'border-orange-500',
+              icon: '💳',
             },
             {
+              id: 'khalti',
               label: 'Khalti/IME',
               qrImage: '/khalti.jpg',
+              color: 'from-purple-400 to-purple-600',
+              borderColor: 'border-purple-300',
+              selectedBorderColor: 'border-purple-500',
+              icon: '📱',
             },
             {
+              id: 'bank',
               label: 'Bank Transfer',
-              id: '1234567890',
               qrImage: '/bank.jpg',
+              color: 'from-green-400 to-green-600',
+              borderColor: 'border-green-300',
+              selectedBorderColor: 'border-green-500',
+              icon: '🏦',
             },
-          ].map((method, idx) => (
+          ].map((method) => (
             <div
-              key={idx}
-              className="border rounded-xl p-4 text-center bg-white shadow-sm"
+              key={method.id}
+              onClick={() => setSelectedPaymentMethod(method.id)}
+              className={`relative cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                selectedPaymentMethod === method.id
+                  ? `${method.selectedBorderColor} border-2 shadow-lg scale-105`
+                  : `${method.borderColor} border-2 hover:border-gray-400`
+              } rounded-xl p-4 text-center bg-white shadow-sm`}
             >
-              <div className="w-48 h-48 mx-auto mb-2 flex items-center justify-center">
+              {/* Selection Indicator */}
+              {selectedPaymentMethod === method.id && (
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              {/* Method Icon */}
+              <div className="text-3xl mb-2">{method.icon}</div>
+
+              {/* Method Label */}
+              <p className="font-semibold text-gray-800 mb-3">{method.label}</p>
+
+              {/* QR Code */}
+              <div className="w-32 h-32 mx-auto mb-3 flex items-center justify-center">
                 <Image
                   src={method.qrImage}
                   alt={`${method.label} QR`}
-                  width={180}
-                  height={180}
+                  width={128}
+                  height={128}
                   className="object-contain w-full h-full"
                 />
               </div>
-              <p className="font-medium text-gray-700">{method.label}</p>
+
+              {/* Selection Status */}
+              <div
+                className={`text-sm font-medium ${
+                  selectedPaymentMethod === method.id
+                    ? 'text-green-600'
+                    : 'text-gray-500'
+                }`}
+              >
+                {selectedPaymentMethod === method.id
+                  ? '✓ Selected'
+                  : 'Click to select'}
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Selected Payment Method Info */}
+        {selectedPaymentMethod && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">Selected:</span>{' '}
+              {selectedPaymentMethod === 'esewa'
+                ? 'eSewa'
+                : selectedPaymentMethod === 'khalti'
+                ? 'Khalti/IME'
+                : selectedPaymentMethod === 'bank'
+                ? 'Bank Transfer'
+                : ''}
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              Please scan the QR code above and upload your payment receipt
+              after completing the transaction.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Receipt Upload */}

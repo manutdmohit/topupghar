@@ -75,29 +75,29 @@ export function MobileMenu() {
         {
           icon: <Gamepad2 className="w-4 h-4" />,
           label: 'Gaming',
-          href: '/gaming',
+          href: '/products/gaming',
         },
         {
           icon: <Gift className="w-4 h-4" />,
           label: 'Social Media',
-          href: '/social-media',
+          href: '/products/social-media',
         },
         {
           icon: <ShoppingCart className="w-4 h-4" />,
           label: 'Subscription',
-          href: '/subscription',
+          href: '/products/subscription',
         },
         {
           icon: <DollarSign className="w-4 h-4" />,
           label: 'Load Balance',
-          href: '/load-balance',
+          href: '/products/load-balance',
         },
       ],
     },
     {
       icon: <Phone className="w-5 h-5" />,
       label: 'Contact Us',
-      href: '/contact',
+      href: '/contact-us',
     },
   ];
 

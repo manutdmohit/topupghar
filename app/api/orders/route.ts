@@ -125,6 +125,7 @@ export const POST = async (req: NextRequest) => {
         uid_email: newOrder.uid_email,
         receiptUrl: newOrder.receiptUrl,
         referredBy: newOrder.referredBy,
+        paymentMethod: newOrder.paymentMethod,
         createdAt: newOrder.createdAt,
         status: newOrder.status,
       };
