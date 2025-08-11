@@ -67,7 +67,7 @@ userSchema.methods.comparePassword = async function (
 // Prevent password from being returned in queries
 userSchema.set('toJSON', {
   transform: function (doc, ret) {
-    delete ret.password;
+    (ret as any).password = undefined;
     return ret;
   },
 });

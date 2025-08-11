@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connect } from 'mongoose';
 import User from '@/lib/models/User';
-
-const MONGODB_URI =
-  process.env.MONGODB_URI || 'mongodb://localhost:27017/gameshop';
+import connectDB from '@/config/db';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -15,8 +15,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    await connect(MONGODB_URI);
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
