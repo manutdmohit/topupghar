@@ -57,6 +57,10 @@ export default function AdminProductListPage() {
     hasPrevPage: false,
     limit: 10,
   });
+  const [stats, setStats] = useState({
+    totalActiveProducts: 0,
+    totalInStockProducts: 0,
+  });
 
   useEffect(() => {
     if (adminUser && !authLoading) {
@@ -81,6 +85,9 @@ export default function AdminProductListPage() {
 
       setProducts(data.products);
       setPagination(data.pagination);
+      if (data.stats) {
+        setStats(data.stats);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -105,10 +112,10 @@ export default function AdminProductListPage() {
   // Get unique categories (we'll need to fetch this separately or use a different approach)
   const categories = ['streaming', 'gaming', 'software', 'social', 'other']; // Default categories
 
-  // Calculate stats from pagination
+  // Calculate stats from pagination and API stats
   const totalProducts = pagination.totalProducts;
-  const activeProducts = products.filter((p) => p.isActive).length; // This will be per page, consider fetching separately
-  const inStockProducts = products.filter((p) => p.inStock).length; // This will be per page, consider fetching separately
+  const activeProducts = stats.totalActiveProducts;
+  const inStockProducts = stats.totalInStockProducts;
 
   // Show loading while checking authentication
   if (authLoading) {

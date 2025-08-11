@@ -47,6 +47,14 @@ export async function GET(req: NextRequest) {
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
 
+    // Get additional stats for all products (not filtered)
+    const totalActiveProducts = await Product.countDocuments({
+      isActive: true,
+    });
+    const totalInStockProducts = await Product.countDocuments({
+      inStock: true,
+    });
+
     // Get products with pagination
     const products = await Product.find(filter)
       .sort({ createdAt: -1 })
@@ -62,6 +70,10 @@ export async function GET(req: NextRequest) {
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1,
         limit,
+      },
+      stats: {
+        totalActiveProducts,
+        totalInStockProducts,
       },
     });
   } catch (error) {
