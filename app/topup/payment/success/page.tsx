@@ -9,7 +9,7 @@ import {
   Clock,
   MessageCircle,
   Mail,
-  Phone,
+  Facebook,
   Home,
   ExternalLink,
   AlertCircle,
@@ -42,10 +42,12 @@ export default function PaymentSuccessPage() {
     whatsapp: '+35795676054',
     telegram: '+35795676054',
     email: 'topup.ghar11@gmail.com',
-    phone: '+35795676054',
+    facebook: 'https://www.facebook.com/profile.php?id=100083244470',
   };
 
-  const handleContact = (type: 'whatsapp' | 'telegram' | 'email' | 'phone') => {
+  const handleContact = (
+    type: 'whatsapp' | 'telegram' | 'email' | 'facebook'
+  ) => {
     switch (type) {
       case 'whatsapp':
         window.open(
@@ -68,8 +70,8 @@ export default function PaymentSuccessPage() {
           '_blank'
         );
         break;
-      case 'phone':
-        window.open(`tel:${contactInfo.phone}`, '_blank');
+      case 'facebook':
+        window.open(contactInfo.facebook, '_blank');
         break;
     }
   };
@@ -234,13 +236,13 @@ export default function PaymentSuccessPage() {
               </Button>
 
               <Button
-                onClick={() => handleContact('phone')}
-                className="bg-orange-500 hover:bg-orange-600 text-white p-4 h-auto"
+                onClick={() => handleContact('facebook')}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-4 h-auto"
               >
-                <Phone className="w-5 h-5 mr-2" />
+                <Facebook className="w-5 h-5 mr-2" />
                 <div className="text-left">
-                  <div className="font-semibold">Phone</div>
-                  <div className="text-sm opacity-90">{contactInfo.phone}</div>
+                  <div className="font-semibold">Facebook</div>
+                  <div className="text-sm opacity-90">Visit our page</div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
               </Button>

@@ -83,7 +83,7 @@ const HeaderSection = () => {
           </div>
 
           <Link
-            href="#"
+            href="/contact-us"
             className="hover:text-purple-300 transition-all duration-300 font-medium relative group"
           >
             Contact Us
