@@ -64,13 +64,6 @@ export default function ContactUsPage() {
 
   const contactInfo = [
     {
-      icon: <Phone className="w-6 h-6" />,
-      title: 'Phone Support',
-      details: ['+35795676054'],
-      description: '24/7 Customer Support',
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
       icon: <Mail className="w-6 h-6" />,
       title: 'Email Support',
       details: ['topup.ghar11@gmail.com'],
@@ -113,10 +106,10 @@ export default function ContactUsPage() {
       icon: '📧',
     },
     {
-      name: 'Phone',
-      href: 'tel:+35795676054',
-      color: 'hover:bg-orange-600',
-      icon: '📞',
+      name: 'Facebook',
+      href: 'https://www.facebook.com/profile.php?id=100083244470979',
+      color: 'hover:bg-blue-700',
+      icon: '📘',
     },
   ];
 

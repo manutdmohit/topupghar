@@ -14,7 +14,7 @@ const FooterSection = () => {
     whatsapp: '+35795676054',
     telegram: '+35795676054',
     email: 'topup.ghar11@gmail.com',
-    facebook: 'https://www.facebook.com/profile.php?id=100083244470',
+    facebook: 'https://www.facebook.com/profile.php?id=100083244470979',
   };
 
   const handleContact = (

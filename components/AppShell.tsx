@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import HeaderSection from '@/components/header';
 import FooterSection from '@/components/FooterSection';
+import FloatingContactButtons from '@/components/FloatingContactButtons';
 import { Toaster } from 'sonner';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -14,6 +15,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {!isAdmin && <HeaderSection />}
       <main>{children}</main>
       {!isAdmin && <FooterSection />}
+      {!isAdmin && <FloatingContactButtons />}
       <Toaster />
     </>
   );
