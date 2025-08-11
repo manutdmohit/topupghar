@@ -16,11 +16,10 @@ export default function WelcomeModal() {
 
     // Show modal if:
     // 1. Never seen before, OR
-    // 2. Last shown more than 7 days ago
+    // 2. Last shown more than 2 hours ago
     const shouldShow =
       !hasSeenModal ||
-      (lastShown &&
-        currentTime - parseInt(lastShown) > 2 * 24 * 60 * 60 * 1000);
+      (lastShown && currentTime - parseInt(lastShown) > 2 * 60 * 60 * 1000);
 
     if (shouldShow) {
       // Show modal after a short delay
