@@ -20,7 +20,7 @@ export default function WelcomeModal() {
     const shouldShow =
       !hasSeenModal ||
       (lastShown &&
-        currentTime - parseInt(lastShown) > 7 * 24 * 60 * 60 * 1000);
+        currentTime - parseInt(lastShown) > 2 * 24 * 60 * 60 * 1000);
 
     if (shouldShow) {
       // Show modal after a short delay
