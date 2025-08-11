@@ -188,7 +188,6 @@ export default function SearchPage() {
           : undefined,
       isPopular: product.searchScore > 8,
       rating: 4.8 + Math.random() * 0.2,
-      reviews: Math.floor(Math.random() * 2000) + 500,
       deliveryTime: 'Instant',
       inStock: true,
     };

@@ -126,7 +126,6 @@ export default function GamingPage() {
           : undefined,
       isPopular: product.platform.includes('freefire'),
       rating: 4.8 + Math.random() * 0.2,
-      reviews: Math.floor(Math.random() * 2000) + 500,
       deliveryTime: 'Instant',
       inStock: product.inStock,
     };

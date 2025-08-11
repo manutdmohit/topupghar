@@ -88,7 +88,6 @@ const SpecialOfferSection = () => {
           : undefined,
       isPopular: product.platform === 'freefire',
       rating: 4.8 + Math.random() * 0.2, // Random rating between 4.8-5.0
-      reviews: Math.floor(Math.random() * 2000) + 500, // Random reviews between 500-2500
       deliveryTime: 'Instant',
       inStock: product.inStock,
     };

@@ -128,7 +128,6 @@ export default function LoadBalancePage() {
           : undefined,
       isPopular: product.platform.includes('paypal'),
       rating: 4.8 + Math.random() * 0.2,
-      reviews: Math.floor(Math.random() * 2000) + 500,
       deliveryTime: 'Instant',
       inStock: product.inStock,
     };
