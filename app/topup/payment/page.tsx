@@ -741,12 +741,12 @@ export default function TopupPaymentPage() {
               <p className="font-semibold text-gray-800 mb-3">{method.label}</p>
 
               {/* QR Code */}
-              <div className="w-48 h-48 mx-auto mb-3 flex items-center justify-center">
+              <div className="w-64 h-64 mx-auto mb-3 flex items-center justify-center">
                 <Image
                   src={method.qrImage}
                   alt={`${method.label} QR`}
-                  width={192}
-                  height={192}
+                  width={256}
+                  height={256}
                   className="object-contain w-full h-full"
                 />
               </div>
