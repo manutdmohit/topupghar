@@ -33,7 +33,6 @@ const OrderSchema = new Schema<IOrder>(
     orderId: {
       type: String,
       required: true,
-      unique: true,
       default: function () {
         // Generate order ID with format: ORD-YYYYMMDD-HHMMSS-RANDOM
         const now = new Date();

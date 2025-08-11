@@ -28,16 +28,47 @@ export default function AdminLoginPage() {
     }
     setLoading(true);
 
-    // TODO: Replace with real API call
-    setTimeout(() => {
-      setLoading(false);
-      if (email === 'admin@topupghar.com' && pw === 'admin123') {
-        setMsg({ type: 'success', text: 'Login successful! Redirecting…' });
-        router.push('/admin/dashboard');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password: pw }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Check if user is admin
+        if (data.user.role === 'admin') {
+          setMsg({ type: 'success', text: 'Login successful! Redirecting…' });
+          // Store user data in localStorage or session
+          localStorage.setItem('adminUser', JSON.stringify(data.user));
+          setTimeout(() => {
+            router.push('/admin/dashboard');
+          }, 1000);
+        } else {
+          setMsg({
+            type: 'error',
+            text: 'Access denied. Admin privileges required.',
+          });
+        }
       } else {
-        setMsg({ type: 'error', text: 'Invalid email or password.' });
+        setMsg({
+          type: 'error',
+          text: data.error || 'Login failed. Please try again.',
+        });
       }
-    }, 1200);
+    } catch (error) {
+      console.error('Login error:', error);
+      setMsg({
+        type: 'error',
+        text: 'Network error. Please check your connection.',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
