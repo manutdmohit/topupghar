@@ -1,0 +1,1406 @@
+[{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f99"
+  },
+  "name": "Netflix",
+  "platform": "netflix",
+  "type": "account",
+  "category": "subscription",
+  "description": "Netflix account subscription packages.",
+  "image": "/netflix-banner.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 425
+    },
+    {
+      "label": "3 Months",
+      "duration": "3 Months",
+      "price": 1175
+    },
+    {
+      "label": "6 Months",
+      "duration": "6 Months",
+      "price": 2200
+    },
+    {
+      "label": "12 Months",
+      "duration": "12 Months",
+      "price": 3450
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T06:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-04T06:00:57.636Z"
+  },
+  "slug": "netflix"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f9a"
+  },
+  "name": "Free Fire",
+  "platform": "freefire",
+  "type": "diamonds",
+  "category": "gaming",
+  "description": "Free Fire diamond packages and memberships for enhanced gaming experience.",
+  "image": "/free-fire.jpg",
+  "variants": [
+    {
+      "label": "25 Diamonds",
+      "duration": "25 Diamonds",
+      "price": 30
+    },
+    {
+      "label": "50 Diamonds",
+      "duration": "50 Diamonds",
+      "price": 55
+    },
+    {
+      "label": "115 Diamonds",
+      "duration": "115 Diamonds",
+      "price": 95
+    },
+    {
+      "label": "240 Diamonds",
+      "duration": "240 Diamonds",
+      "price": 185
+    },
+    {
+      "label": "355 Diamonds",
+      "duration": "355 Diamonds",
+      "price": 285
+    },
+    {
+      "label": "480 Diamonds",
+      "duration": "480 Diamonds",
+      "price": 385
+    },
+    {
+      "label": "530 Diamonds",
+      "duration": "530 Diamonds",
+      "price": 425
+    },
+    {
+      "label": "610 Diamonds",
+      "duration": "610 Diamonds",
+      "price": 465
+    },
+    {
+      "label": "725 Diamonds",
+      "duration": "725 Diamonds",
+      "price": 570
+    },
+    {
+      "label": "850 Diamonds",
+      "duration": "850 Diamonds",
+      "price": 660
+    },
+    {
+      "label": "1090 Diamonds",
+      "duration": "1090 Diamonds",
+      "price": 860
+    },
+    {
+      "label": "1240 Diamonds",
+      "duration": "1240 Diamonds",
+      "price": 940
+    },
+    {
+      "label": "1355 Diamonds",
+      "duration": "1355 Diamonds",
+      "price": 1090
+    },
+    {
+      "label": "1480 Diamonds",
+      "duration": "1480 Diamonds",
+      "price": 1190
+    },
+    {
+      "label": "1595 Diamonds",
+      "duration": "1595 Diamonds",
+      "price": 1290
+    },
+    {
+      "label": "1720 Diamonds",
+      "duration": "1720 Diamonds",
+      "price": 1390
+    },
+    {
+      "label": "Weekly Membership(455 Diamonds)",
+      "duration": "455 Diamonds ",
+      "price": 185
+    },
+    {
+      "label": "Monthly Membership(2500 Diamonds)",
+      "duration": "2500 Diamonds",
+      "price": 930
+    },
+    {
+      "label": "Airdrop",
+      "duration": "0",
+      "price": 150
+    },
+    {
+      "label": "Weekly Lite",
+      "duration": "1 Week",
+      "price": 70
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-04T10:35:49.040Z"
+  },
+  "slug": "freefire"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f9b"
+  },
+  "name": "PUBG Mobile",
+  "platform": "pubg",
+  "type": "uc",
+  "category": "gaming",
+  "description": "PUBG Mobile UC (Unknown Cash) packages for in-game purchases and premium content.",
+  "image": "/pubg-banner.jpg",
+  "variants": [
+    {
+      "label": "60 UC",
+      "duration": "60 UC",
+      "price": 150,
+      "inStock": true
+    },
+    {
+      "label": "120 UC",
+      "duration": "120 UC",
+      "price": 280,
+      "inStock": true
+    },
+    {
+      "label": "325 UC",
+      "duration": "325 UC",
+      "price": 710,
+      "inStock": true
+    },
+    {
+      "label": "660 UC",
+      "duration": "660 UC",
+      "price": 1420,
+      "inStock": true
+    },
+    {
+      "label": "1800 UC",
+      "duration": "1800 UC",
+      "price": 3450,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z",
+  "slug": "pubg"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f9c"
+  },
+  "name": "Instagram Followers",
+  "platform": "instagram",
+  "type": "followers",
+  "category": "social-media",
+  "description": "Instantly boost your Instagram profile with genuine followers. 100% real followers with fast delivery.",
+  "image": "/instagram-followers.jpg",
+  "variants": [
+    {
+      "label": "1,000 Followers",
+      "duration": "1,000 Followers",
+      "price": 689
+    },
+    {
+      "label": "2,000 Followers",
+      "duration": "2,000 Followers",
+      "price": 1199
+    },
+    {
+      "label": "5,000 Followers",
+      "duration": "5,000 Followers",
+      "price": 2399
+    },
+    {
+      "label": "10,000 Followers",
+      "duration": "10,000 Followers",
+      "price": 5149
+    },
+    {
+      "label": "20,000 Followers",
+      "duration": "20,000 Followers",
+      "price": 6549
+    },
+    {
+      "label": "50,000 Followers",
+      "duration": "50,000 Followers",
+      "price": 15349
+    },
+    {
+      "label": "100,000 Followers",
+      "duration": "100,000 Followers",
+      "price": 27300
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T18:21:59.785Z"
+  },
+  "slug": "instagram-followers"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f9d"
+  },
+  "name": "Instagram Likes",
+  "platform": "instagram",
+  "type": "likes",
+  "category": "social-media",
+  "description": "Boost your Instagram posts with genuine likes. Increase engagement and visibility instantly.",
+  "image": "/instagram-likes.jpg",
+  "variants": [
+    {
+      "label": "10k Likes",
+      "duration": "10k Likes",
+      "price": 269
+    },
+    {
+      "label": "20k Likes",
+      "duration": "449",
+      "price": 449
+    },
+    {
+      "label": "50k Likes",
+      "duration": "50k Likes",
+      "price": 899
+    },
+    {
+      "label": "1M Likes",
+      "duration": "1M Likes",
+      "price": 1299
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T18:16:35.409Z"
+  },
+  "slug": "instagram-likes"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f9e"
+  },
+  "name": "Instagram Views",
+  "platform": "instagram",
+  "type": "views",
+  "category": "social-media",
+  "description": "Increase your Instagram video views and reach. Boost your content visibility with real views.",
+  "image": "/instagram-views.jpg",
+  "variants": [
+    {
+      "label": "100k Views",
+      "duration": "100k Views",
+      "price": 599
+    },
+    {
+      "label": "200k Views",
+      "duration": "200k Views",
+      "price": 1049
+    },
+    {
+      "label": "500k Views",
+      "duration": "500k Views",
+      "price": 2049
+    },
+    {
+      "label": "1M Views",
+      "duration": "1M Views",
+      "price": 3069
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T18:10:20.960Z"
+  },
+  "slug": "instagram-views"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486f9f"
+  },
+  "name": "TikTok Followers",
+  "platform": "tiktok",
+  "type": "followers",
+  "category": "social-media",
+  "description": "Grow your TikTok presence with real followers. Boost your account visibility and engagement.",
+  "image": "/tiktok-views.jpg",
+  "variants": [
+    {
+      "label": "10k Followers",
+      "duration": "10k Followers",
+      "price": 5999
+    },
+    {
+      "label": "20k Followers",
+      "duration": "20k Followers",
+      "price": 9399
+    },
+    {
+      "label": "50k Followers",
+      "duration": "50k Followers",
+      "price": 17200
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T17:49:39.171Z"
+  },
+  "slug": "tiktok-followers"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa0"
+  },
+  "name": "TikTok Likes",
+  "platform": "tiktok",
+  "type": "likes",
+  "category": "social-media",
+  "description": "Boost your TikTok videos with real likes. Increase engagement and reach more viewers.",
+  "image": "/tiktok-views.jpg",
+  "variants": [
+    {
+      "label": "10k Likes",
+      "duration": "10k Likes",
+      "price": 699
+    },
+    {
+      "label": "25k Likes",
+      "duration": "25k Likes",
+      "price": 1549
+    },
+    {
+      "label": "50k Likes",
+      "duration": "50kc Likes",
+      "price": 2599
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T17:43:30.056Z"
+  },
+  "slug": "tiktok-likes"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa1"
+  },
+  "name": "TikTok Views",
+  "platform": "tiktok",
+  "type": "views",
+  "category": "social-media",
+  "description": "Increase your TikTok video views and reach. Boost your content visibility with real views.",
+  "image": "/tiktok-views.jpg",
+  "variants": [
+    {
+      "label": "100k Views",
+      "duration": "100k Views",
+      "price": 859
+    },
+    {
+      "label": "200k Views",
+      "duration": "200k Views",
+      "price": 1549
+    },
+    {
+      "label": "500k Views",
+      "duration": "500k Views",
+      "price": 3449
+    },
+    {
+      "label": "1M Views",
+      "duration": "1M Views",
+      "price": 6999
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T17:28:22.950Z"
+  },
+  "slug": "tiktok-views"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa2"
+  },
+  "name": "TikTok Coins",
+  "platform": "tiktok",
+  "type": "coins",
+  "category": "social-media",
+  "description": "Buy TikTok coins to send gifts to your favorite creators. Support content creators and show appreciation.",
+  "image": "/tiktok-banner.jpg",
+  "variants": [
+    {
+      "label": "50 Coins",
+      "duration": "50 Coins",
+      "price": 90
+    },
+    {
+      "label": "100 Coins",
+      "duration": "100 Coins",
+      "price": 185
+    },
+    {
+      "label": "200 Coins",
+      "duration": "200 Coins",
+      "price": 360
+    },
+    {
+      "label": "300 Coins",
+      "duration": "300 Coins",
+      "price": 550
+    },
+    {
+      "label": "400 Coins",
+      "duration": "400 Coins",
+      "price": 710
+    },
+    {
+      "label": "500 Coins",
+      "duration": "500 Coins",
+      "price": 880
+    },
+    {
+      "label": "600 Coins",
+      "duration": "600 Coins",
+      "price": 1050
+    },
+    {
+      "label": "700 Coins",
+      "duration": "700 Coins",
+      "price": 1230
+    },
+    {
+      "label": "800 Coins",
+      "duration": "800 Coins",
+      "price": 1400
+    },
+    {
+      "label": "900 Coins",
+      "duration": "900 Coins",
+      "price": 1580
+    },
+    {
+      "label": "1000 Coins",
+      "duration": "1000 Coins",
+      "price": 1770
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T16:22:03.198Z"
+  },
+  "slug": "tiktok-coin"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa3"
+  },
+  "name": "Facebook Followers",
+  "platform": "facebook",
+  "type": "followers",
+  "category": "social-media",
+  "description": "Grow your Facebook page with real followers. Increase your page reach and engagement.",
+  "image": "/facebook-followers.jpg",
+  "variants": [
+    {
+      "label": "1,000 Followers",
+      "duration": "1000 Followers",
+      "price": 689
+    },
+    {
+      "label": "2,000 Followers",
+      "duration": "2,000 Followers",
+      "price": 1199
+    },
+    {
+      "label": "5,000 Followers",
+      "duration": "5,000 Followers",
+      "price": 2399
+    },
+    {
+      "label": "10,000 Followers",
+      "duration": "10,000 Followers",
+      "price": 5149
+    },
+    {
+      "label": "20,000 Followers",
+      "duration": "20,000 Followers",
+      "price": 6549
+    },
+    {
+      "label": "50,000 Followers",
+      "duration": "50,000 Followers",
+      "price": 15349
+    },
+    {
+      "label": "100,000 Followers",
+      "duration": "100,000 Followers",
+      "price": 27300
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T15:32:29.182Z"
+  },
+  "slug": "facebook-followers"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa4"
+  },
+  "name": "Facebook Likes",
+  "platform": "facebook",
+  "type": "likes",
+  "category": "social-media",
+  "description": "Boost your Facebook posts with real likes. Increase engagement and visibility.",
+  "image": "/facebook-likes.jpg",
+  "variants": [
+    {
+      "label": "10,000 Likes",
+      "duration": "10,000 Likes",
+      "price": 269
+    },
+    {
+      "label": "20,000 Likes",
+      "duration": "20,000 Likes",
+      "price": 448
+    },
+    {
+      "label": "50,000Likes",
+      "duration": "50,000 Likes",
+      "price": 899
+    },
+    {
+      "label": "100,000 Likes",
+      "duration": "100,000 Likes",
+      "price": 1275
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T15:28:09.977Z"
+  },
+  "slug": "facebook-likes"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa5"
+  },
+  "name": "Facebook Views",
+  "platform": "facebook",
+  "type": "views",
+  "category": "social-media",
+  "description": "Increase your Facebook video views and reach. Boost your content visibility with real views.",
+  "image": "/facebook-views.jpg",
+  "variants": [
+    {
+      "label": "100,000 Views",
+      "duration": "100,000 Views",
+      "price": 599
+    },
+    {
+      "label": "200,000 Views",
+      "duration": "200,000 Views",
+      "price": 1030
+    },
+    {
+      "label": "500,000 Views",
+      "duration": "500,000 Views",
+      "price": 2049
+    },
+    {
+      "label": "1 Million Views",
+      "duration": "1 Million Views",
+      "price": 3069
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T12:33:32.959Z"
+  },
+  "slug": "facebook-views"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa6"
+  },
+  "name": "YouTube Premium",
+  "platform": "youtube-premium",
+  "type": "account",
+  "category": "subscription",
+  "description": "Enjoy ad-free YouTube, background play, and more with YouTube Premium subscription.",
+  "image": "/youtube-premium-banner.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 159,
+      "inStock": true
+    },
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 1699,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z",
+  "slug": "youtube-premium"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa7"
+  },
+  "name": "YouTube Subscribers",
+  "platform": "youtube",
+  "type": "subscribers",
+  "category": "social-media",
+  "description": "Grow your YouTube channel with real subscribers. Increase your channel reach and monetization potential.",
+  "image": "/youtube-subscriber.jpg",
+  "variants": [
+    {
+      "label": "1k Subscribers",
+      "duration": "1k Subscribers",
+      "price": 859
+    },
+    {
+      "label": "5k Subscribers",
+      "duration": "5k Subscribers",
+      "price": 3929
+    },
+    {
+      "label": "10k Subscribers",
+      "duration": "10k Subscribers",
+      "price": 6829
+    },
+    {
+      "label": "50k Subscribers",
+      "duration": "50k Subscribers",
+      "price": 25600
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T04:20:51.749Z"
+  },
+  "slug": "youtube-subscriber"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa8"
+  },
+  "name": "Netflix 4K HD",
+  "platform": "netflix-4k-hd",
+  "type": "account",
+  "category": "subscription",
+  "description": "Premium Netflix 4K HD streaming with ultra-high definition quality and multiple screens.",
+  "image": "/netflix-4k.jpg",
+  "variants": [
+    {
+      "label": "4K 1 Screen (1 Month)",
+      "duration": "4K 1 Screen (1 Month)",
+      "price": 299
+    },
+    {
+      "label": "4K 2 Screen (1 Month)",
+      "duration": "4K 2 Screen (1 Month)",
+      "price": 499
+    },
+    {
+      "label": "4K 3 Screen (1 Month)",
+      "duration": "4K 3 Screen (1 Month)",
+      "price": 550
+    },
+    {
+      "label": "4K 4 Screen (1 Month)",
+      "duration": "4K 4 Screen (1 Month)",
+      "price": 699
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T12:01:00.300Z"
+  },
+  "slug": "netflix-4k-hd"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fa9"
+  },
+  "name": "Prime Video",
+  "platform": "prime-video",
+  "type": "account",
+  "category": "subscription",
+  "description": "Amazon Prime Video streaming service with exclusive content and fast delivery benefits.",
+  "image": "/prime-video.jpg",
+  "variants": [
+    {
+      "label": "1 Month",
+      "duration": "1 Month",
+      "price": 299
+    },
+    {
+      "label": "3 Months",
+      "duration": "3 Months",
+      "price": 699
+    },
+    {
+      "label": "6 Months",
+      "duration": "6 Months",
+      "price": 1499
+    },
+    {
+      "label": "12 Months",
+      "duration": "12 Months",
+      "price": 3199
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T11:38:15.569Z"
+  },
+  "slug": "prime-video"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486faa"
+  },
+  "name": "Microsoft 365",
+  "platform": "microsoft-365",
+  "type": "account",
+  "category": "subscription",
+  "description": "Microsoft 365 subscription with Office apps, cloud storage, and productivity tools.",
+  "image": "/microsoft-365.jpg",
+  "variants": [
+    {
+      "label": "With 100GB Storage (1 Year)",
+      "duration": "1 Year",
+      "price": 2599
+    },
+    {
+      "label": "Without Storage (1 Year)",
+      "duration": "1 Year",
+      "price": 2099
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T04:11:10.554Z"
+  },
+  "slug": "microsoft-365"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fab"
+  },
+  "name": "Adobe Creative Cloud",
+  "platform": "adobe-creative-cloud",
+  "type": "account",
+  "category": "subscription",
+  "description": "Complete Adobe Creative Cloud suite with Photoshop, Illustrator, Premiere Pro, and more.",
+  "image": "/adobe-creative-cloud.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 6799
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T03:56:36.384Z"
+  },
+  "slug": "adobe-creative-cloud"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fac"
+  },
+  "name": "Canva Pro",
+  "platform": "canva",
+  "type": "account",
+  "category": "subscription",
+  "description": "Canva Pro subscription with premium templates, advanced design tools, and brand kit features.",
+  "image": "/canva-pro.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 899,
+      "inStock": true
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": "2025-08-04T00:00:00.000Z",
+  "slug": "canva"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fad"
+  },
+  "name": "Figma Professional",
+  "platform": "figma",
+  "type": "account",
+  "category": "subscription",
+  "description": "Figma Pro subscription for advanced design collaboration, unlimited projects, and team features.",
+  "image": "/figma.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 3399
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T03:06:50.536Z"
+  },
+  "slug": "figma"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fae"
+  },
+  "name": "ChatGPT Plus",
+  "platform": "chatgpt-plus",
+  "type": "account",
+  "category": "subscription",
+  "description": "ChatGPT Plus subscription with GPT-4 access, faster response times, and priority support.",
+  "image": "/chatgpt-plus-banner.jpg",
+  "variants": [
+    {
+      "label": "On Mail",
+      "duration": "1 Month",
+      "price": 700
+    },
+    {
+      "label": "Shared",
+      "duration": "1 Month",
+      "price": 500
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T02:41:27.906Z"
+  },
+  "slug": "chatgpt-plus"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486faf"
+  },
+  "name": "ChatGPT Plus (1 Year)",
+  "platform": "chatgpt-plus-one-year",
+  "type": "account",
+  "category": "subscription",
+  "description": "ChatGPT Plus annual subscription with GPT-4 access and all premium features for one full year.",
+  "image": "/chatgpt-plus-one-year-banner.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 7500
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T02:35:31.482Z"
+  },
+  "slug": "chatgpt-plus-one-year"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb0"
+  },
+  "name": "Perplexity Pro",
+  "platform": "perplexity",
+  "type": "account",
+  "category": "subscription",
+  "description": "Perplexity Pro AI search and research assistant with advanced features and unlimited queries.",
+  "image": "/perplexity.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 1600
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T02:16:19.718Z"
+  },
+  "slug": "perplexity"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb1"
+  },
+  "name": "You.com Pro",
+  "platform": "you.com",
+  "type": "account",
+  "category": "subscription",
+  "description": "You.com Pro AI search and productivity platform with advanced AI models and unlimited usage.",
+  "image": "/you-logo.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 5099
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T02:10:35.859Z"
+  },
+  "slug": "you.com"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb2"
+  },
+  "name": "Coursera Plus",
+  "platform": "coursera-plus",
+  "type": "account",
+  "category": "subscription",
+  "description": "Coursera Plus subscription with unlimited access to thousands of courses, specializations, and degrees.",
+  "image": "/coursera-plus.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 8499
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-06T02:04:36.844Z"
+  },
+  "slug": "coursera-plus"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb3"
+  },
+  "name": "NordVPN",
+  "platform": "nord-vpn",
+  "type": "account",
+  "category": "subscription",
+  "description": "NordVPN premium VPN service with advanced security, privacy protection, and global server access.",
+  "image": "/nord-vpn.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 1899
+    },
+    {
+      "label": "2 Year",
+      "duration": "2 Yearss",
+      "price": 3249
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-05T10:37:08.174Z"
+  },
+  "slug": "nord-vpn"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb4"
+  },
+  "name": "LinkedIn Premium",
+  "platform": "linkedin",
+  "type": "account",
+  "category": "subscription",
+  "description": "LinkedIn Premium subscription with advanced networking features, insights, and career tools.",
+  "image": "/linkedin.jpg",
+  "variants": [
+    {
+      "label": "1 Year",
+      "duration": "1 Year",
+      "price": 11899
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-05T10:25:43.835Z"
+  },
+  "slug": "linkedin"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb5"
+  },
+  "name": "PayPal Balance",
+  "platform": "paypal",
+  "type": "balance",
+  "category": "load-balance",
+  "description": "Add funds to your PayPal account for secure online payments and international transfers.",
+  "image": "/paypal-logo.jpg",
+  "variants": [
+    {
+      "label": "$5 USD",
+      "duration": "$5 USD",
+      "price": 790
+    },
+    {
+      "label": "$10 USD",
+      "duration": "$10 USD",
+      "price": 1470
+    },
+    {
+      "label": "$15 USD",
+      "duration": "$15 USD",
+      "price": 2170
+    },
+    {
+      "label": "$20 USD",
+      "duration": "$20 USD",
+      "price": 2850
+    },
+    {
+      "label": "$25 USD",
+      "duration": "$25 USD",
+      "price": 3520
+    },
+    {
+      "label": "$30 USD",
+      "duration": "$30 USD",
+      "price": 4190
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-05T08:39:32.325Z"
+  },
+  "slug": "paypal"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb6"
+  },
+  "name": "Skrill Balance",
+  "platform": "skrill",
+  "type": "balance",
+  "category": "load-balance",
+  "description": "Add funds to your Skrill account for fast and secure online payments worldwide.",
+  "image": "/skrill-logo.jpg",
+  "variants": [
+    {
+      "label": "$5 USD",
+      "duration": "$5 USD",
+      "price": 790
+    },
+    {
+      "label": "$10 USD",
+      "duration": "$10 USD",
+      "price": 1470
+    },
+    {
+      "label": "$15 USD",
+      "duration": "$20 USD",
+      "price": 2170
+    },
+    {
+      "label": "$20 USD",
+      "duration": "$20 USD",
+      "price": 2850
+    },
+    {
+      "label": "$25 USD",
+      "duration": "$25 USD",
+      "price": 3520
+    },
+    {
+      "label": "$30 USD",
+      "duration": "$30 USD",
+      "price": 4190
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-05T02:48:35.569Z"
+  },
+  "slug": "skrill"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb7"
+  },
+  "name": "Free Fire Level Pass",
+  "platform": "freefire-level-pass",
+  "type": "pass",
+  "category": "gaming",
+  "description": "Free Fire Elite Pass with exclusive rewards, skins, and premium content for enhanced gaming experience.",
+  "image": "/freefire-level-pass.jpg",
+  "variants": [
+    {
+      "label": "Level 6 (120💎)",
+      "duration": "120💎 ",
+      "price": 70
+    },
+    {
+      "label": "Level 10 (200💎)",
+      "duration": "200💎",
+      "price": 115
+    },
+    {
+      "label": "Level 15 (200💎)",
+      "duration": "200💎",
+      "price": 115
+    },
+    {
+      "label": "Level 20 (200💎)",
+      "duration": "200💎",
+      "price": 115
+    },
+    {
+      "label": "Level 25 (200💎)",
+      "duration": "200💎",
+      "price": 115
+    },
+    {
+      "label": "Level 30 (350💎)",
+      "duration": "350💎",
+      "price": 140
+    },
+    {
+      "label": "Level 30+ (1270💎)",
+      "duration": "1270💎",
+      "price": 660
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-04T17:03:03.697Z"
+  },
+  "slug": "freefire-level-pass"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb8"
+  },
+  "name": "Garena Shell(my)",
+  "platform": "garena-shell",
+  "type": "shell",
+  "category": "gaming",
+  "description": "Garena Shell credits for Free Fire and other Garena games. Purchase in-game items and premium content.",
+  "image": "/garena-banner.jpg",
+  "variants": [
+    {
+      "label": "200 Shells",
+      "duration": "200 Shells",
+      "price": 550
+    },
+    {
+      "label": "500 Shells",
+      "duration": "500 Shells",
+      "price": 1390
+    },
+    {
+      "label": "1,000 Shells",
+      "duration": "1,000 Shells",
+      "price": 2780
+    },
+    {
+      "label": "3000",
+      "duration": "3,000 Shells",
+      "price": 8270
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-04T16:44:44.612Z"
+  },
+  "slug": "garena-shell"
+},
+{
+  "_id": {
+    "$oid": "68904be32063f4ec84486fb9"
+  },
+  "name": "Poppo",
+  "platform": "poppo",
+  "type": "account",
+  "category": "social-media",
+  "description": "Poppo premium subscription with advanced features and exclusive content.",
+  "image": "/poppo-banner.jpg",
+  "variants": [
+    {
+      "label": "1000 Coins",
+      "duration": "1000 Coins",
+      "price": 80
+    },
+    {
+      "label": "10000 Coins",
+      "duration": "10000 Coins",
+      "price": 220
+    },
+    {
+      "label": "20000 Coins",
+      "duration": "20000 Coins",
+      "price": 380
+    },
+    {
+      "label": "24600 Coins",
+      "duration": "24600 Coins",
+      "price": 460
+    },
+    {
+      "label": "25500 Coins",
+      "duration": "25500 Coins",
+      "price": 490
+    },
+    {
+      "label": "50000 Coins",
+      "duration": "50000 Coins",
+      "price": 850
+    },
+    {
+      "label": "83000 Coins",
+      "duration": "83000 Coins",
+      "price": 1320
+    },
+    {
+      "label": "100000 Coins",
+      "duration": "100000 Coins",
+      "price": 1630
+    },
+    {
+      "label": "200000 Coins",
+      "duration": "200000 Coins",
+      "price": 3250
+    }
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-08-04T00:00:00.000Z",
+  "updatedAt": {
+    "$date": "2025-08-04T16:17:16.871Z"
+  },
+  "slug": "poppo"
+},
+{
+  "_id": {
+    "$oid": "689062d72063f4ec8448703e"
+  },
+  "name": "Free Fire Evo Access",
+  "platform": "freefire",
+  "type": "evo-access",
+  "category": "gaming",
+  "description": "Free Fire Evo Access membership packages. Unlock exclusive features, rewards, and premium content with Evo Access.",
+  "image": "/free-fire.jpg",
+  "variants": [
+    {
+      "label": "3 Days Evo Access",
+      "duration": "3 Days",
+      "price": 95,
+      "inStock": true
+    },
+    {
+      "label": "7 Days Evo Access",
+      "duration": "7 Days",
+      "price": 135,
+      "inStock": true
+    },
+    {
+      "label": "30 Days Evo Access",
+      "duration": "30 Days",
+      "price": 370,
+      "inStock": true
+    }
+  ],
+  "features": [
+    "Exclusive Evo Rewards",
+    "Premium Battle Pass",
+    "Special Evo Events",
+    "Unique Character Skins",
+    "Bonus Diamonds",
+    "Priority Support"
+  ],
+  "inStock": true,
+  "isActive": true,
+  "createdAt": "2025-01-27T00:00:00.000Z",
+  "updatedAt": "2025-01-27T00:00:00.000Z",
+  "slug": "freefire-evo-access"
+}]

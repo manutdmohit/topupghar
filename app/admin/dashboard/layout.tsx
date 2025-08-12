@@ -13,6 +13,9 @@ import {
   LogOut,
   User,
   Tag,
+  FolderOpen,
+  Monitor,
+  Layers,
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -26,6 +29,17 @@ export default function DashboardLayout({
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
     { name: 'Products', href: '/admin/dashboard/products', icon: Package },
+    {
+      name: 'Categories',
+      href: '/admin/dashboard/categories',
+      icon: FolderOpen,
+    },
+    { name: 'Platforms', href: '/admin/dashboard/platforms', icon: Monitor },
+    {
+      name: 'Product Types',
+      href: '/admin/dashboard/product-types',
+      icon: Layers,
+    },
     { name: 'Promocodes', href: '/admin/dashboard/promocodes', icon: Tag },
     { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingCart },
     { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
@@ -102,12 +116,12 @@ export default function DashboardLayout({
                     title={item.name}
                   >
                     <Icon
-                      className={`w-8 h-8 mr-3 lg:mr-0 lg:group-hover:mr-3 transition-all duration-300 ${
+                      className={`w-8 h-8 mr-4 lg:mr-0 lg:group-hover:mr-4 transition-all duration-300 ${
                         !sidebarOpen ? 'w-12 h-12' : 'lg:w-8 lg:h-8'
                       }`}
                     />
                     <span
-                      className={`transition-opacity duration-300 ${
+                      className={`ml-4 transition-opacity duration-300 ${
                         !sidebarOpen && 'lg:hidden'
                       }`}
                     >
@@ -124,7 +138,7 @@ export default function DashboardLayout({
         <div className="p-4 border-t">
           <div className="flex items-center px-3 py-4">
             <User
-              className={`w-6 h-6 mr-3 lg:mr-0 lg:group-hover:mr-3 text-gray-400 transition-all duration-300 ${
+              className={`w-6 h-6 mr-4 lg:mr-0 lg:group-hover:mr-4 text-gray-400 transition-all duration-300 ${
                 !sidebarOpen ? 'w-12 h-12' : 'lg:w-6 lg:h-6'
               }`}
             />
@@ -145,7 +159,7 @@ export default function DashboardLayout({
             title="Logout"
           >
             <LogOut
-              className={`w-6 h-6 mr-3 lg:mr-0 lg:group-hover:mr-3 transition-all duration-300 ${
+              className={`w-6 h-6 mr-4 lg:mr-0 lg:group-hover:mr-4 transition-all duration-300 ${
                 !sidebarOpen ? 'w-12 h-12' : 'lg:w-6 lg:h-6'
               }`}
             />
