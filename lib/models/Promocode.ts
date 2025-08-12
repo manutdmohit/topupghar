@@ -6,9 +6,7 @@ export interface IPromocode extends Document {
   usedCount: number;
   expiry: Date;
   isActive: boolean;
-  discountPercentage?: number;
-  discountAmount?: number;
-  minimumOrderAmount?: number;
+  discountPercentage: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,19 +40,9 @@ const promocodeSchema = new Schema<IPromocode>(
     },
     discountPercentage: {
       type: Number,
-      required: false,
+      required: [true, 'Discount percentage is required'],
       min: [0, 'Discount percentage cannot be negative'],
       max: [100, 'Discount percentage cannot exceed 100%'],
-    },
-    discountAmount: {
-      type: Number,
-      required: false,
-      min: [0, 'Discount amount cannot be negative'],
-    },
-    minimumOrderAmount: {
-      type: Number,
-      required: false,
-      min: [0, 'Minimum order amount cannot be negative'],
     },
   },
   {
