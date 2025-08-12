@@ -11,7 +11,7 @@ export async function PUT(
 
     const { id } = params;
     const body = await req.json();
-    const { name, maxCount, expiry, discountPercentage } = body;
+    const { name, maxCount, expiry, discountPercentage, isActive } = body;
 
     // Validate required fields
     if (!name || !maxCount || !expiry || discountPercentage === undefined) {
@@ -61,6 +61,7 @@ export async function PUT(
         maxCount,
         expiry: expiryDate,
         discountPercentage,
+        isActive: isActive !== undefined ? isActive : true, // Default to true if not provided
       },
       { new: true }
     );
@@ -75,6 +76,50 @@ export async function PUT(
       error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       { message: 'Failed to update promocode', error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await connectDB();
+
+    const { id } = params;
+    const body = await req.json();
+    const { isActive } = body;
+
+    // Check if promocode exists
+    const existingPromocode = await Promocode.findById(id);
+    if (!existingPromocode) {
+      return NextResponse.json(
+        { message: 'Promocode not found' },
+        { status: 404 }
+      );
+    }
+
+    // Update promocode status
+    const updatedPromocode = await Promocode.findByIdAndUpdate(
+      id,
+      { isActive },
+      { new: true }
+    );
+
+    return NextResponse.json({
+      message: `Promocode ${
+        isActive ? 'activated' : 'deactivated'
+      } successfully`,
+      promocode: updatedPromocode,
+    });
+  } catch (error) {
+    console.error('Error in PATCH /promocodes/[id]:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json(
+      { message: 'Failed to update promocode status', error: errorMessage },
       { status: 500 }
     );
   }

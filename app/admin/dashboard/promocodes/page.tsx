@@ -17,6 +17,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Power,
 } from 'lucide-react';
 
 interface Promocode {
@@ -26,9 +27,7 @@ interface Promocode {
   usedCount: number;
   expiry: string;
   isActive: boolean;
-  discountPercentage?: number;
-  discountAmount?: number;
-  minimumOrderAmount?: number;
+  discountPercentage: number;
   createdAt: string;
   updatedAt: string;
   isExpired?: boolean;
@@ -46,6 +45,7 @@ export default function AdminPromocodesPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [selectedPromocode, setSelectedPromocode] = useState<Promocode | null>(
     null
   );
@@ -112,7 +112,12 @@ export default function AdminPromocodesPage() {
   const handleCreatePromocode = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.maxCount || !formData.expiry) {
+    if (
+      !formData.name ||
+      !formData.maxCount ||
+      !formData.expiry ||
+      !formData.discountPercentage
+    ) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -194,6 +199,7 @@ export default function AdminPromocodesPage() {
           maxCount: parseInt(formData.maxCount.toString()),
           expiry: formData.expiry,
           discountPercentage: parseFloat(formData.discountPercentage),
+          isActive: selectedPromocode.isActive,
         }),
       });
 
@@ -246,6 +252,48 @@ export default function AdminPromocodesPage() {
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to delete promocode'
+      );
+    }
+  };
+
+  const handleToggleClick = (promocode: Promocode) => {
+    setSelectedPromocode(promocode);
+    setShowToggleConfirm(true);
+  };
+
+  const handleToggleStatus = async () => {
+    if (!selectedPromocode) return;
+
+    try {
+      const response = await fetch(`/api/promocodes/${selectedPromocode._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          isActive: !selectedPromocode.isActive,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update promocode status');
+      }
+
+      toast.success(
+        `Promocode ${
+          selectedPromocode.isActive ? 'deactivated' : 'activated'
+        } successfully!`
+      );
+      setShowToggleConfirm(false);
+      setSelectedPromocode(null);
+      fetchPromocodes(currentPage);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to update promocode status'
       );
     }
   };
@@ -476,7 +524,7 @@ export default function AdminPromocodesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Discount Percentage (%)
+                    Discount Percentage (%) *
                   </label>
                   <input
                     type="number"
@@ -491,6 +539,7 @@ export default function AdminPromocodesPage() {
                     min="0"
                     max="100"
                     step="0.01"
+                    required
                   />
                 </div>
 
@@ -596,6 +645,52 @@ export default function AdminPromocodesPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="isActive"
+                        value="true"
+                        checked={selectedPromocode?.isActive === true}
+                        onChange={(e) => {
+                          if (selectedPromocode) {
+                            setSelectedPromocode({
+                              ...selectedPromocode,
+                              isActive: e.target.value === 'true',
+                            });
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">Active</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="isActive"
+                        value="false"
+                        checked={selectedPromocode?.isActive === false}
+                        onChange={(e) => {
+                          if (selectedPromocode) {
+                            setSelectedPromocode({
+                              ...selectedPromocode,
+                              isActive: e.target.value === 'true',
+                            });
+                          }
+                        }}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        Inactive
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <Button
                     type="submit"
@@ -677,6 +772,86 @@ export default function AdminPromocodesPage() {
         </div>
       )}
 
+      {/* Toggle Status Confirmation Modal */}
+      {showToggleConfirm && selectedPromocode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      selectedPromocode.isActive
+                        ? 'bg-orange-100'
+                        : 'bg-green-100'
+                    }`}
+                  >
+                    <Power
+                      className={`w-6 h-6 ${
+                        selectedPromocode.isActive
+                          ? 'text-orange-600'
+                          : 'text-green-600'
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {selectedPromocode.isActive ? 'Deactivate' : 'Activate'}{' '}
+                    Promocode
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    This will change the promocode status.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-700">
+                  Are you sure you want to{' '}
+                  <span className="font-semibold text-gray-900">
+                    {selectedPromocode.isActive ? 'deactivate' : 'activate'}
+                  </span>{' '}
+                  the promocode{' '}
+                  <span className="font-semibold text-gray-900">
+                    "{selectedPromocode.name}"
+                  </span>
+                  ?
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  {selectedPromocode.isActive
+                    ? 'This will make the promocode inactive and prevent it from being used.'
+                    : 'This will make the promocode active and available for use.'}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleToggleStatus}
+                  className={`flex-1 ${
+                    selectedPromocode.isActive
+                      ? 'bg-orange-600 hover:bg-orange-700'
+                      : 'bg-green-600 hover:bg-green-700'
+                  } text-white`}
+                >
+                  {selectedPromocode.isActive ? 'Deactivate' : 'Activate'}{' '}
+                  Promocode
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowToggleConfirm(false);
+                    setSelectedPromocode(null);
+                  }}
+                  className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Promocodes List */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         {loading ? (
@@ -745,18 +920,8 @@ export default function AdminPromocodesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {promocode.discountPercentage
-                            ? `${promocode.discountPercentage}%`
-                            : ''}
-                          {promocode.discountAmount
-                            ? `NPR ${promocode.discountAmount}`
-                            : ''}
+                          {promocode.discountPercentage}%
                         </div>
-                        {promocode.minimumOrderAmount && (
-                          <div className="text-sm text-gray-500">
-                            Min: NPR {promocode.minimumOrderAmount}
-                          </div>
-                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
@@ -784,6 +949,21 @@ export default function AdminPromocodesPage() {
                             title="Edit promocode"
                           >
                             <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleToggleClick(promocode)}
+                            className={`${
+                              promocode.isActive
+                                ? 'text-orange-600 hover:text-orange-900'
+                                : 'text-green-600 hover:text-green-900'
+                            }`}
+                            title={
+                              promocode.isActive
+                                ? 'Deactivate promocode'
+                                : 'Activate promocode'
+                            }
+                          >
+                            <Power className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteClick(promocode)}

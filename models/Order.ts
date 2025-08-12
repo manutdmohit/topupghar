@@ -23,6 +23,10 @@ export interface IOrder extends Document {
   tiktokLoginMethod?: string;
   facebookLink?: string;
   garenaPassword?: string; // ENCRYPTED if stored
+  promocode?: string; // Applied promocode name
+  originalPrice?: number; // Original price before discount
+  discountAmount?: number; // Amount discounted
+  finalPrice?: number; // Final price after discount
   createdAt: Date;
   status: 'pending' | 'approved' | 'rejected';
 }
@@ -70,6 +74,10 @@ const OrderSchema = new Schema<IOrder>(
     tiktokLoginMethod: { type: String },
     facebookLink: { type: String },
     garenaPassword: { type: String }, // Encrypt/hash if needed
+    promocode: { type: String }, // Applied promocode name
+    originalPrice: { type: Number }, // Original price before discount
+    discountAmount: { type: Number }, // Amount discounted
+    finalPrice: { type: Number }, // Final price after discount
     createdAt: { type: Date, default: Date.now },
     status: {
       type: String,

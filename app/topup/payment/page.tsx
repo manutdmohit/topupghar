@@ -36,6 +36,16 @@ export default function TopupPaymentPage() {
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Promocode fields
+  const [promocode, setPromocode] = useState('');
+  const [appliedPromocode, setAppliedPromocode] = useState<any>(null);
+  const [isValidatingPromocode, setIsValidatingPromocode] = useState(false);
+  const [finalPrice, setFinalPrice] = useState(parseFloat(data.price || '0'));
+  const [originalPrice, setOriginalPrice] = useState(
+    parseFloat(data.price || '0')
+  );
+  const [discountAmount, setDiscountAmount] = useState(0);
+
   // TikTok login fields (for coins only)
   const [loginId, setLoginId] = useState('');
   const [tiktokPassword, setTiktokPassword] = useState('');
@@ -59,6 +69,11 @@ export default function TopupPaymentPage() {
       storage: searchParams.get('storage') || '',
     });
     setReferredBy(searchParams.get('referredBy') || '');
+
+    // Initialize price states
+    const price = parseFloat(searchParams.get('price') || '0');
+    setOriginalPrice(price);
+    setFinalPrice(price);
   }, [searchParams]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,6 +85,60 @@ export default function TopupPaymentPage() {
   const validatePhone = (phone: string) => /^(97|98)\d{8}$/.test(phone);
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validatePromocode = async () => {
+    if (!promocode.trim()) {
+      toast.error('Please enter a promocode');
+      return;
+    }
+
+    setIsValidatingPromocode(true);
+    try {
+      const response = await fetch('/api/promocodes/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          promocodeName: promocode.trim(),
+          orderAmount: originalPrice,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || 'Invalid promocode');
+        setAppliedPromocode(null);
+        setFinalPrice(originalPrice);
+        setDiscountAmount(0);
+        return;
+      }
+
+      // Apply promocode
+      setAppliedPromocode(data.promocode);
+      setDiscountAmount(data.calculation.discountAmount);
+      setFinalPrice(data.calculation.finalAmount);
+      toast.success(
+        `Promocode applied! ${data.promocode.discountPercentage}% discount`
+      );
+    } catch (error) {
+      toast.error('Failed to validate promocode');
+      setAppliedPromocode(null);
+      setFinalPrice(originalPrice);
+      setDiscountAmount(0);
+    } finally {
+      setIsValidatingPromocode(false);
+    }
+  };
+
+  const removePromocode = () => {
+    setPromocode('');
+    setAppliedPromocode(null);
+    setFinalPrice(originalPrice);
+    setDiscountAmount(0);
+    toast.success('Promocode removed');
+  };
 
   // UID/Email label and placeholder logic
   let idLabel = 'Email Address';
@@ -230,6 +299,11 @@ export default function TopupPaymentPage() {
     if (referredBy.trim()) formData.append('referredBy', referredBy.trim());
     formData.append('paymentMethod', selectedPaymentMethod);
 
+    // Add promocode data if applied
+    if (appliedPromocode) {
+      formData.append('promocode', appliedPromocode.name);
+    }
+
     if (data.platform === 'garena' && password) {
       formData.append('password', password);
     }
@@ -298,14 +372,14 @@ export default function TopupPaymentPage() {
           {data.platform === 'netflix' ? 'Netflix' : 'YouTube Premium'} account
           for {data.duration}
         </strong>{' '}
-        for <strong>₹ {data.price}</strong>
+        for <strong>₹ {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'tiktok' && data.type === 'coins') {
     summary = (
       <>
         You're buying <strong>{data.amount} TikTok Coins</strong> for{' '}
-        <strong>NPR {data.price}</strong>
+        <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'tiktok' && data.type !== 'coins') {
@@ -315,7 +389,7 @@ export default function TopupPaymentPage() {
         <strong>
           {data.amount} TikTok {data.type}
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (
@@ -326,7 +400,7 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong> Weekly Membership({data.amount} diamonds )</strong> for{' '}
-        <strong>NPR {data.price}</strong>
+        <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (
@@ -337,21 +411,21 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong> Monthly Membership({data.amount} diamonds )</strong> for{' '}
-        <strong>NPR {data.price}</strong>
+        <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'freefire' && data.type === 'airdrop') {
     summary = (
       <>
         You're buying <strong> AirDrop</strong> for{' '}
-        <strong>NPR {data.price}</strong>
+        <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'freefire' && data.type === 'level-up') {
     summary = (
       <>
         You're buying <strong> Level {data.level} Level-Up Package</strong> with{' '}
-        {data.diamonds} diamonds for <strong>NPR {data.price}</strong>
+        {data.diamonds} diamonds for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'chatgpt') {
@@ -359,7 +433,7 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong>1 Month {data.type.toUpperCase()} ChatGPT Plus Account </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'chatgpt-one-year') {
@@ -367,14 +441,14 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong>1 Year {data.type.toUpperCase()} ChatGPT Plus Account </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'perplexity') {
     summary = (
       <>
         You're buying <strong>{data.duration} Perplexity AI Pro </strong> for{' '}
-        <strong>NPR {data.price}</strong>
+        <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'prime-video') {
@@ -384,7 +458,7 @@ export default function TopupPaymentPage() {
         <strong className="text-sm">
           {data.duration} Prime Video 4K HD Subscription (5 Device Access){' '}
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'netflix 4k hd') {
@@ -394,7 +468,7 @@ export default function TopupPaymentPage() {
         <strong className="text-sm">
           1 Month 4K HD {data.type} Netflix Subscription
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'adobe' && data.type === 'creative-cloud') {
@@ -410,7 +484,7 @@ export default function TopupPaymentPage() {
     summary = (
       <>
         <strong className="text-sm">
-          You're buying {data.duration} Microsoft 365 for NPR {data.price} with{' '}
+          You're buying {data.duration} Microsoft 365 for NPR {finalPrice} with{' '}
           {data.storage} storage
         </strong>
       </>
@@ -419,7 +493,7 @@ export default function TopupPaymentPage() {
     summary = (
       <>
         <strong className="text-sm">
-          You're buying {data.duration} Coursera Plus for NPR {data.price}
+          You're buying {data.duration} Coursera Plus for NPR {finalPrice}
         </strong>
       </>
     );
@@ -427,7 +501,7 @@ export default function TopupPaymentPage() {
     summary = (
       <strong>
         You're buying <strong>Evo Access for {data.duration}</strong> for{' '}
-        <strong>NPR {data.price}</strong>
+        <strong>NPR {finalPrice}</strong>
       </strong>
     );
   } else if (
@@ -464,7 +538,7 @@ export default function TopupPaymentPage() {
             ? 'Views'
             : 'Likes'}
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'facebook') {
@@ -479,7 +553,7 @@ export default function TopupPaymentPage() {
             ? 'Views'
             : 'Likes'}
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'youtube' && data.type === 'subscribers') {
@@ -489,7 +563,7 @@ export default function TopupPaymentPage() {
         <strong>
           {data.amount} {data.type == 'subscribers' ? 'Subscribers' : 'Views'}
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else {
@@ -508,7 +582,7 @@ export default function TopupPaymentPage() {
             ? 'USD'
             : data.type}
         </strong>{' '}
-        for <strong>NPR {data.price}</strong>
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   }
@@ -644,6 +718,74 @@ export default function TopupPaymentPage() {
           onChange={(e) => setReferredBy(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg"
         />
+      </div>
+
+      {/* Promocode Section */}
+      <div className="space-y-3">
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Promocode <span className="text-xs text-gray-400">(optional)</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter promocode"
+              value={promocode}
+              onChange={(e) => setPromocode(e.target.value.toUpperCase())}
+              className="flex-1 px-4 py-2 border rounded-lg"
+              disabled={isValidatingPromocode}
+            />
+            <Button
+              onClick={validatePromocode}
+              disabled={!promocode.trim() || isValidatingPromocode}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isValidatingPromocode ? 'Validating...' : 'Apply'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Applied Promocode Display */}
+        {appliedPromocode && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-800">
+                  Promocode Applied: {appliedPromocode.name}
+                </p>
+                <p className="text-xs text-green-600">
+                  {appliedPromocode.discountPercentage}% discount
+                </p>
+              </div>
+              <Button
+                onClick={removePromocode}
+                className="text-xs px-2 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded"
+              >
+                Remove
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Price Summary */}
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Original Price:</span>
+              <span className="font-medium">NPR {originalPrice}</span>
+            </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount:</span>
+                <span>- NPR {discountAmount}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t pt-1">
+              <span className="font-semibold">Final Price:</span>
+              <span className="font-bold text-lg">NPR {finalPrice}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Nepali Warning Message */}

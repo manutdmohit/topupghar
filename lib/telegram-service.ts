@@ -8,6 +8,11 @@ export interface PaymentDetails {
   type: string;
   amount?: string | number;
   price?: number;
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  receiptUrl: string;
+  createdAt: Date;
   duration?: string;
   level?: string;
   diamonds?: number;
@@ -15,11 +20,14 @@ export interface PaymentDetails {
   uid?: string;
   phone: string;
   uid_email?: string;
-  receiptUrl: string;
   referredBy?: string;
   paymentMethod?: string;
-  createdAt: Date;
   status: 'pending' | 'approved' | 'rejected';
+  // Add promocode fields
+  promocode?: string;
+  originalPrice?: number;
+  discountAmount?: number;
+  finalPrice?: number;
 }
 
 /**
@@ -139,7 +147,15 @@ function formatPaymentMessage(paymentDetails: PaymentDetails): string {
   }
 
   if (price) {
-    message += `💰 Price: <b>NPR ${price}</b>\n`;
+    message += `💰 Price: <b>NPR ${paymentDetails.finalPrice || price}</b>\n`;
+  }
+
+  // Add promocode information if applied
+  if (paymentDetails.promocode) {
+    message += `🎫 Promocode: <code>${paymentDetails.promocode}</code>\n`;
+    message += `💸 Original Price: <s>NPR ${paymentDetails.originalPrice}</s>\n`;
+    message += `💰 Discount: <b>- NPR ${paymentDetails.discountAmount}</b>\n`;
+    message += `💳 Final Price: <b>NPR ${paymentDetails.finalPrice}</b>\n`;
   }
 
   if (duration) {

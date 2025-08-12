@@ -73,18 +73,23 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     const body = await req.json();
-    const { name, maxCount, expiry, discountPercentage, discountAmount, minimumOrderAmount } = body;
+    const { name, maxCount, expiry, discountPercentage } = body;
 
     // Validate required fields
-    if (!name || !maxCount || !expiry) {
+    if (!name || !maxCount || !expiry || discountPercentage === undefined) {
       return NextResponse.json(
-        { message: 'Name, max count, and expiry are required' },
+        {
+          message:
+            'Name, max count, expiry, and discount percentage are required',
+        },
         { status: 400 }
       );
     }
 
     // Check if promocode name already exists
-    const existingPromocode = await Promocode.findOne({ name: name.toUpperCase() });
+    const existingPromocode = await Promocode.findOne({
+      name: name.toUpperCase(),
+    });
     if (existingPromocode) {
       return NextResponse.json(
         { message: 'Promocode with this name already exists' },
@@ -107,16 +112,17 @@ export async function POST(req: NextRequest) {
       maxCount,
       expiry: expiryDate,
       discountPercentage,
-      discountAmount,
-      minimumOrderAmount,
     });
 
     await promocode.save();
 
-    return NextResponse.json({
-      message: 'Promocode created successfully',
-      promocode,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: 'Promocode created successfully',
+        promocode,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error in POST /promocodes:', error);
     const errorMessage =

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Order from '@/models/Order';
+import Promocode from '@/lib/models/Promocode';
 import connectDB from '@/config/db';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import {
@@ -71,10 +72,49 @@ export const POST = async (req: NextRequest) => {
       }
     });
 
-    // Create a new order with the Cloudinary URL
+    // Handle promocode if provided
+    let finalPrice = parseFloat(orderData.price || '0');
+    let originalPrice = finalPrice;
+    let discountAmount = 0;
+    let appliedPromocode = null;
+
+    if (orderData.promocode && orderData.promocode.trim()) {
+      try {
+        // Find and validate the promocode
+        const promocode = await Promocode.findOne({
+          name: orderData.promocode.toUpperCase(),
+        });
+
+        if (
+          promocode &&
+          promocode.isActive &&
+          new Date() < promocode.expiry &&
+          promocode.usedCount < promocode.maxCount
+        ) {
+          // Calculate discount
+          discountAmount = (originalPrice * promocode.discountPercentage) / 100;
+          finalPrice = originalPrice - discountAmount;
+          appliedPromocode = promocode.name;
+
+          // Increment usage count
+          await Promocode.findByIdAndUpdate(promocode._id, {
+            $inc: { usedCount: 1 },
+          });
+        }
+      } catch (error) {
+        console.error('Error processing promocode:', error);
+        // Continue without promocode if there's an error
+      }
+    }
+
+    // Create a new order with the Cloudinary URL and promocode data
     const newOrder = new Order({
       ...orderData,
       receiptUrl: uploadResult.secure_url,
+      promocode: appliedPromocode,
+      originalPrice: originalPrice,
+      discountAmount: Math.round(discountAmount * 100) / 100,
+      finalPrice: Math.round(finalPrice * 100) / 100,
     });
 
     await newOrder.save();
@@ -92,6 +132,22 @@ export const POST = async (req: NextRequest) => {
         customerEmail: newOrder.customerEmail,
         receiptUrl: newOrder.receiptUrl,
         createdAt: newOrder.createdAt,
+        // Additional fields for consistency with telegram
+        duration: newOrder.duration,
+        level: newOrder.level,
+        diamonds: newOrder.diamonds,
+        storage: newOrder.storage,
+        uid: newOrder.uid,
+        phone: newOrder.phone,
+        uid_email: newOrder.uid_email,
+        referredBy: newOrder.referredBy,
+        paymentMethod: newOrder.paymentMethod,
+        status: newOrder.status,
+        // Add promocode fields
+        promocode: newOrder.promocode,
+        originalPrice: newOrder.originalPrice,
+        discountAmount: newOrder.discountAmount,
+        finalPrice: newOrder.finalPrice,
       };
 
       // Try to send HTML email first, fallback to simple text email
@@ -116,6 +172,12 @@ export const POST = async (req: NextRequest) => {
         type: newOrder.type,
         amount: newOrder.amount,
         price: newOrder.price,
+        customerName: newOrder.customerName,
+        customerPhone: newOrder.customerPhone,
+        customerEmail: newOrder.customerEmail,
+        receiptUrl: newOrder.receiptUrl,
+        createdAt: newOrder.createdAt,
+        // Additional fields for consistency with email
         duration: newOrder.duration,
         level: newOrder.level,
         diamonds: newOrder.diamonds,
@@ -123,11 +185,14 @@ export const POST = async (req: NextRequest) => {
         uid: newOrder.uid,
         phone: newOrder.phone,
         uid_email: newOrder.uid_email,
-        receiptUrl: newOrder.receiptUrl,
         referredBy: newOrder.referredBy,
         paymentMethod: newOrder.paymentMethod,
-        createdAt: newOrder.createdAt,
         status: newOrder.status,
+        // Add promocode fields
+        promocode: newOrder.promocode,
+        originalPrice: newOrder.originalPrice,
+        discountAmount: newOrder.discountAmount,
+        finalPrice: newOrder.finalPrice,
       };
 
       await sendPaymentDetailsToTelegram(telegramData);

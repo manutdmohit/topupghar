@@ -14,6 +14,22 @@ export interface OrderEmailData {
   customerEmail?: string;
   receiptUrl?: string;
   createdAt: Date;
+  // Additional fields for consistency with telegram
+  duration?: string;
+  level?: string;
+  diamonds?: number;
+  storage?: string;
+  uid?: string;
+  phone?: string;
+  uid_email?: string;
+  referredBy?: string;
+  paymentMethod?: string;
+  status?: string;
+  // Add promocode fields
+  promocode?: string;
+  originalPrice?: number;
+  discountAmount?: number;
+  finalPrice?: number;
 }
 
 /**
@@ -204,8 +220,36 @@ function generateOrderEmailContent(orderData: OrderEmailData): string {
           
           <div class="detail-row">
             <span class="label">Price:</span>
-            <span class="value">₹${orderData.price}</span>
+            <span class="value">₹${
+              orderData.finalPrice || orderData.price
+            }</span>
           </div>
+          
+          ${
+            orderData.promocode
+              ? `
+          <div class="detail-row">
+            <span class="label">Promocode Applied:</span>
+            <span class="value" style="color: #059669; font-weight: bold;">${orderData.promocode}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Original Price:</span>
+            <span class="value" style="text-decoration: line-through; color: #6b7280;">₹${orderData.originalPrice}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Discount:</span>
+            <span class="value" style="color: #059669; font-weight: bold;">- ₹${orderData.discountAmount}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Final Price:</span>
+            <span class="value" style="color: #059669; font-weight: bold; font-size: 1.1em;">₹${orderData.finalPrice}</span>
+          </div>
+          `
+              : ''
+          }
           
           <div class="detail-row">
             <span class="label">Order Date:</span>
@@ -290,7 +334,16 @@ Order ID: ${orderData.orderId}
 Platform: ${orderData.platform}
 Type: ${orderData.type}
 Amount: ${orderData.amount}
-Price: ₹${orderData.price}
+${
+  orderData.promocode
+    ? `
+Promocode Applied: ${orderData.promocode}
+Original Price: ₹${orderData.originalPrice}
+Discount: - ₹${orderData.discountAmount}
+Final Price: ₹${orderData.finalPrice}
+`
+    : `Price: ₹${orderData.finalPrice || orderData.price}`
+}
 Date: ${new Date(orderData.createdAt).toLocaleString()}
 
 ${orderData.customerName ? `Customer: ${orderData.customerName}` : ''}
