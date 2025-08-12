@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   User,
+  Tag,
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -25,6 +26,7 @@ export default function DashboardLayout({
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
     { name: 'Products', href: '/admin/dashboard/products', icon: Package },
+    { name: 'Promocodes', href: '/admin/dashboard/promocodes', icon: Tag },
     { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingCart },
     { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
   ];
