@@ -20,47 +20,9 @@ import HeroSection from '@/components/hero-section';
 import SpecialOfferSection from '@/components/special-offer-section';
 import FeatureSection from '@/components/features';
 import PopularNow from '@/components/special-offers';
-// import { popularItems } from '@/components/special-offers';
+import CategorizedProducts from '@/components/categorized-products';
 
 export default function GameShopClone() {
-  const specialOffers = [
-    {
-      title: 'Free Fire Diamond Package',
-      image: '/free-fire.jpg',
-      badge: 'BESTSELLER',
-      price: '$9.99',
-      originalPrice: '$14.99',
-      discount: '33% OFF',
-      isPopular: true,
-      rating: 4.9,
-      deliveryTime: 'Instant',
-      inStock: true,
-    },
-    {
-      title: 'Mobile Legends Diamond Bundle',
-      image: '/mobile-gaming.jpg',
-      badge: 'HOT DEAL',
-      price: '$12.99',
-      originalPrice: '$19.99',
-      discount: '35% OFF',
-      rating: 4.8,
-      deliveryTime: 'Instant',
-      inStock: true,
-    },
-    {
-      title: 'Gaming Setup Premium Package',
-      image: '/gaming-setup.jpg',
-      badge: 'EXCLUSIVE',
-      price: '$24.99',
-      originalPrice: '$34.99',
-      discount: '29% OFF',
-      isPopular: true,
-      rating: 4.9,
-      deliveryTime: 'Instant',
-      inStock: true,
-    },
-  ];
-
   const testimonials = [
     {
       name: 'Giyan Bahadur',
@@ -111,7 +73,10 @@ export default function GameShopClone() {
       <SpecialOfferSection />
 
       {/* Popular Now Section */}
-      <PopularNow />
+      {/* <PopularNow /> */}
+
+      {/* Categorized Products Section */}
+      <CategorizedProducts />
 
       {/* Features Section */}
       <FeatureSection />

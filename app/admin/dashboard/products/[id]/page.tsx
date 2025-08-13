@@ -37,8 +37,6 @@ interface Product {
   variants: Variant[];
   inStock: boolean;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface Category {
@@ -49,7 +47,6 @@ interface Category {
   description?: string;
   icon?: string;
   color?: string;
-  isActive: boolean;
 }
 
 interface Platform {
@@ -58,8 +55,6 @@ interface Platform {
   value: string;
   label: string;
   category: string;
-  description?: string;
-  icon?: string;
   isActive: boolean;
 }
 
@@ -68,35 +63,31 @@ interface ProductType {
   name: string;
   value: string;
   label: string;
-  description?: string;
-  icon?: string;
-  color?: string;
+  platform: string;
   isActive: boolean;
 }
 
-export default function AdminProductEditPage() {
-  const { id } = useParams();
+export default function EditProductPage() {
+  const params = useParams();
   const router = useRouter();
+  const id = params.id as string;
+
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Product>>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // API data states
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
-
     const fetchData = async () => {
       try {
         setLoadingData(true);
@@ -104,8 +95,9 @@ export default function AdminProductEditPage() {
         // Fetch product data
         const productResponse = await fetch(`/api/products/${id}`);
         if (!productResponse.ok) {
-          throw new Error('Failed to fetch product');
+          throw new Error('Product not found');
         }
+
         const productData = await productResponse.json();
         setProduct(productData);
         setFormData(productData);
