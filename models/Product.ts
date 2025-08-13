@@ -46,5 +46,28 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
+// Pre-save middleware to automatically set inStock based on variants
+ProductSchema.pre('save', function (next) {
+  // If variants array is empty, set inStock to false
+  if (!this.variants || this.variants.length === 0) {
+    this.inStock = false;
+  }
+  next();
+});
+
+// Virtual property to check if product has stock based on variants
+ProductSchema.virtual('hasStock').get(function () {
+  return this.variants && this.variants.length > 0;
+});
+
+// Method to check stock status
+ProductSchema.methods.checkStockStatus = function () {
+  return {
+    hasVariants: this.variants && this.variants.length > 0,
+    inStock: this.inStock,
+    variantCount: this.variants ? this.variants.length : 0,
+  };
+};
+
 export const Product: Model<IProduct> =
   mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);

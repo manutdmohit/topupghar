@@ -5,6 +5,11 @@ import Link from 'next/link';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import Pagination from '@/components/Pagination';
 import {
+  checkStockStatus,
+  getStockStatusMessage,
+  getStockStatusColor,
+} from '@/lib/stock-utils';
+import {
   Eye,
   Plus,
   Search,
@@ -14,7 +19,6 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  Edit,
   Trash2,
   MoreHorizontal,
 } from 'lucide-react';
@@ -302,16 +306,9 @@ export default function AdminProductListPage() {
                   <Link
                     href={`/admin/dashboard/products/${product._id}`}
                     className="text-blue-600 hover:text-blue-800 p-1 rounded"
-                    title="View Product"
+                    title="View/Edit Product"
                   >
                     <Eye className="w-4 h-4" />
-                  </Link>
-                  <Link
-                    href={`/admin/dashboard/products/${product._id}/edit`}
-                    className="text-green-600 hover:text-green-800 p-1 rounded"
-                    title="Edit Product"
-                  >
-                    <Edit className="w-4 h-4" />
                   </Link>
                   <button
                     className="text-red-600 hover:text-red-800 p-1 rounded"
@@ -359,13 +356,23 @@ export default function AdminProductListPage() {
                 </div>
                 <div>
                   <span className="font-medium">Stock:</span>
-                  <span
-                    className={`ml-1 ${
-                      product.inStock ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
-                  </span>
+                  {(() => {
+                    const stockStatus = checkStockStatus(
+                      product.variants,
+                      product.inStock
+                    );
+                    return (
+                      <span
+                        className={`ml-1 ${
+                          stockStatus.isOutOfStock
+                            ? 'text-red-600'
+                            : 'text-green-600'
+                        }`}
+                      >
+                        {getStockStatusMessage(stockStatus)}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <div className="text-right">
                   <span className="font-medium">Created:</span>{' '}
@@ -457,15 +464,21 @@ export default function AdminProductListPage() {
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                    {(() => {
+                      const stockStatus = checkStockStatus(
+                        product.variants,
                         product.inStock
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
-                    </span>
+                      );
+                      return (
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStockStatusColor(
+                            stockStatus
+                          )}`}
+                        >
+                          {getStockStatusMessage(stockStatus)}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-500">
                     {new Date(product.createdAt).toLocaleDateString()}
@@ -478,13 +491,6 @@ export default function AdminProductListPage() {
                         title="View/Edit Product"
                       >
                         <Eye className="w-4 h-4" />
-                      </Link>
-                      <Link
-                        href={`/admin/dashboard/products/${product._id}/edit`}
-                        className="text-green-600 hover:text-green-800 p-1 rounded"
-                        title="Edit Product"
-                      >
-                        <Edit className="w-4 h-4" />
                       </Link>
                       <button
                         className="text-red-600 hover:text-red-800 p-1 rounded"

@@ -5,17 +5,20 @@ import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Save,
+  Upload,
+  X,
   Package,
-  Tag,
   DollarSign,
-  Calendar,
-  Activity,
+  Tag,
+  FileText,
+  Image as ImageIcon,
+  CheckCircle,
+  AlertCircle,
   Plus,
   Trash2,
-  Eye,
-  EyeOff,
+  Calendar,
+  Activity,
 } from 'lucide-react';
-import Link from 'next/link';
 
 interface Variant {
   label: string;
@@ -27,6 +30,7 @@ interface Product {
   _id: string;
   name: string;
   platform: string;
+  category?: string;
   type: string;
   description?: string;
   image?: string;
@@ -37,6 +41,39 @@ interface Product {
   updatedAt: string;
 }
 
+interface Category {
+  _id: string;
+  name: string;
+  value: string;
+  label: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  isActive: boolean;
+}
+
+interface Platform {
+  _id: string;
+  name: string;
+  value: string;
+  label: string;
+  category: string;
+  description?: string;
+  icon?: string;
+  isActive: boolean;
+}
+
+interface ProductType {
+  _id: string;
+  name: string;
+  value: string;
+  label: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  isActive: boolean;
+}
+
 export default function AdminProductEditPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -45,38 +82,104 @@ export default function AdminProductEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Product>>({});
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // API data states
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (!id) return;
 
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/products/${id}`);
-        if (!response.ok) {
+        setLoadingData(true);
+
+        // Fetch product data
+        const productResponse = await fetch(`/api/products/${id}`);
+        if (!productResponse.ok) {
           throw new Error('Failed to fetch product');
         }
-        const data = await response.json();
-        setProduct(data);
-        setFormData(data);
+        const productData = await productResponse.json();
+        setProduct(productData);
+        setFormData(productData);
+
+        // Fetch categories
+        const categoriesResponse = await fetch('/api/categories?status=active');
+        const categoriesData = await categoriesResponse.json();
+
+        // Fetch platforms
+        const platformsResponse = await fetch('/api/platforms?status=active');
+        const platformsData = await platformsResponse.json();
+
+        // Fetch product types
+        const productTypesResponse = await fetch(
+          '/api/product-types?status=active'
+        );
+        const productTypesData = await productTypesResponse.json();
+
+        setCategories(categoriesData.categories || []);
+        setPlatforms(platformsData.platforms || []);
+        setProductTypes(productTypesData.productTypes || []);
       } catch (err) {
         setError('Error loading product details');
         console.error(err);
       } finally {
         setLoading(false);
+        setLoadingData(false);
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, [id]);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (type === 'number') {
+      setFormData((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    // Auto-set category when platform is selected
+    if (name === 'platform') {
+      const selectedPlatform = platforms.find((p) => p.value === value);
+      if (selectedPlatform) {
+        setFormData((prev) => ({
+          ...prev,
+          category: selectedPlatform.category,
+        }));
+      }
+    }
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
   };
 
-  const handleVariantChange = (index: number, field: string, value: any) => {
-    const updatedVariants = [...(formData.variants || [])];
-    updatedVariants[index] = { ...updatedVariants[index], [field]: value };
-    setFormData((prev) => ({ ...prev, variants: updatedVariants }));
+  const handleVariantChange = (
+    index: number,
+    field: keyof Variant,
+    value: string | number
+  ) => {
+    const newVariants = [...(formData.variants || [])];
+    newVariants[index] = { ...newVariants[index], [field]: value };
+    setFormData((prev) => ({ ...prev, variants: newVariants }));
   };
 
   const addVariant = () => {
@@ -94,15 +197,93 @@ export default function AdminProductEditPage() {
     setFormData((prev) => ({ ...prev, variants: updatedVariants }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const processImageFile = (file: File) => {
+    if (file.type.startsWith('image/')) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      processImageFile(files[0]);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, image: '' }));
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return formData.image || null;
+
+    setUploadingImage(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('image', imageFile);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+      return formData.image || null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Upload image first if there's a new image
+      const imageUrl = await uploadImage();
+
       const response = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          image: imageUrl,
+        }),
       });
 
       if (!response.ok) {
@@ -112,6 +293,8 @@ export default function AdminProductEditPage() {
       const updatedProduct = await response.json();
       setProduct(updatedProduct);
       setFormData(updatedProduct);
+      setImageFile(null);
+      setImagePreview(null);
       alert('Product updated successfully!');
     } catch (err) {
       console.error('Error updating product:', err);
@@ -121,11 +304,12 @@ export default function AdminProductEditPage() {
     }
   };
 
-  if (loading) {
+  if (loadingData) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading form data...</p>
         </div>
       </div>
     );
@@ -170,225 +354,255 @@ export default function AdminProductEditPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <button
-            onClick={() => router.back()}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Products
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition disabled:opacity-50"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900">
+                  Edit Product
+                </h1>
+                <p className="text-slate-600 mt-1">
+                  Update product information and settings
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Product Overview Card */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex-1">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Product Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name || ''}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Platform
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.platform || ''}
-                      onChange={(e) =>
-                        handleInputChange('platform', e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Type
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.type || ''}
-                      onChange={(e) =>
-                        handleInputChange('type', e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description || ''}
-                    onChange={(e) =>
-                      handleInputChange('description', e.target.value)
-                    }
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Image URL
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.image || ''}
-                    onChange={(e) => handleInputChange('image', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-3">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.inStock || false}
-                        onChange={(e) =>
-                          handleInputChange('inStock', e.target.checked)
-                        }
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm font-medium text-gray-700">
-                        In Stock
-                      </span>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.isActive || false}
-                        onChange={(e) =>
-                          handleInputChange('isActive', e.target.checked)
-                        }
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-sm font-medium text-gray-700">
-                        Active
-                      </span>
-                    </label>
-                  </div>
-                </div>
+      {/* Form */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+          className="space-y-8"
+        >
+          {/* Basic Information */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Package className="w-5 h-5 text-blue-600" />
               </div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Basic Information
+              </h2>
             </div>
-            {product.image && (
-              <div className="md:w-32 md:h-32 rounded-lg overflow-hidden border border-gray-200">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/placeholder.jpg';
-                  }}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name || ''}
+                  onChange={handleInputChange}
+                  placeholder="Enter product name"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.name ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.name}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Product Details */}
-        <div className="p-6">
-          {product.description && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Description
-              </h3>
-              <p className="text-gray-600">{product.description}</p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Platform <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="platform"
+                  value={formData.platform || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.platform ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select Platform</option>
+                  {platforms.map((platform) => (
+                    <option key={platform._id} value={platform.value}>
+                      {platform.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.platform && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.platform}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="category"
+                  value={formData.category || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.category ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.category}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="type"
+                  value={formData.type || ''}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.type ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select Product Type</option>
+                  {productTypes.map((productType) => (
+                    <option key={productType._id} value={productType.value}>
+                      {productType.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.type && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.type}
+                  </p>
+                )}
+              </div>
             </div>
-          )}
 
-          {/* Variants Section */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Tag className="w-5 h-5 mr-2 text-gray-500" />
-                Product Variants
-              </h3>
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="description"
+                value={formData.description || ''}
+                onChange={handleInputChange}
+                rows={4}
+                placeholder="Describe your product..."
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  errors.description ? 'border-red-300' : 'border-gray-300'
+                }`}
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Product Variants */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Tag className="w-5 h-5 text-green-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Product Variants
+                </h2>
+              </div>
               <button
+                type="button"
                 onClick={addVariant}
-                className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
+                className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all"
               >
-                <Plus className="w-4 h-4 mr-1" />
+                <Plus className="w-4 h-4 mr-2" />
                 Add Variant
               </button>
             </div>
 
-            {formData.variants && formData.variants.length > 0 ? (
-              <div className="space-y-4">
-                {formData.variants.map((variant, index) => (
+            <div className="space-y-4">
+              {formData.variants && formData.variants.length > 0 ? (
+                formData.variants.map((variant, index) => (
                   <div
                     key={index}
-                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                    className="border border-gray-200 rounded-lg p-4"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium text-gray-900">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-medium text-gray-900">
                         Variant {index + 1}
-                      </h4>
-                      <button
-                        onClick={() => removeVariant(index)}
-                        className="text-red-600 hover:text-red-800 transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      </h3>
+                      {formData.variants && formData.variants.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeVariant(index)}
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Label
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Label <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
-                          value={variant.label || ''}
+                          value={variant.label}
                           onChange={(e) =>
                             handleVariantChange(index, 'label', e.target.value)
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g., 1 Month"
+                          placeholder="e.g., 1 Month, Basic Plan"
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            errors[`variant-${index}-label`]
+                              ? 'border-red-300'
+                              : 'border-gray-300'
+                          }`}
                         />
+                        {errors[`variant-${index}-label`] && (
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors[`variant-${index}-label`]}
+                          </p>
+                        )}
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Duration
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Duration <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
-                          value={variant.duration || ''}
+                          value={variant.duration}
                           onChange={(e) =>
                             handleVariantChange(
                               index,
@@ -396,124 +610,211 @@ export default function AdminProductEditPage() {
                               e.target.value
                             )
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="e.g., 1 Month"
+                          placeholder="e.g., 1 Month, 30 Days"
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                            errors[`variant-${index}-duration`]
+                              ? 'border-red-300'
+                              : 'border-gray-300'
+                          }`}
                         />
+                        {errors[`variant-${index}-duration`] && (
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors[`variant-${index}-duration`]}
+                          </p>
+                        )}
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Price (₹)
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Price (NPR) <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="number"
-                          value={variant.price || 0}
-                          onChange={(e) =>
-                            handleVariantChange(
-                              index,
-                              'price',
-                              parseFloat(e.target.value) || 0
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="0"
-                          min="0"
-                          step="0.01"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Display: ₹{(variant.price || 0).toFixed(2)}
-                        </p>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            value={variant.price}
+                            onChange={(e) =>
+                              handleVariantChange(
+                                index,
+                                'price',
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                            className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                              errors[`variant-${index}-price`]
+                                ? 'border-red-300'
+                                : 'border-gray-300'
+                            }`}
+                          />
+                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        </div>
+                        {errors[`variant-${index}-price`] && (
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors[`variant-${index}-price`]}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
-                ))}
+                ))
+              ) : (
+                <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <p className="text-gray-500 mb-4">
+                    No variants available for this product.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    className="flex items-center mx-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add First Variant
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Product Image */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <ImageIcon className="w-5 h-5 text-purple-600" />
               </div>
-            ) : (
-              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                <p className="text-gray-500 mb-4">
-                  No variants available for this product.
+              <h2 className="text-xl font-semibold text-gray-900">
+                Product Image
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              {!imagePreview && !formData.image ? (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-2">Upload product image</p>
+                  <p className="text-sm text-gray-500 mb-4">
+                    PNG, JPG, GIF up to 5MB
+                  </p>
+                  <label className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-all">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Choose File
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="relative">
+                  <img
+                    src={imagePreview || formData.image}
+                    alt="Product preview"
+                    className="w-full max-w-md h-64 object-cover rounded-lg border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {errors.image && (
+                <p className="text-red-500 text-sm flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.image}
                 </p>
-                <button
-                  onClick={addVariant}
-                  className="flex items-center mx-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add First Variant
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Metadata */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-gray-500" />
-                Dates
-              </h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Created</span>
-                  <span className="font-medium">
-                    {new Date(product.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Last Updated</span>
-                  <span className="font-medium">
-                    {new Date(product.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
+          {/* Status Settings */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-orange-600" />
               </div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Status Settings
+              </h2>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                <Activity className="w-5 h-5 mr-2 text-gray-500" />
-                Status
-              </h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Inventory</span>
-                  <span
-                    className={`font-medium ${
-                      product.inStock ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
-                  </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div>
+                  <h3 className="font-medium text-gray-900">Active Status</h3>
+                  <p className="text-sm text-gray-600">
+                    Make this product available for purchase
+                  </p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Visibility</span>
-                  <span
-                    className={`font-medium ${
-                      product.isActive ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {product.isActive ? 'Active' : 'Inactive'}
-                  </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    checked={formData.isActive || false}
+                    onChange={handleInputChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div>
+                  <h3 className="font-medium text-gray-900">In Stock</h3>
+                  <p className="text-sm text-gray-600">
+                    Mark this product as available
+                  </p>
                 </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="inStock"
+                    checked={formData.inStock || false}
+                    onChange={handleInputChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
-        <button
-          onClick={() => router.push('/admin/dashboard/products')}
-          className="px-6 py-3 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition"
-        >
-          Back to Products
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition disabled:opacity-50"
-        >
-          {saving ? 'Saving...' : 'Save Changes'}
-        </button>
+          {/* Submit Buttons */}
+          <div className="flex items-center justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving || uploadingImage}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {saving || uploadingImage ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                  {uploadingImage ? 'Uploading Image...' : 'Saving...'}
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

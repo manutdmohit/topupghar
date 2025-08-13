@@ -303,48 +303,82 @@ export default function ProductPage() {
               </h2>
 
               {/* Package Options - 2 columns on all devices for better visibility */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {product.variants.map((variant, index) => (
-                  <div
-                    key={index}
-                    className={`relative border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                      selectedPackage === index
-                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                        : 'border-gray-200 hover:border-blue-300 bg-gray-50 hover:bg-gray-100'
-                    }`}
-                    onClick={() => handleSelect(index)}
-                  >
-                    {selectedPackage === index && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-white" />
+              {product.variants && product.variants.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {product.variants.map((variant, index) => (
+                    <div
+                      key={index}
+                      className={`relative border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                        selectedPackage === index
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
+                          : 'border-gray-200 hover:border-blue-300 bg-gray-50 hover:bg-gray-100'
+                      }`}
+                      onClick={() => handleSelect(index)}
+                    >
+                      {selectedPackage === index && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <div className="text-center">
+                        <h3 className="font-bold text-gray-900 text-lg mb-1">
+                          {variant.label}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-3">
+                          {variant.duration}
+                        </p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          NPR {variant.price.toLocaleString()}
+                        </p>
                       </div>
-                    )}
-                    <div className="text-center">
-                      <h3 className="font-bold text-gray-900 text-lg mb-1">
-                        {variant.label}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-3">
-                        {variant.duration}
-                      </p>
-                      <p className="text-2xl font-bold text-blue-600">
-                        NPR {variant.price.toLocaleString()}
-                      </p>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                  <svg
+                    className="w-12 h-12 text-gray-400 mx-auto mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                    No Packages Available
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    This product currently has no available packages.
+                  </p>
+                </div>
+              )}
 
               {/* Purchase Button - Prominent */}
               <button
                 onClick={handleBuyNow}
-                disabled={selectedPackage === null || !product.inStock}
+                disabled={
+                  selectedPackage === null ||
+                  !product.inStock ||
+                  !product.variants ||
+                  product.variants.length === 0
+                }
                 className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${
-                  selectedPackage === null || !product.inStock
+                  selectedPackage === null ||
+                  !product.inStock ||
+                  !product.variants ||
+                  product.variants.length === 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/25'
                 }`}
               >
-                {!product.inStock ? (
+                {!product.inStock ||
+                !product.variants ||
+                product.variants.length === 0 ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg
                       className="w-5 h-5"
@@ -359,7 +393,9 @@ export default function ProductPage() {
                         d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"
                       />
                     </svg>
-                    Out of Stock
+                    {!product.variants || product.variants.length === 0
+                      ? 'No Packages Available'
+                      : 'Out of Stock'}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
@@ -369,7 +405,9 @@ export default function ProductPage() {
                 )}
               </button>
 
-              {!product.inStock && (
+              {(!product.inStock ||
+                !product.variants ||
+                product.variants.length === 0) && (
                 <p className="text-red-600 text-sm mt-3 text-center flex items-center justify-center gap-1">
                   <svg
                     className="w-4 h-4"
@@ -384,22 +422,29 @@ export default function ProductPage() {
                       d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
                     />
                   </svg>
-                  This product is currently out of stock
+                  {!product.variants || product.variants.length === 0
+                    ? 'This product has no available packages'
+                    : 'This product is currently out of stock'}
                 </p>
               )}
 
-              {selectedPackage !== null && product.inStock && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-green-700">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">Package Selected!</span>
+              {selectedPackage !== null &&
+                product.inStock &&
+                product.variants &&
+                product.variants.length > 0 && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-green-700">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">Package Selected!</span>
+                    </div>
+                    <p className="text-green-600 text-sm mt-1">
+                      {product.variants[selectedPackage]?.label} - NPR{' '}
+                      {product.variants[
+                        selectedPackage
+                      ]?.price.toLocaleString()}
+                    </p>
                   </div>
-                  <p className="text-green-600 text-sm mt-1">
-                    {product.variants[selectedPackage]?.label} - NPR{' '}
-                    {product.variants[selectedPackage]?.price.toLocaleString()}
-                  </p>
-                </div>
-              )}
+                )}
 
               {/* Trust Indicators - Compact */}
               <div className="mt-6 grid grid-cols-3 gap-3">
