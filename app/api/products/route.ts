@@ -3,6 +3,13 @@ import { Product } from '@/models/Product';
 import connectDB from '@/config/db';
 import { v2 as cloudinary } from 'cloudinary';
 
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
@@ -90,11 +97,19 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('Starting product creation...');
     await connectDB();
+    console.log('Database connected successfully');
 
     const formData = await req.formData();
     const data = formData.get('data') as string;
     const imageFile = formData.get('image') as File;
+
+    console.log('Form data received:', {
+      hasData: !!data,
+      hasImage: !!imageFile,
+      imageSize: imageFile?.size,
+    });
 
     if (!data) {
       return NextResponse.json(
@@ -104,6 +119,13 @@ export async function POST(req: NextRequest) {
     }
 
     const productData = JSON.parse(data);
+    console.log('Product data parsed:', {
+      name: productData.name,
+      platform: productData.platform,
+      category: productData.category,
+      type: productData.type,
+      variantsCount: productData.variants?.length,
+    });
 
     // Validate required fields
     if (
@@ -144,9 +166,11 @@ export async function POST(req: NextRequest) {
     // Upload image to Cloudinary if provided
     if (imageFile) {
       try {
+        console.log('Starting image upload to Cloudinary...');
         // Convert File to buffer
         const bytes = await imageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
+        console.log('Image converted to buffer, size:', buffer.length);
 
         // Upload to Cloudinary
         const result = await new Promise((resolve, reject) => {
@@ -157,14 +181,23 @@ export async function POST(req: NextRequest) {
                 folder: 'products',
               },
               (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
+                if (error) {
+                  console.error('Cloudinary upload error:', error);
+                  reject(error);
+                } else {
+                  console.log(
+                    'Cloudinary upload successful:',
+                    result?.secure_url
+                  );
+                  resolve(result);
+                }
               }
             )
             .end(buffer);
         });
 
         imageUrl = (result as any).secure_url;
+        console.log('Image URL obtained:', imageUrl);
       } catch (uploadError) {
         console.error('Image upload error:', uploadError);
         return NextResponse.json(
@@ -172,15 +205,24 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
+    } else {
+      console.log('No image file provided');
     }
 
     // Create new product
+    console.log('Creating product with data:', {
+      ...productData,
+      image: imageUrl,
+    });
+
     const newProduct = new Product({
       ...productData,
       image: imageUrl,
     });
 
+    console.log('Product instance created, saving to database...');
     await newProduct.save();
+    console.log('Product saved successfully:', newProduct._id);
 
     return NextResponse.json(
       {
@@ -191,6 +233,26 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error('Error in POST /products:', error);
+
+    // Handle Mongoose validation errors
+    if (
+      error instanceof Error &&
+      'name' in error &&
+      error.name === 'ValidationError'
+    ) {
+      const validationError = error as any;
+      const validationMessages = Object.values(validationError.errors).map(
+        (err: any) => err.message
+      );
+      return NextResponse.json(
+        {
+          message: 'Validation failed',
+          errors: validationMessages,
+        },
+        { status: 400 }
+      );
+    }
+
     const errorMessage =
       error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(

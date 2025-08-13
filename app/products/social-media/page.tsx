@@ -119,12 +119,12 @@ export default function SocialMediaPage() {
     }
 
     // Use slug as href if available, otherwise fallback to platform
-    const generateHref = (product: Product) => {
-      if (product.slug) {
-        return `/${product.slug}`;
-      }
-      return `/${product.platform}`;
-    };
+      const generateHref = (product: Product) => {
+    if (product.slug) {
+      return `/${product.slug}`;
+    }
+    return `/${product.platform}`;
+  };
 
     return {
       title: product.name,

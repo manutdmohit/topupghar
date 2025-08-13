@@ -18,3 +18,6 @@ TELEGRAM_GROUP_ID=your_telegram_channel_or_group_id_here
 # Next.js Configuration
 NEXTAUTH_SECRET=your_nextauth_secret_here
 NEXTAUTH_URL=http://localhost:3000
+
+# Session Security
+SESSION_SECRET=your_session_secret_key_here

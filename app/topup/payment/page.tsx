@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { generateFailedOrderId } from '@/lib/order-utils';
+// Remove client-side token verification - will use API route instead
 
 export default function TopupPaymentPage() {
   const router = useRouter();
@@ -57,12 +58,74 @@ export default function TopupPaymentPage() {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
+    const token = searchParams.get('token');
+
+    if (token) {
+      // Verify secure token via API route
+      const verifyToken = async () => {
+        try {
+          const response = await fetch('/api/orders/verify-session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            const sessionData = result.data;
+
+            console.log('Secure session data:', sessionData);
+
+            setData({
+              platform: sessionData.platform,
+              uid_email: uid || '',
+              type: sessionData.type,
+              amount: sessionData.amount,
+              price: sessionData.price.toString(),
+              duration: sessionData.duration,
+              level: sessionData.level,
+              diamonds: sessionData.diamonds,
+              storage: sessionData.storage,
+            });
+
+            // Initialize price states
+            setOriginalPrice(sessionData.price);
+            setFinalPrice(sessionData.price);
+            return;
+          } else {
+            console.error('Token verification failed:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error verifying token:', error);
+        }
+      };
+
+      verifyToken();
+      return;
+    }
+
+    // Fallback to URL parameters (for backward compatibility)
+    const platform = searchParams.get('platform') || '';
+    const type = searchParams.get('type') || '';
+    const amount = searchParams.get('amount') || '';
+    const price = searchParams.get('price') || '';
+
+    console.log('URL Parameters Debug (fallback):', {
+      platform,
+      type,
+      amount,
+      price,
+      allParams: Object.fromEntries(searchParams.entries()),
+    });
+
     setData({
-      platform: searchParams.get('platform') || '',
+      platform,
       uid_email: uid || '',
-      type: searchParams.get('type') || '',
-      amount: searchParams.get('amount') || '',
-      price: searchParams.get('price') || '',
+      type,
+      amount,
+      price,
       duration: searchParams.get('duration') || '',
       level: searchParams.get('level') || '',
       diamonds: searchParams.get('diamonds') || '',
@@ -71,9 +134,9 @@ export default function TopupPaymentPage() {
     setReferredBy(searchParams.get('referredBy') || '');
 
     // Initialize price states
-    const price = parseFloat(searchParams.get('price') || '0');
-    setOriginalPrice(price);
-    setFinalPrice(price);
+    const priceNum = parseFloat(price || '0');
+    setOriginalPrice(priceNum);
+    setFinalPrice(priceNum);
   }, [searchParams]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -428,6 +491,29 @@ export default function TopupPaymentPage() {
         {data.diamonds} diamonds for <strong>NPR {finalPrice}</strong>
       </>
     );
+  } else if (data.platform === 'freefire' && data.type === 'diamonds') {
+    // Extract the number from the label (e.g., "25💎" -> "25")
+    let diamondCount = data.amount ? data.amount.replace(/[^\d]/g, '') : '';
+
+    // Fallback: if amount is not available, try to extract from duration
+    if (!diamondCount && data.duration) {
+      diamondCount = data.duration.replace(/[^\d]/g, '');
+    }
+
+    console.log('Free Fire Diamonds Debug:', {
+      platform: data.platform,
+      type: data.type,
+      amount: data.amount,
+      duration: data.duration,
+      diamondCount: diamondCount,
+      finalPrice: finalPrice,
+    });
+    summary = (
+      <>
+        You're buying <strong>{diamondCount} diamonds</strong> for{' '}
+        <strong>NPR {finalPrice}</strong>
+      </>
+    );
   } else if (data.platform === 'chatgpt') {
     summary = (
       <>
@@ -495,6 +581,13 @@ export default function TopupPaymentPage() {
         <strong className="text-sm">
           You're buying {data.duration} Coursera Plus for NPR {finalPrice}
         </strong>
+      </>
+    );
+  } else if (data.platform === 'canva') {
+    summary = (
+      <>
+        You're buying <strong>{data.duration} Canva Pro Account</strong> for{' '}
+        <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'freefire' && data.type === 'evo-access') {
@@ -571,7 +664,7 @@ export default function TopupPaymentPage() {
       <>
         You're buying{' '}
         <strong>
-          {data.amount}
+          {data.amount}{' '}
           {data.type === 'uc'
             ? 'UC'
             : data.type === 'shell'

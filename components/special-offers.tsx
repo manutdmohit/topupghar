@@ -7,6 +7,7 @@ import { ProductCard } from './product-card';
 interface Product {
   _id: string;
   name: string;
+  slug: string;
   platform: string;
   type: string;
   description?: string;
@@ -98,7 +99,7 @@ const PopularNow = () => {
           ? 'youtube-likes'
           : product.platform === 'youtube' && product.type === 'comments'
           ? 'youtube-comments'
-          : product.platform
+          : product.slug
       }`,
       image: product.image || `/${product.platform}.jpg`,
       badge,
