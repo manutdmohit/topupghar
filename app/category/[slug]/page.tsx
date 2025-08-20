@@ -2,20 +2,25 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { 
-  Gamepad2, 
-  Tv, 
-  Music, 
-  Camera, 
-  Globe, 
-  Heart, 
-  Star, 
+import {
+  Gamepad2,
+  Tv,
+  Music,
+  Camera,
+  Globe,
+  Heart,
+  Star,
   Zap,
   TrendingUp,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import { ProductCard } from '@/components/product-card';
 import Link from 'next/link';
+import {
+  calculatePriceRange,
+  formatPrice,
+  formatDiscount,
+} from '@/lib/price-utils';
 
 interface Product {
   _id: string;
@@ -31,6 +36,7 @@ interface Product {
     duration: string;
     price: number;
   }>;
+  discountPercentage?: number;
   inStock: boolean;
   isActive: boolean;
 }
@@ -80,7 +86,7 @@ const getCategoryColor = (categoryValue: string) => {
 export default function CategoryPage() {
   const params = useParams();
   const categorySlug = params.slug as string;
-  
+
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,12 +96,14 @@ export default function CategoryPage() {
     const fetchCategoryData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch category details
-        const categoryResponse = await fetch(`/api/categories?search=${categorySlug}`);
+        const categoryResponse = await fetch(
+          `/api/categories?search=${categorySlug}`
+        );
         const categoryData = await categoryResponse.json();
-        const foundCategory = categoryData.categories?.find((cat: Category) => 
-          cat.value === categorySlug
+        const foundCategory = categoryData.categories?.find(
+          (cat: Category) => cat.value === categorySlug
         );
 
         if (!foundCategory) {
@@ -105,7 +113,9 @@ export default function CategoryPage() {
         setCategory(foundCategory);
 
         // Fetch products for this category
-        const productsResponse = await fetch(`/api/products?category=${categorySlug}`);
+        const productsResponse = await fetch(
+          `/api/products?category=${categorySlug}`
+        );
         const productsData = await productsResponse.json();
         setProducts(productsData.products || []);
       } catch (err) {
@@ -123,8 +133,35 @@ export default function CategoryPage() {
 
   // Transform API data to match ProductCard props
   const transformProductToCardProps = (product: Product) => {
-    const lowestPrice = Math.min(...product.variants.map((v) => v.price));
-    const highestPrice = Math.max(...product.variants.map((v) => v.price));
+    const hasDiscount =
+      product.discountPercentage && product.discountPercentage > 0;
+
+    let formattedPrice: string;
+    let formattedOriginalPrice: string | undefined;
+    let formattedDiscount: string | undefined;
+
+    if (hasDiscount) {
+      // Product has a discount - show discounted price
+      const priceRange = calculatePriceRange(
+        product.variants,
+        product.discountPercentage || 0
+      );
+      formattedPrice = formatPrice(priceRange.lowestDiscountedPrice);
+      formattedOriginalPrice = formatPrice(priceRange.lowestOriginalPrice);
+      formattedDiscount = formatDiscount(product.discountPercentage || 0);
+    } else {
+      // No discount - show regular price range
+      const minPrice = Math.min(...product.variants.map((v) => v.price));
+      const maxPrice = Math.max(...product.variants.map((v) => v.price));
+
+      if (minPrice === maxPrice) {
+        formattedPrice = formatPrice(minPrice);
+      } else {
+        formattedPrice = `From ${formatPrice(minPrice)}`;
+      }
+      formattedOriginalPrice = undefined;
+      formattedDiscount = undefined;
+    }
 
     // Determine badge based on platform and type
     let badge = 'TRENDING';
@@ -175,17 +212,9 @@ export default function CategoryPage() {
       }`,
       image: product.image || `/${product.platform}.jpg`,
       badge,
-      price: `NPR ${lowestPrice}`,
-      originalPrice:
-        highestPrice !== lowestPrice
-          ? `NPR ${highestPrice}`
-          : `NPR ${lowestPrice}`,
-      discount:
-        highestPrice !== lowestPrice
-          ? `${Math.round(
-              ((highestPrice - lowestPrice) / highestPrice) * 100
-            )}% OFF`
-          : undefined,
+      price: formattedPrice,
+      originalPrice: formattedOriginalPrice,
+      discount: formattedDiscount,
       isPopular: product.platform === 'freefire',
       rating: 4.8 + Math.random() * 0.2, // Random rating between 4.8-5.0
       deliveryTime: 'Instant',
@@ -211,8 +240,12 @@ export default function CategoryPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Category Not Found</h1>
-            <p className="text-gray-600 mb-8">{error || 'The requested category could not be found.'}</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+              Category Not Found
+            </h1>
+            <p className="text-gray-600 mb-8">
+              {error || 'The requested category could not be found.'}
+            </p>
             <Link
               href="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all"
@@ -243,17 +276,21 @@ export default function CategoryPage() {
               Back to Home
             </Link>
           </div>
-          
+
           <div className="flex items-center gap-6">
             <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
               <CategoryIcon className="w-12 h-12 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">{category.label}</h1>
+              <h1 className="text-4xl font-bold text-white mb-2">
+                {category.label}
+              </h1>
               {category.description && (
                 <p className="text-white/80 text-lg">{category.description}</p>
               )}
-              <p className="text-white/60 mt-2">{products.length} products available</p>
+              <p className="text-white/60 mt-2">
+                {products.length} products available
+              </p>
             </div>
           </div>
         </div>
@@ -265,9 +302,12 @@ export default function CategoryPage() {
           <div className="text-center py-16">
             <div className="p-8 bg-white rounded-2xl shadow-lg">
               <CategoryIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">No Products Found</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                No Products Found
+              </h2>
               <p className="text-gray-600 mb-6">
-                We couldn't find any products in the {category.label} category at the moment.
+                We couldn't find any products in the {category.label} category
+                at the moment.
               </p>
               <Link
                 href="/"

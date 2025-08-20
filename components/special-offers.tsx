@@ -64,6 +64,14 @@ const PopularNow = () => {
       badge = 'POPULAR';
     }
 
+    // Format price correctly - show price range, not fake discounts
+    let formattedPrice: string;
+    if (lowestPrice === highestPrice) {
+      formattedPrice = `NPR ${lowestPrice}`;
+    } else {
+      formattedPrice = `From NPR ${lowestPrice}`;
+    }
+
     return {
       title: product.name,
       href: `/${
@@ -103,17 +111,9 @@ const PopularNow = () => {
       }`,
       image: product.image || `/${product.platform}.jpg`,
       badge,
-      price: `NPR ${lowestPrice}`,
-      originalPrice:
-        highestPrice !== lowestPrice
-          ? `NPR ${highestPrice}`
-          : `NPR ${lowestPrice}`,
-      discount:
-        highestPrice !== lowestPrice
-          ? `${Math.round(
-              ((highestPrice - lowestPrice) / highestPrice) * 100
-            )}% OFF`
-          : undefined,
+      price: formattedPrice,
+      originalPrice: undefined, // No fake discounts
+      discount: undefined, // No fake discounts
       isPopular: product.platform === 'freefire',
       rating: 4.8 + Math.random() * 0.2, // Random rating between 4.8-5.0
       deliveryTime: 'Instant',

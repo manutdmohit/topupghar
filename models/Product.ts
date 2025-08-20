@@ -7,7 +7,7 @@ export interface IVariant {
 }
 
 export interface IProduct extends Document {
-  name: string; // e.g., "Netflix"
+  name: string;
   slug: string; // e.g., "netflix"
   platform: string; // e.g., "netflix"
   type: string; // e.g., "account"
@@ -15,6 +15,7 @@ export interface IProduct extends Document {
   description?: string;
   image?: string;
   variants: IVariant[];
+  discountPercentage?: number; // New field for discount percentage
   inStock: boolean; // true if the product is available for purchase'
   isActive: boolean;
   createdAt: Date;
@@ -40,6 +41,7 @@ const ProductSchema = new Schema<IProduct>(
     description: { type: String },
     image: { type: String },
     variants: { type: [VariantSchema], required: true },
+    discountPercentage: { type: Number, min: 0, max: 100, default: 0 }, // New field
     inStock: { type: Boolean, required: true, default: true },
     isActive: { type: Boolean, default: true },
   },
@@ -68,6 +70,11 @@ ProductSchema.methods.checkStockStatus = function () {
     variantCount: this.variants ? this.variants.length : 0,
   };
 };
+
+// Virtual property to calculate discounted price
+ProductSchema.virtual('hasDiscount').get(function () {
+  return this.discountPercentage && this.discountPercentage > 0;
+});
 
 export const Product: Model<IProduct> =
   mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);

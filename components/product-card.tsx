@@ -13,6 +13,9 @@ interface ProductCardProps {
   href?: string;
   image: string;
   badge: string;
+  price?: string;
+  originalPrice?: string;
+  discount?: string;
   isPopular?: boolean;
   deliveryTime?: string;
   compact?: boolean;
@@ -24,6 +27,9 @@ export function ProductCard({
   href = '#',
   image,
   badge,
+  price,
+  originalPrice,
+  discount,
   isPopular = false,
   deliveryTime = 'Instant',
   compact = false,
@@ -96,6 +102,28 @@ export function ProductCard({
               )}
             </div>
           </div>
+
+          {/* Price Display */}
+          {price && (
+            <div className="mt-2 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-green-600">
+                  {price}
+                </span>
+                {originalPrice && originalPrice !== price && (
+                  <span className="text-sm text-gray-500 line-through">
+                    {originalPrice}
+                  </span>
+                )}
+                {discount && (
+                  <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-medium">
+                    {discount}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* View More Button */}
           <Button
             variant="outline"

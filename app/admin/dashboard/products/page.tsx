@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import Pagination from '@/components/Pagination';
@@ -9,6 +9,7 @@ import {
   getStockStatusMessage,
   getStockStatusColor,
 } from '@/lib/stock-utils';
+import { calculateDiscountedPrice, formatPrice } from '@/lib/price-utils';
 import {
   Eye,
   Plus,
@@ -39,6 +40,7 @@ interface Product {
   description?: string;
   image?: string;
   variants: IVariant[];
+  discountPercentage?: number;
   inStock: boolean;
   isActive: boolean;
   createdAt: string;
@@ -50,6 +52,7 @@ export default function AdminProductListPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,6 +75,15 @@ export default function AdminProductListPage() {
     }
   }, [adminUser, authLoading]);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const fetchProducts = async (page = 1) => {
     try {
       setLoading(true);
@@ -80,7 +92,7 @@ export default function AdminProductListPage() {
         limit: '10',
       });
 
-      if (searchTerm) params.append('search', searchTerm);
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
       if (categoryFilter) params.append('category', categoryFilter);
       if (statusFilter) params.append('status', statusFilter);
 
@@ -105,7 +117,13 @@ export default function AdminProductListPage() {
       setCurrentPage(1); // Reset to first page when filters change
       fetchProducts(1);
     }
-  }, [searchTerm, categoryFilter, statusFilter, adminUser, authLoading]);
+  }, [
+    debouncedSearchTerm,
+    categoryFilter,
+    statusFilter,
+    adminUser,
+    authLoading,
+  ]);
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -233,6 +251,11 @@ export default function AdminProductListPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
+            {searchTerm !== debouncedSearchTerm && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              </div>
+            )}
           </div>
 
           {/* Category Filter */}
@@ -351,8 +374,35 @@ export default function AdminProductListPage() {
                   {product.variants?.length || 0}
                 </div>
                 <div className="text-right">
-                  <span className="font-medium">From:</span> NPR{' '}
-                  {Math.min(...(product.variants?.map((v) => v.price) || [0]))}
+                  <span className="font-medium">From:</span>{' '}
+                  {(() => {
+                    const minPrice = Math.min(
+                      ...(product.variants?.map((v) => v.price) || [0])
+                    );
+                    if (
+                      product.discountPercentage &&
+                      product.discountPercentage > 0
+                    ) {
+                      const discountedPrice = calculateDiscountedPrice(
+                        minPrice,
+                        product.discountPercentage
+                      ).discountedPrice;
+                      return (
+                        <div className="text-right">
+                          <div className="text-red-600 font-medium">
+                            NPR {discountedPrice.toLocaleString()}
+                          </div>
+                          <div className="text-gray-500 text-sm line-through">
+                            NPR {minPrice.toLocaleString()}
+                          </div>
+                          <div className="text-xs bg-red-500 text-white px-1 py-0.5 rounded">
+                            {product.discountPercentage}% OFF
+                          </div>
+                        </div>
+                      );
+                    }
+                    return <span>NPR {minPrice.toLocaleString()}</span>;
+                  })()}
                 </div>
                 <div>
                   <span className="font-medium">Stock:</span>
@@ -446,10 +496,36 @@ export default function AdminProductListPage() {
                       {product.variants?.length || 0} variants
                     </div>
                     <div className="text-xs text-gray-500">
-                      From NPR{' '}
-                      {Math.min(
-                        ...(product.variants?.map((v) => v.price) || [0])
-                      )}
+                      {(() => {
+                        const minPrice = Math.min(
+                          ...(product.variants?.map((v) => v.price) || [0])
+                        );
+                        if (
+                          product.discountPercentage &&
+                          product.discountPercentage > 0
+                        ) {
+                          const discountedPrice = calculateDiscountedPrice(
+                            minPrice,
+                            product.discountPercentage
+                          ).discountedPrice;
+                          return (
+                            <div>
+                              <div className="text-red-600 font-medium">
+                                NPR {discountedPrice.toLocaleString()}
+                              </div>
+                              <div className="text-gray-400 line-through">
+                                NPR {minPrice.toLocaleString()}
+                              </div>
+                              <div className="text-xs bg-red-500 text-white px-1 py-0.5 rounded mt-1">
+                                {product.discountPercentage}% OFF
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <span>From NPR {minPrice.toLocaleString()}</span>
+                        );
+                      })()}
                     </div>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4">

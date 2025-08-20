@@ -1,20 +1,25 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { 
-  Gamepad2, 
-  Tv, 
-  Music, 
-  Camera, 
-  Globe, 
-  Heart, 
-  Star, 
+import {
+  Gamepad2,
+  Tv,
+  Music,
+  Camera,
+  Globe,
+  Heart,
+  Star,
   Zap,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react';
 import { ProductCard } from './product-card';
 import Link from 'next/link';
+import {
+  calculatePriceRange,
+  formatPrice,
+  formatDiscount,
+} from '@/lib/price-utils';
 
 interface Product {
   _id: string;
@@ -30,6 +35,7 @@ interface Product {
     duration: string;
     price: number;
   }>;
+  discountPercentage?: number;
   inStock: boolean;
   isActive: boolean;
 }
@@ -82,7 +88,9 @@ const getCategoryColor = (categoryValue: string) => {
 };
 
 const CategorizedProducts = () => {
-  const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
+  const [categoriesWithProducts, setCategoriesWithProducts] = useState<
+    CategoryWithProducts[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,8 +119,35 @@ const CategorizedProducts = () => {
 
   // Transform API data to match ProductCard props
   const transformProductToCardProps = (product: Product) => {
-    const lowestPrice = Math.min(...product.variants.map((v) => v.price));
-    const highestPrice = Math.max(...product.variants.map((v) => v.price));
+    const hasDiscount =
+      product.discountPercentage && product.discountPercentage > 0;
+
+    let formattedPrice: string;
+    let formattedOriginalPrice: string | undefined;
+    let formattedDiscount: string | undefined;
+
+    if (hasDiscount) {
+      // Product has a discount - show discounted price
+      const priceRange = calculatePriceRange(
+        product.variants,
+        product.discountPercentage || 0
+      );
+      formattedPrice = formatPrice(priceRange.lowestDiscountedPrice);
+      formattedOriginalPrice = formatPrice(priceRange.lowestOriginalPrice);
+      formattedDiscount = formatDiscount(product.discountPercentage || 0);
+    } else {
+      // No discount - show regular price range
+      const minPrice = Math.min(...product.variants.map((v) => v.price));
+      const maxPrice = Math.max(...product.variants.map((v) => v.price));
+
+      if (minPrice === maxPrice) {
+        formattedPrice = formatPrice(minPrice);
+      } else {
+        formattedPrice = `From ${formatPrice(minPrice)}`;
+      }
+      formattedOriginalPrice = undefined;
+      formattedDiscount = undefined;
+    }
 
     // Determine badge based on platform and type
     let badge = 'TRENDING';
@@ -163,17 +198,9 @@ const CategorizedProducts = () => {
       }`,
       image: product.image || `/${product.platform}.jpg`,
       badge,
-      price: `NPR ${lowestPrice}`,
-      originalPrice:
-        highestPrice !== lowestPrice
-          ? `NPR ${highestPrice}`
-          : `NPR ${lowestPrice}`,
-      discount:
-        highestPrice !== lowestPrice
-          ? `${Math.round(
-              ((highestPrice - lowestPrice) / highestPrice) * 100
-            )}% OFF`
-          : undefined,
+      price: formattedPrice,
+      originalPrice: formattedOriginalPrice,
+      discount: formattedDiscount,
       isPopular: product.platform === 'freefire',
       rating: 4.8 + Math.random() * 0.2, // Random rating between 4.8-5.0
       deliveryTime: 'Instant',
@@ -187,7 +214,9 @@ const CategorizedProducts = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-            <p className="mt-2 text-gray-600">Loading categorized products...</p>
+            <p className="mt-2 text-gray-600">
+              Loading categorized products...
+            </p>
           </div>
         </div>
       </section>
@@ -214,7 +243,9 @@ const CategorizedProducts = () => {
             <div className="flex-1 h-px bg-gradient-to-r from-transparent to-purple-300"></div>
             <div className="flex items-center gap-3 px-8">
               <TrendingUp className="w-8 h-8 text-purple-600" />
-              <h2 className="text-4xl font-bold text-gray-800">Explore by Category</h2>
+              <h2 className="text-4xl font-bold text-gray-800">
+                Explore by Category
+              </h2>
               <TrendingUp className="w-8 h-8 text-purple-600" />
             </div>
             <div className="flex-1 h-px bg-gradient-to-l from-transparent to-purple-300"></div>
@@ -230,9 +261,14 @@ const CategorizedProducts = () => {
             const gradientColors = getCategoryColor(category.value);
 
             return (
-              <div key={category._id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div
+                key={category._id}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden"
+              >
                 {/* Category Header */}
-                <div className={`bg-gradient-to-r ${gradientColors} p-6 text-white`}>
+                <div
+                  className={`bg-gradient-to-r ${gradientColors} p-6 text-white`}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -241,7 +277,9 @@ const CategorizedProducts = () => {
                       <div>
                         <h3 className="text-2xl font-bold">{category.label}</h3>
                         {category.description && (
-                          <p className="text-white/80 mt-1">{category.description}</p>
+                          <p className="text-white/80 mt-1">
+                            {category.description}
+                          </p>
                         )}
                       </div>
                     </div>

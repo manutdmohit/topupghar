@@ -35,6 +35,7 @@ interface Product {
   description?: string;
   image?: string;
   variants: Variant[];
+  discountPercentage?: number; // New field
   inStock: boolean;
   isActive: boolean;
 }
@@ -142,7 +143,11 @@ export default function EditProductPage() {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else if (type === 'number') {
-      setFormData((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+      const numValue = value === '' ? 0 : Number(value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: isNaN(numValue) ? 0 : numValue,
+      }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -267,15 +272,17 @@ export default function EditProductPage() {
       // Upload image first if there's a new image
       const imageUrl = await uploadImage();
 
+      const updateData = {
+        ...formData,
+        image: imageUrl,
+      };
+
       const response = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          image: imageUrl,
-        }),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
@@ -517,6 +524,42 @@ export default function EditProductPage() {
                 </p>
               )}
             </div>
+
+            {/* Discount Percentage */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Discount Percentage
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  name="discountPercentage"
+                  value={formData.discountPercentage || ''}
+                  onChange={handleInputChange}
+                  min="0"
+                  max="100"
+                  step="1"
+                  placeholder="0"
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.discountPercentage
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  }`}
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  %
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Enter a percentage between 0-100. Leave as 0 for no discount.
+              </p>
+              {errors.discountPercentage && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.discountPercentage}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Product Variants */}
@@ -624,14 +667,18 @@ export default function EditProductPage() {
                         <div className="relative">
                           <input
                             type="number"
-                            value={variant.price}
-                            onChange={(e) =>
+                            value={variant.price || ''}
+                            onChange={(e) => {
+                              const numValue =
+                                e.target.value === ''
+                                  ? 0
+                                  : Number(e.target.value);
                               handleVariantChange(
                                 index,
                                 'price',
-                                parseFloat(e.target.value) || 0
-                              )
-                            }
+                                isNaN(numValue) ? 0 : numValue
+                              );
+                            }}
                             placeholder="0.00"
                             min="0"
                             step="0.01"

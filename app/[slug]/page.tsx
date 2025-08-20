@@ -15,6 +15,7 @@ import {
   Share2,
   TrendingUp,
 } from 'lucide-react';
+import { calculateDiscountedPrice } from '@/lib/price-utils';
 
 interface Variant {
   label: string;
@@ -32,6 +33,7 @@ interface Product {
   description?: string;
   image?: string;
   variants: Variant[];
+  discountPercentage?: number;
   inStock: boolean;
   isActive: boolean;
 }
@@ -85,6 +87,12 @@ export default function ProductPage() {
     if (!selectedVariant) return;
 
     try {
+      // Calculate discounted price
+      const priceInfo = calculateDiscountedPrice(
+        selectedVariant.price,
+        product.discountPercentage || 0
+      );
+
       // Create secure order session
       const response = await fetch('/api/orders/create-session', {
         method: 'POST',
@@ -95,7 +103,7 @@ export default function ProductPage() {
           platform: product.platform,
           type: product.type,
           duration: selectedVariant.duration,
-          price: selectedVariant.price,
+          price: priceInfo.discountedPrice,
           amount: selectedVariant.label,
         }),
       });
@@ -111,11 +119,16 @@ export default function ProductPage() {
     } catch (error) {
       console.error('Error creating order session:', error);
       // Fallback to old method for now
+      const priceInfo = calculateDiscountedPrice(
+        selectedVariant.price,
+        product.discountPercentage || 0
+      );
+
       const query = new URLSearchParams({
         platform: product.platform,
         type: product.type,
         duration: selectedVariant.duration,
-        price: selectedVariant.price.toString(),
+        price: priceInfo.discountedPrice.toString(),
         amount: selectedVariant.label,
       });
       router.push(`/topup/payment?${query.toString()}`);
@@ -327,9 +340,30 @@ export default function ProductPage() {
                         <p className="text-gray-600 text-sm mb-3">
                           {variant.duration}
                         </p>
-                        <p className="text-2xl font-bold text-blue-600">
-                          NPR {variant.price.toLocaleString()}
-                        </p>
+                        <div className="text-center">
+                          {product.discountPercentage &&
+                          product.discountPercentage > 0 ? (
+                            <>
+                              <p className="text-lg font-bold text-red-600">
+                                NPR{' '}
+                                {calculateDiscountedPrice(
+                                  variant.price,
+                                  product.discountPercentage
+                                ).discountedPrice.toLocaleString()}
+                              </p>
+                              <p className="text-sm text-gray-500 line-through">
+                                NPR {variant.price.toLocaleString()}
+                              </p>
+                              <p className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-medium mt-1">
+                                {product.discountPercentage}% OFF
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-2xl font-bold text-blue-600">
+                              NPR {variant.price.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -439,9 +473,15 @@ export default function ProductPage() {
                     </div>
                     <p className="text-green-600 text-sm mt-1">
                       {product.variants[selectedPackage]?.label} - NPR{' '}
-                      {product.variants[
-                        selectedPackage
-                      ]?.price.toLocaleString()}
+                      {product.discountPercentage &&
+                      product.discountPercentage > 0
+                        ? calculateDiscountedPrice(
+                            product.variants[selectedPackage]?.price || 0,
+                            product.discountPercentage
+                          ).discountedPrice.toLocaleString()
+                        : product.variants[
+                            selectedPackage
+                          ]?.price.toLocaleString()}
                     </p>
                   </div>
                 )}

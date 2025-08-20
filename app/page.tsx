@@ -50,19 +50,44 @@ export default function GameShopClone() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Search Section */}
-      <section className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 py-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/50 to-blue-600/50"></div>
+      <section className="bg-gradient-to-b from-purple-600 to-blue-600 py-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative max-w-7xl mx-auto px-4">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white mb-2">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
               Find Your Perfect Gaming Experience
             </h2>
-            <p className="text-purple-100">
+            <p className="text-lg text-purple-100 max-w-2xl mx-auto">
               Search from thousands of gaming products and services
             </p>
           </div>
-          <SearchBar />
+          <div className="max-w-2xl mx-auto">
+            <SearchBar />
+          </div>
+
+          {/* Limited Time Offers Button */}
+          <div className="text-center mt-8">
+            <button className="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
+              <Flame className="w-5 h-5 mr-2" />
+              Limited Time Offers
+              <Flame className="w-5 h-5 ml-2" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Special Deals Section */}
+      <section className="bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              Special Deals Just for You
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Grab these exclusive offers before they're gone! Limited stock
+              available.
+            </p>
+          </div>
         </div>
       </section>
 

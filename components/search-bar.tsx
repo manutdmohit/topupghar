@@ -212,8 +212,11 @@ export function SearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
-      <form onSubmit={handleSearch} className="flex w-full relative">
+    <div className="relative w-full">
+      <form
+        onSubmit={handleSearch}
+        className="flex flex-col sm:flex-row w-full gap-3"
+      >
         <div className="relative flex-1">
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
             {isSearching ? (
@@ -225,11 +228,11 @@ export function SearchBar() {
           <Input
             ref={searchInputRef}
             type="text"
-            placeholder="Search for games, subscriptions, social media services..."
+            placeholder="Search for"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setShowResults(true)}
-            className="pl-12 pr-12 py-4 text-lg border-0 bg-white/95 backdrop-blur-sm shadow-lg rounded-full focus:ring-4 focus:ring-purple-300/50 focus:bg-white transition-all duration-300"
+            className="pl-12 pr-12 py-4 text-lg border-0 bg-white shadow-lg rounded-full focus:ring-4 focus:ring-purple-300/50 focus:bg-white transition-all duration-300"
           />
           {searchQuery && (
             <button
@@ -245,7 +248,7 @@ export function SearchBar() {
         <Button
           type="submit"
           disabled={isSearching}
-          className="ml-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50"
+          className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 flex items-center justify-center"
         >
           <Sparkles className="w-5 h-5 mr-2" />
           Search
