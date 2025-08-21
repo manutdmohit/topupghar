@@ -22,8 +22,8 @@ const features = [
   },
   {
     icon: <Users className="w-8 h-8" />,
-    title: 'Trusted by Millions',
-    description: 'Over 2 million satisfied gamers worldwide',
+    title: 'Trusted by Thousands',
+    description: 'Over 10 thousand satisfied gamers worldwide',
     color: 'from-purple-400 to-pink-500',
   },
 ];

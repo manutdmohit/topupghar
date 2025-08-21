@@ -98,7 +98,7 @@ export default function GameShopClone() {
             What Our Gamers Say
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Join millions of satisfied customers who trust GameShop for their
+            Join thousands of satisfied customers who trust Topup घर for their
             gaming needs
           </p>
         </div>
