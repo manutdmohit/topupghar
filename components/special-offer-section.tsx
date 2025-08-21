@@ -12,6 +12,11 @@ import {
   Gamepad2,
 } from 'lucide-react';
 import { ProductCard } from '@/components/product-card';
+import {
+  calculateDiscountedPrice,
+  formatPrice,
+  formatDiscount,
+} from '@/lib/price-utils';
 
 interface Product {
   _id: string;
@@ -25,6 +30,7 @@ interface Product {
     duration: string;
     price: number;
   }>;
+  discountPercentage?: number;
   inStock: boolean;
   isActive: boolean;
 }
@@ -59,6 +65,8 @@ const SpecialOfferSection = () => {
 
   // Transform API data to match ProductCard props
   const transformProductToCardProps = (product: Product) => {
+    const hasDiscount =
+      product.discountPercentage && product.discountPercentage > 0;
     const lowestPrice = Math.min(...product.variants.map((v) => v.price));
     const highestPrice = Math.max(...product.variants.map((v) => v.price));
 
@@ -72,12 +80,29 @@ const SpecialOfferSection = () => {
       badge = 'POPULAR';
     }
 
-    // Format price correctly - show price range, not fake discounts
+    // Format price with discount if available
     let formattedPrice: string;
-    if (lowestPrice === highestPrice) {
-      formattedPrice = `NPR ${lowestPrice}`;
+    let originalPrice: string | undefined;
+    let discount: string | undefined;
+
+    if (hasDiscount) {
+      // Calculate discounted price using the proper utility function
+      const priceInfo = calculateDiscountedPrice(
+        lowestPrice,
+        product.discountPercentage!
+      );
+      formattedPrice = formatPrice(priceInfo.discountedPrice);
+      originalPrice = formatPrice(priceInfo.originalPrice);
+      discount = formatDiscount(product.discountPercentage!);
     } else {
-      formattedPrice = `From NPR ${lowestPrice}`;
+      // No discount - show regular price
+      if (lowestPrice === highestPrice) {
+        formattedPrice = `NPR ${lowestPrice}`;
+      } else {
+        formattedPrice = `From NPR ${lowestPrice}`;
+      }
+      originalPrice = undefined;
+      discount = undefined;
     }
 
     return {
@@ -86,8 +111,8 @@ const SpecialOfferSection = () => {
       image: product.image || `/${product.platform}.jpg`,
       badge,
       price: formattedPrice,
-      originalPrice: undefined, // No fake discounts
-      discount: undefined, // No fake discounts
+      originalPrice,
+      discount,
       isPopular: product.platform === 'freefire',
       rating: 4.8 + Math.random() * 0.2, // Random rating between 4.8-5.0
       deliveryTime: 'Instant',

@@ -64,15 +64,6 @@ export default function GameShopClone() {
           <div className="max-w-2xl mx-auto">
             <SearchBar />
           </div>
-
-          {/* Limited Time Offers Button */}
-          <div className="text-center mt-8">
-            <button className="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
-              <Flame className="w-5 h-5 mr-2" />
-              Limited Time Offers
-              <Flame className="w-5 h-5 ml-2" />
-            </button>
-          </div>
         </div>
       </section>
 
