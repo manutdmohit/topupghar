@@ -76,21 +76,6 @@ export default function GameShopClone() {
         </div>
       </section>
 
-      {/* Special Deals Section */}
-      <section className="bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              Special Deals Just for You
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Grab these exclusive offers before they're gone! Limited stock
-              available.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Hero Section */}
       {/* <HeroSection /> */}
 
