@@ -91,16 +91,12 @@ const SpecialOfferSection = () => {
         lowestPrice,
         product.discountPercentage!
       );
-      formattedPrice = formatPrice(priceInfo.discountedPrice);
-      originalPrice = formatPrice(priceInfo.originalPrice);
+      formattedPrice = `From ${formatPrice(priceInfo.discountedPrice)}`;
+      originalPrice = `From ${formatPrice(priceInfo.originalPrice)}`;
       discount = formatDiscount(product.discountPercentage!);
     } else {
-      // No discount - show regular price
-      if (lowestPrice === highestPrice) {
-        formattedPrice = `NPR ${lowestPrice}`;
-      } else {
-        formattedPrice = `From NPR ${lowestPrice}`;
-      }
+      // No discount - always show "From" for consistency
+      formattedPrice = `From NPR ${lowestPrice}`;
       originalPrice = undefined;
       discount = undefined;
     }
@@ -150,7 +146,7 @@ const SpecialOfferSection = () => {
       )}
 
       {!loading && !error && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {specialOffers.map((product, index) => (
             <ProductCard
               key={product._id || index}

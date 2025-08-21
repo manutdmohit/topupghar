@@ -8,6 +8,8 @@ export interface OrderSessionData {
   type: string;
   amount: string;
   price: number;
+  originalPrice?: number;
+  discountPercentage?: number;
   duration: string;
   level?: string;
   diamonds?: string;

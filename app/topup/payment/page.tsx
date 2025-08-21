@@ -91,8 +91,14 @@ export default function TopupPaymentPage() {
             });
 
             // Initialize price states
-            setOriginalPrice(sessionData.price);
+            setOriginalPrice(sessionData.originalPrice || sessionData.price);
             setFinalPrice(sessionData.price);
+            if (
+              sessionData.discountPercentage &&
+              sessionData.discountPercentage > 0
+            ) {
+              setDiscountAmount(sessionData.originalPrice - sessionData.price);
+            }
             return;
           } else {
             console.error('Token verification failed:', response.statusText);

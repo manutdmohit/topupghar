@@ -9,6 +9,8 @@ export async function POST(request: NextRequest) {
       type,
       amount,
       price,
+      originalPrice,
+      discountPercentage,
       duration,
       level,
       diamonds,
@@ -35,6 +37,10 @@ export async function POST(request: NextRequest) {
       type,
       amount: amount || '',
       price: priceNum,
+      originalPrice: originalPrice ? parseFloat(originalPrice) : priceNum,
+      discountPercentage: discountPercentage
+        ? parseFloat(discountPercentage)
+        : 0,
       duration,
       level: level || '',
       diamonds: diamonds || '',

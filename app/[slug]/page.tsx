@@ -104,6 +104,8 @@ export default function ProductPage() {
           type: product.type,
           duration: selectedVariant.duration,
           price: priceInfo.discountedPrice,
+          originalPrice: selectedVariant.price,
+          discountPercentage: product.discountPercentage || 0,
           amount: selectedVariant.label,
         }),
       });

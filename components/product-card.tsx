@@ -80,24 +80,26 @@ export function ProductCard({
             </h3>
             {/* Badges row: always starts at the same Y-position */}
             <div className="flex flex-wrap items-center gap-1 mt-0 min-h-[1.5rem] mb-2 w-full">
-              <Badge className="text-[10px] px-2 py-0.5">{badge}</Badge>
+              <Badge className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5">
+                {badge}
+              </Badge>
               {isPopular && (
-                <Badge className="text-[10px] px-2 py-0.5 bg-orange-400 text-white">
+                <Badge className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 bg-orange-400 text-white">
                   Hot
                 </Badge>
               )}
               {inStock ? (
-                <Badge className="text-[10px] px-2 py-0.5 bg-green-500 text-white">
+                <Badge className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 bg-green-500 text-white">
                   In Stock
                 </Badge>
               ) : (
-                <Badge className="text-[10px] px-2 py-0.5 bg-gray-400 text-white">
+                <Badge className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 bg-gray-400 text-white">
                   Out of Stock
                 </Badge>
               )}
               {deliveryTime && (
-                <Badge className="text-[10px] px-2 py-0.5 bg-purple-500 text-white flex items-center gap-0.5">
-                  <Zap className="w-3 h-3" /> {deliveryTime}
+                <Badge className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 bg-purple-500 text-white flex items-center gap-0.5">
+                  <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {deliveryTime}
                 </Badge>
               )}
             </div>
@@ -106,21 +108,54 @@ export function ProductCard({
           {/* Price Display */}
           {price && (
             <div className="mt-2 mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-green-600">
-                  {price}
-                </span>
-                {originalPrice && originalPrice !== price && (
-                  <span className="text-sm text-gray-500 line-through">
-                    {originalPrice}
+              {originalPrice && originalPrice !== price && discount ? (
+                // Discounted price layout - stacked for better mobile display
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-lg font-bold text-green-600">
+                      {price}
+                    </span>
+                    <span className="text-sm text-gray-500 line-through">
+                      {originalPrice}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-medium">
+                      {discount}
+                    </span>
+                    <span className="text-xs text-green-600 font-medium">
+                      Save{' '}
+                      {Math.round(
+                        (parseFloat(
+                          originalPrice.replace('NPR ', '').replace(/,/g, '')
+                        ) -
+                          parseFloat(
+                            price.replace('NPR ', '').replace(/,/g, '')
+                          )) *
+                          100
+                      ) / 100}{' '}
+                      NPR
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                // Regular price layout
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-green-600">
+                    {price}
                   </span>
-                )}
-                {discount && (
-                  <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-medium">
-                    {discount}
-                  </span>
-                )}
-              </div>
+                  {originalPrice && originalPrice !== price && (
+                    <span className="text-sm text-gray-500 line-through">
+                      {originalPrice}
+                    </span>
+                  )}
+                  {discount && (
+                    <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-medium">
+                      {discount}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -131,7 +166,7 @@ export function ProductCard({
               w-full border-purple-500 text-purple-700 
               hover:bg-purple-50 hover:text-purple-800 
               transition-all duration-300 font-semibold
-              py-2 text-xs
+              py-1.5 sm:py-2 text-xs
             `}
             tabIndex={-1}
           >
