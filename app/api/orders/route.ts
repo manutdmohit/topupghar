@@ -74,9 +74,18 @@ export const POST = async (req: NextRequest) => {
 
     // Handle promocode if provided
     let finalPrice = parseFloat(orderData.price || '0');
-    let originalPrice = finalPrice;
+    let originalPrice = parseFloat(
+      orderData.originalPrice || orderData.price || '0'
+    );
     let discountAmount = 0;
     let appliedPromocode = null;
+
+    console.log('Order creation debug:', {
+      receivedPrice: orderData.price,
+      receivedOriginalPrice: orderData.originalPrice,
+      calculatedOriginalPrice: originalPrice,
+      receivedPromocode: orderData.promocode,
+    });
 
     if (orderData.promocode && orderData.promocode.trim()) {
       try {
@@ -91,9 +100,17 @@ export const POST = async (req: NextRequest) => {
           new Date() < promocode.expiry &&
           promocode.usedCount < promocode.maxCount
         ) {
-          // Calculate discount
-          discountAmount = (originalPrice * promocode.discountPercentage) / 100;
-          finalPrice = originalPrice - discountAmount;
+          // Determine the base price for promocode calculation
+          // If there's a product discount (price < originalPrice), use the discounted price
+          // Otherwise, use the original price
+          const basePriceForPromocode =
+            finalPrice < originalPrice ? finalPrice : originalPrice;
+
+          // Calculate promocode discount on the base price
+          const promocodeDiscountAmount =
+            (basePriceForPromocode * promocode.discountPercentage) / 100;
+          finalPrice = basePriceForPromocode - promocodeDiscountAmount;
+          discountAmount = promocodeDiscountAmount;
           appliedPromocode = promocode.name;
 
           // Increment usage count
@@ -105,6 +122,9 @@ export const POST = async (req: NextRequest) => {
         console.error('Error processing promocode:', error);
         // Continue without promocode if there's an error
       }
+    } else {
+      // No promocode applied, use the price as provided (which might already include product discount)
+      finalPrice = parseFloat(orderData.price || '0');
     }
 
     // Create a new order with the Cloudinary URL and promocode data

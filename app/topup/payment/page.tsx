@@ -163,6 +163,19 @@ export default function TopupPaymentPage() {
 
     setIsValidatingPromocode(true);
     try {
+      // Determine the base price for promocode calculation
+      // If there's a product discount, use the discounted price, otherwise use original price
+      const basePriceForPromocode =
+        finalPrice !== originalPrice ? finalPrice : originalPrice;
+
+      console.log('Promocode calculation debug:', {
+        originalPrice,
+        finalPrice,
+        basePriceForPromocode,
+        hasProductDiscount: finalPrice !== originalPrice,
+        promocodeName: promocode.trim(),
+      });
+
       const response = await fetch('/api/promocodes/validate', {
         method: 'POST',
         headers: {
@@ -170,32 +183,46 @@ export default function TopupPaymentPage() {
         },
         body: JSON.stringify({
           promocodeName: promocode.trim(),
-          orderAmount: originalPrice,
+          orderAmount: basePriceForPromocode, // Use discounted price if available, otherwise original price
         }),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
 
       if (!response.ok) {
-        toast.error(data.message || 'Invalid promocode');
+        toast.error(responseData.message || 'Invalid promocode');
         setAppliedPromocode(null);
-        setFinalPrice(originalPrice);
-        setDiscountAmount(0);
+        // Reset to the price without promocode
+        // Use the price from session data (which might be discounted)
+        const priceWithoutPromocode = parseFloat(data.price || '0');
+        setFinalPrice(priceWithoutPromocode);
+        // Reset promocode discount but keep product discount if any
+        const productDiscountAmount =
+          originalPrice - parseFloat(data.price || '0');
+        setDiscountAmount(
+          productDiscountAmount > 0 ? productDiscountAmount : 0
+        );
         return;
       }
 
-      // Apply promocode
-      setAppliedPromocode(data.promocode);
-      setDiscountAmount(data.calculation.discountAmount);
-      setFinalPrice(data.calculation.finalAmount);
+      // Apply promocode discount to the base price (discounted or original)
+      setAppliedPromocode(responseData.promocode);
+      setDiscountAmount(responseData.calculation.discountAmount);
+      setFinalPrice(responseData.calculation.finalAmount);
       toast.success(
-        `Promocode applied! ${data.promocode.discountPercentage}% discount`
+        `Promocode applied! ${responseData.promocode.discountPercentage}% discount`
       );
     } catch (error) {
       toast.error('Failed to validate promocode');
       setAppliedPromocode(null);
-      setFinalPrice(originalPrice);
-      setDiscountAmount(0);
+      // Reset to the price without promocode
+      // Use the price from session data (which might be discounted)
+      const priceWithoutPromocode = parseFloat(data.price || '0');
+      setFinalPrice(priceWithoutPromocode);
+      // Reset promocode discount but keep product discount if any
+      const productDiscountAmount =
+        originalPrice - parseFloat(data.price || '0');
+      setDiscountAmount(productDiscountAmount > 0 ? productDiscountAmount : 0);
     } finally {
       setIsValidatingPromocode(false);
     }
@@ -204,8 +231,13 @@ export default function TopupPaymentPage() {
   const removePromocode = () => {
     setPromocode('');
     setAppliedPromocode(null);
-    setFinalPrice(originalPrice);
-    setDiscountAmount(0);
+    // Reset to the price without promocode
+    // Use the price from session data (which might be discounted)
+    const priceWithoutPromocode = parseFloat(data.price || '0');
+    setFinalPrice(priceWithoutPromocode);
+    // Reset promocode discount but keep product discount if any
+    const productDiscountAmount = originalPrice - parseFloat(data.price || '0');
+    setDiscountAmount(productDiscountAmount > 0 ? productDiscountAmount : 0);
     toast.success('Promocode removed');
   };
 
@@ -361,6 +393,8 @@ export default function TopupPaymentPage() {
     formData.append('type', data.type);
     if (data.amount) formData.append('amount', data.amount);
     if (data.price) formData.append('price', data.price);
+    // Add original price for proper discount calculation
+    formData.append('originalPrice', originalPrice.toString());
     if (data.duration) formData.append('duration', data.duration);
     if (data.level) formData.append('level', data.level);
     if (data.diamonds) formData.append('diamonds', data.diamonds);

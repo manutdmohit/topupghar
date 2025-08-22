@@ -8,6 +8,11 @@ export async function POST(req: NextRequest) {
 
     const { promocodeName, orderAmount } = await req.json();
 
+    console.log('Promocode validation debug:', {
+      promocodeName,
+      orderAmount,
+    });
+
     if (!promocodeName || !orderAmount) {
       return NextResponse.json(
         { message: 'Promocode name and order amount are required' },
