@@ -76,8 +76,6 @@ export default function TopupPaymentPage() {
             const result = await response.json();
             const sessionData = result.data;
 
-            console.log('Secure session data:', sessionData);
-
             setData({
               platform: sessionData.platform,
               uid_email: uid || '',
@@ -117,14 +115,6 @@ export default function TopupPaymentPage() {
     const type = searchParams.get('type') || '';
     const amount = searchParams.get('amount') || '';
     const price = searchParams.get('price') || '';
-
-    console.log('URL Parameters Debug (fallback):', {
-      platform,
-      type,
-      amount,
-      price,
-      allParams: Object.fromEntries(searchParams.entries()),
-    });
 
     setData({
       platform,
@@ -167,14 +157,6 @@ export default function TopupPaymentPage() {
       // If there's a product discount, use the discounted price, otherwise use original price
       const basePriceForPromocode =
         finalPrice !== originalPrice ? finalPrice : originalPrice;
-
-      console.log('Promocode calculation debug:', {
-        originalPrice,
-        finalPrice,
-        basePriceForPromocode,
-        hasProductDiscount: finalPrice !== originalPrice,
-        promocodeName: promocode.trim(),
-      });
 
       const response = await fetch('/api/promocodes/validate', {
         method: 'POST',
@@ -540,14 +522,6 @@ export default function TopupPaymentPage() {
       diamondCount = data.duration.replace(/[^\d]/g, '');
     }
 
-    console.log('Free Fire Diamonds Debug:', {
-      platform: data.platform,
-      type: data.type,
-      amount: data.amount,
-      duration: data.duration,
-      diamondCount: diamondCount,
-      finalPrice: finalPrice,
-    });
     summary = (
       <>
         You're buying <strong>{diamondCount} diamonds</strong> for{' '}
