@@ -125,15 +125,23 @@ export function ProductCard({
                     </span>
                     <span className="text-xs text-green-600 font-medium">
                       Save{' '}
-                      {Math.round(
-                        (parseFloat(
-                          originalPrice.replace('NPR ', '').replace(/,/g, '')
-                        ) -
-                          parseFloat(
-                            price.replace('NPR ', '').replace(/,/g, '')
-                          )) *
-                          100
-                      ) / 100}{' '}
+                      {(() => {
+                        // Extract numeric values from price strings
+                        const originalPriceNum = parseFloat(
+                          originalPrice.replace(/[^\d.]/g, '')
+                        );
+                        const priceNum = parseFloat(
+                          price.replace(/[^\d.]/g, '')
+                        );
+
+                        if (!isNaN(originalPriceNum) && !isNaN(priceNum)) {
+                          return (
+                            Math.round((originalPriceNum - priceNum) * 100) /
+                            100
+                          );
+                        }
+                        return 0;
+                      })()}{' '}
                       NPR
                     </span>
                   </div>

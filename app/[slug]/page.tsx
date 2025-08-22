@@ -271,8 +271,38 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Main Content - Optimized for immediate purchase */}
+      {/* YouTube Video Section - Prominent Position */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <svg
+              className="w-8 h-8 text-red-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+            Watch Our Demo Video
+          </h3>
+          <div
+            className="relative w-full max-w-4xl mx-auto"
+            style={{ paddingBottom: '56.25%' }}
+          >
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-xl border-0"
+              src="https://www.youtube.com/embed/ofmst5EwPu8"
+              title="Product Demo Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <p className="text-gray-600 text-center mt-4 max-w-2xl mx-auto">
+            Learn more about our services and how to get started with your
+            purchase
+          </p>
+        </div>
+
+        {/* Main Content - Optimized for immediate purchase */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Product Image - Smaller, more compact */}
           <div className="lg:col-span-1">
