@@ -51,6 +51,7 @@ export default function ProductPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [showFullscreenModal, setShowFullscreenModal] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   useEffect(() => {
     // Check if device is mobile
@@ -570,11 +571,13 @@ export default function ProductPage() {
                 playsInline
                 webkit-playsinline="true"
                 onPlay={(e) => {
+                  setIsVideoPlaying(true);
                   e.currentTarget.parentElement
                     ?.querySelector('.video-overlay')
                     ?.classList.add('hidden');
                 }}
                 onPause={(e) => {
+                  setIsVideoPlaying(false);
                   e.currentTarget.parentElement
                     ?.querySelector('.video-overlay')
                     ?.classList.remove('hidden');
@@ -604,13 +607,23 @@ export default function ProductPage() {
                       }}
                       className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
                     >
-                      <svg
-                        className="w-6 h-6"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
+                      {isVideoPlaying ? (
+                        <svg
+                          className="w-6 h-6"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-6 h-6"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      )}
                     </button>
 
                     <div className="flex items-center gap-2">
@@ -744,6 +757,8 @@ export default function ProductPage() {
                   }
                 }
               }}
+              onPlay={() => setIsVideoPlaying(true)}
+              onPause={() => setIsVideoPlaying(false)}
             >
               <source src="/topup-ghar.mp4" type="video/mp4" />
               Your browser does not support the video tag.
