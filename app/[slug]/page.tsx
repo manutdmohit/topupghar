@@ -552,6 +552,8 @@ export default function ProductPage() {
                 preload="auto"
                 poster="/video-poster.jpg"
                 crossOrigin="anonymous"
+                playsInline
+                webkit-playsinline="true"
                 onPlay={(e) => {
                   e.currentTarget.parentElement
                     ?.querySelector('.video-overlay')
@@ -561,6 +563,18 @@ export default function ProductPage() {
                   e.currentTarget.parentElement
                     ?.querySelector('.video-overlay')
                     ?.classList.remove('hidden');
+                }}
+                onFullscreenChange={(e) => {
+                  // Prevent orientation change on mobile
+                  if (window.innerWidth <= 768) {
+                    const video = e.currentTarget;
+                    if (document.fullscreenElement) {
+                      // Exit fullscreen if on mobile
+                      if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                      }
+                    }
+                  }
                 }}
               >
                 <source src="/topup-ghar.mp4" type="video/mp4" />
