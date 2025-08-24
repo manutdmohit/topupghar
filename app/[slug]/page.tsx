@@ -48,6 +48,19 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -548,7 +561,7 @@ export default function ProductPage() {
             >
               <video
                 className="absolute top-0 left-0 w-full h-full rounded-xl border-0 object-contain"
-                controls
+                controls={!isMobile}
                 preload="auto"
                 poster="/video-poster.jpg"
                 crossOrigin="anonymous"
@@ -564,22 +577,48 @@ export default function ProductPage() {
                     ?.querySelector('.video-overlay')
                     ?.classList.remove('hidden');
                 }}
-                onFullscreenChange={(e) => {
-                  // Prevent orientation change on mobile
-                  if (window.innerWidth <= 768) {
-                    const video = e.currentTarget;
-                    if (document.fullscreenElement) {
-                      // Exit fullscreen if on mobile
-                      if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                      }
-                    }
-                  }
-                }}
               >
                 <source src="/topup-ghar.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+
+              {/* Custom Mobile Controls */}
+              {isMobile && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 rounded-b-xl">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const video = e.currentTarget
+                          .closest('.relative')
+                          ?.querySelector('video');
+                        if (video) {
+                          if (video.paused) {
+                            video.play();
+                          } else {
+                            video.pause();
+                          }
+                        }
+                      }}
+                      className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
+                    >
+                      <svg
+                        className="w-6 h-6"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-white text-sm">
+                        Mobile optimized
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* YouTube-like Thumbnail Overlay */}
               <div className="video-overlay absolute top-0 left-0 w-full h-full rounded-xl bg-black bg-opacity-20 flex items-center justify-center transition-all duration-300 group-hover:bg-opacity-30">
@@ -594,10 +633,10 @@ export default function ProductPage() {
                   </svg>
                 </div>
 
-                {/* Video Duration Badge */}
-                <div className="absolute bottom-3 right-3 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                  2:30
-                </div>
+                {/* Video Duration Badge - Removed hardcoded duration */}
+                {/* <div className="absolute bottom-3 right-3 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                    2:30
+                  </div> */}
 
                 {/* Video Title */}
                 <div className="absolute top-3 left-3 bg-black bg-opacity-75 text-white text-sm px-3 py-1 rounded">
