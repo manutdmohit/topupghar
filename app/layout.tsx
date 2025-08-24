@@ -24,6 +24,14 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <link
+          rel="preload"
+          href="/topup-ghar.mp4"
+          as="video"
+          type="video/mp4"
+        />
+      </head>
       <body className="font-sans">
         <AppShell>{children}</AppShell>
         <WelcomeModal />

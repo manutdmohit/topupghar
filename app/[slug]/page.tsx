@@ -532,17 +532,22 @@ export default function ProductPage() {
             </svg>
             See How It Works
           </h3>
-          <div
-            className="relative w-full max-w-4xl mx-auto"
-            style={{ paddingBottom: '56.25%' }}
-          >
-            <iframe
-              className="absolute top-0 left-0 w-full h-full rounded-xl border-0"
-              src="https://www.youtube.com/embed/ofmst5EwPu8"
-              title="Product Demo Video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+          <div className="w-full max-w-4xl mx-auto">
+            <div
+              className="relative w-full"
+              style={{ paddingBottom: '56.25%' }}
+            >
+              <video
+                className="absolute top-0 left-0 w-full h-full rounded-xl border-0 object-cover"
+                controls
+                preload="auto"
+                poster="/video-poster.jpg"
+                crossOrigin="anonymous"
+              >
+                <source src="/topup-ghar.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
           <p className="text-gray-600 text-center mt-4 max-w-2xl mx-auto">
             Watch our quick demo to see how easy it is to get started with your
