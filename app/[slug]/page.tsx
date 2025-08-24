@@ -50,6 +50,7 @@ export default function ProductPage() {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showFullscreenModal, setShowFullscreenModal] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     // Check if device is mobile
@@ -751,16 +752,37 @@ export default function ProductPage() {
             {/* Close Button */}
             <button
               onClick={() => {
+                if (isTransitioning) return; // Prevent multiple clicks
+                setIsTransitioning(true);
+
                 // Sync the current time from modal video to original video
                 const modalVideo = document.querySelector('.fixed video');
                 const originalVideo = document.querySelector('.relative video');
                 if (modalVideo && originalVideo) {
+                  // Pause modal video first
+                  modalVideo.pause();
+                  // Set the time on original video
                   originalVideo.currentTime = modalVideo.currentTime;
-                  originalVideo.play();
+                  // Ensure original video is ready before transition
+                  originalVideo.addEventListener(
+                    'canplay',
+                    function onCanPlay() {
+                      originalVideo.removeEventListener('canplay', onCanPlay);
+                      originalVideo.play();
+                      setShowFullscreenModal(false);
+                      setIsTransitioning(false);
+                    },
+                    { once: true }
+                  );
+                } else {
+                  setShowFullscreenModal(false);
+                  setIsTransitioning(false);
                 }
-                setShowFullscreenModal(false);
               }}
-              className="absolute top-4 right-4 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors"
+              disabled={isTransitioning}
+              className={`absolute top-4 right-4 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors ${
+                isTransitioning ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
