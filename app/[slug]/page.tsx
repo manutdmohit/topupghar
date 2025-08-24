@@ -49,6 +49,7 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showFullscreenModal, setShowFullscreenModal] = useState(false);
 
   useEffect(() => {
     // Check if device is mobile
@@ -612,9 +613,21 @@ export default function ProductPage() {
                     </button>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-white text-sm">
-                        Mobile optimized
-                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowFullscreenModal(true);
+                        }}
+                        className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -696,6 +709,34 @@ export default function ProductPage() {
           )}
         </div>
       </div>
+
+      {/* Fullscreen Modal for Mobile */}
+      {showFullscreenModal && (
+        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <video
+              className="w-full h-full object-contain"
+              controls
+              autoPlay
+              playsInline
+              webkit-playsinline="true"
+            >
+              <source src="/topup-ghar.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowFullscreenModal(false)}
+              className="absolute top-4 right-4 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
