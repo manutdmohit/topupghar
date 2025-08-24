@@ -534,8 +534,17 @@ export default function ProductPage() {
           </h3>
           <div className="w-full max-w-4xl mx-auto">
             <div
-              className="relative w-full"
+              className="relative w-full cursor-pointer group"
               style={{ paddingBottom: '56.25%' }}
+              onClick={(e) => {
+                const video = e.currentTarget.querySelector('video');
+                if (video) {
+                  video.play();
+                  e.currentTarget
+                    .querySelector('.video-overlay')
+                    ?.classList.add('hidden');
+                }
+              }}
             >
               <video
                 className="absolute top-0 left-0 w-full h-full rounded-xl border-0 object-cover"
@@ -543,10 +552,44 @@ export default function ProductPage() {
                 preload="auto"
                 poster="/video-poster.jpg"
                 crossOrigin="anonymous"
+                onPlay={(e) => {
+                  e.currentTarget.parentElement
+                    ?.querySelector('.video-overlay')
+                    ?.classList.add('hidden');
+                }}
+                onPause={(e) => {
+                  e.currentTarget.parentElement
+                    ?.querySelector('.video-overlay')
+                    ?.classList.remove('hidden');
+                }}
               >
                 <source src="/topup-ghar.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+
+              {/* YouTube-like Thumbnail Overlay */}
+              <div className="video-overlay absolute top-0 left-0 w-full h-full rounded-xl bg-black bg-opacity-20 flex items-center justify-center transition-all duration-300 group-hover:bg-opacity-30">
+                {/* Play Button */}
+                <div className="bg-white bg-opacity-90 rounded-full p-4 shadow-lg transform transition-transform duration-200 group-hover:scale-110">
+                  <svg
+                    className="w-8 h-8 text-gray-800 ml-1"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+
+                {/* Video Duration Badge */}
+                <div className="absolute bottom-3 right-3 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                  2:30
+                </div>
+
+                {/* Video Title */}
+                <div className="absolute top-3 left-3 bg-black bg-opacity-75 text-white text-sm px-3 py-1 rounded">
+                  How to Use Topup Ghar
+                </div>
+              </div>
             </div>
           </div>
           <p className="text-gray-600 text-center mt-4 max-w-2xl mx-auto">
