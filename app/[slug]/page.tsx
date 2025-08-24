@@ -616,6 +616,18 @@ export default function ProductPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          // Pause the original video and store current time
+                          const originalVideo = e.currentTarget
+                            .closest('.relative')
+                            ?.querySelector('video');
+                          if (originalVideo) {
+                            originalVideo.pause();
+                            // Store current time in a data attribute
+                            originalVideo.setAttribute(
+                              'data-current-time',
+                              originalVideo.currentTime.toString()
+                            );
+                          }
                           setShowFullscreenModal(true);
                         }}
                         className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
@@ -720,6 +732,17 @@ export default function ProductPage() {
               autoPlay
               playsInline
               webkit-playsinline="true"
+              onLoadedMetadata={(e) => {
+                // Set the video time to match the original video
+                const originalVideo = document.querySelector('.relative video');
+                if (originalVideo) {
+                  const currentTime =
+                    originalVideo.getAttribute('data-current-time');
+                  if (currentTime) {
+                    e.currentTarget.currentTime = parseFloat(currentTime);
+                  }
+                }
+              }}
             >
               <source src="/topup-ghar.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -727,7 +750,16 @@ export default function ProductPage() {
 
             {/* Close Button */}
             <button
-              onClick={() => setShowFullscreenModal(false)}
+              onClick={() => {
+                // Sync the current time from modal video to original video
+                const modalVideo = document.querySelector('.fixed video');
+                const originalVideo = document.querySelector('.relative video');
+                if (modalVideo && originalVideo) {
+                  originalVideo.currentTime = modalVideo.currentTime;
+                  originalVideo.play();
+                }
+                setShowFullscreenModal(false);
+              }}
               className="absolute top-4 right-4 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
