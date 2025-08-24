@@ -547,7 +547,7 @@ export default function ProductPage() {
               }}
             >
               <video
-                className="absolute top-0 left-0 w-full h-full rounded-xl border-0 object-cover"
+                className="absolute top-0 left-0 w-full h-full rounded-xl border-0 object-contain"
                 controls
                 preload="auto"
                 poster="/video-poster.jpg"
