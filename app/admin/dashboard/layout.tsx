@@ -128,21 +128,41 @@ export default function DashboardLayout({
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
-    
+
     if (isLeftSwipe && sidebarOpen && window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
-    
+
     setTouchStart(null);
     setTouchEnd(null);
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
-              {/* Mobile sidebar overlay */}
+    <>
+      <style jsx>{`
+        .sidebar-nav::-webkit-scrollbar {
+          width: 4px;
+        }
+        .sidebar-nav::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 2px;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+        .sidebar-nav {
+          scrollbar-width: thin;
+          scrollbar-color: #d1d5db transparent;
+        }
+      `}</style>
+      <div className="min-h-screen flex bg-gray-100">
+        {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden transition-opacity duration-300"
@@ -157,213 +177,223 @@ export default function DashboardLayout({
           </div>
         )}
 
-      {/* Sidebar */}
-      <aside
-        ref={sidebarRef}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        className={`
-          fixed inset-y-0 left-0 z-50 bg-white shadow-xl transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
+        {/* Sidebar */}
+        <aside
+          ref={sidebarRef}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          className={`
+          fixed inset-y-0 left-0 z-50 bg-white shadow-xl transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col h-full
           ${
             sidebarOpen
               ? 'translate-x-0 w-72 lg:w-64'
               : '-translate-x-full lg:translate-x-0 lg:w-20'
           }
         `}
-      >
-        <div className="h-16 flex items-center justify-between px-4 lg:px-6 border-b">
-          <div
-            className={`font-bold text-xl text-gray-800 transition-opacity duration-300 ${
-              !sidebarOpen && 'lg:hidden'
-            }`}
-          >
-            Admin Panel
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={toggleSidebar}
-              className="hidden lg:block p-2 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-              title={sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
-            >
-              <Menu
-                className={`w-6 h-6 transition-all duration-300 ${
-                  !sidebarOpen && 'lg:w-8 lg:h-8'
-                }`}
-              />
-            </button>
-            <button
-              onClick={closeSidebar}
-              className="lg:hidden p-3 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors touch-manipulation"
-              aria-label="Close sidebar"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 lg:p-4">
-          <ul className="space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    onClick={closeSidebar}
-                    className="flex items-center px-4 py-4 lg:px-3 lg:py-4 text-base lg:text-sm font-medium text-gray-700 rounded-lg lg:rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors group touch-manipulation"
-                    title={item.name}
-                  >
-                    <Icon
-                      className={`w-6 h-6 lg:w-8 lg:h-8 mr-4 lg:mr-0 lg:group-hover:mr-4 transition-all duration-300 ${
-                        !sidebarOpen ? 'w-12 h-12' : 'lg:w-8 lg:h-8'
-                      }`}
-                    />
-                    <span
-                      className={`ml-2 lg:ml-4 transition-opacity duration-300 ${
-                        !sidebarOpen && 'lg:hidden'
-                      }`}
-                    >
-                      {item.name}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        {/* User info and logout at bottom */}
-        <div className="p-4 lg:p-4 border-t">
-          <div className="flex items-center px-4 lg:px-3 py-4">
-            <User
-              className={`w-8 h-8 lg:w-6 lg:h-6 mr-4 lg:mr-0 lg:group-hover:mr-4 text-gray-400 transition-all duration-300 ${
-                !sidebarOpen ? 'w-12 h-12' : 'lg:w-6 lg:h-6'
-              }`}
-            />
+        >
+          {/* Fixed Header */}
+          <div className="h-16 flex-shrink-0 flex items-center justify-between px-4 lg:px-6 border-b bg-white z-10">
             <div
-              className={`flex-1 min-w-0 transition-opacity duration-300 ${
+              className={`font-bold text-xl text-gray-800 transition-opacity duration-300 ${
                 !sidebarOpen && 'lg:hidden'
               }`}
             >
-              <p className="text-base lg:text-sm font-medium text-gray-700 truncate">
-                {adminUser?.email || 'Admin'}
-              </p>
-              <p className="text-sm lg:text-xs text-gray-500">Administrator</p>
+              Admin Panel
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={toggleSidebar}
+                className="hidden lg:block p-2 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                title={sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
+              >
+                <Menu
+                  className={`w-6 h-6 transition-all duration-300 ${
+                    !sidebarOpen && 'lg:w-8 lg:h-8'
+                  }`}
+                />
+              </button>
+              <button
+                onClick={closeSidebar}
+                className="lg:hidden p-3 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors touch-manipulation"
+                aria-label="Close sidebar"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
           </div>
-          <button
-            onClick={logout}
-            className="w-full mt-3 flex items-center px-4 lg:px-3 py-4 text-base lg:text-sm font-medium text-red-600 rounded-lg lg:rounded-md hover:bg-red-50 hover:text-red-700 transition-colors group touch-manipulation"
-            title="Logout"
-          >
-            <LogOut
-              className={`w-6 h-6 lg:w-6 lg:h-6 mr-4 lg:mr-0 lg:group-hover:mr-4 transition-all duration-300 ${
-                !sidebarOpen ? 'w-12 h-12' : 'lg:w-6 lg:h-6'
-              }`}
-            />
-            <span
-              className={`transition-opacity duration-300 ${
-                !sidebarOpen && 'lg:hidden'
-              }`}
-            >
-              Logout
-            </span>
-          </button>
-        </div>
-      </aside>
 
-      {/* Main content area */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarOpen ? 'lg:ml-0' : 'lg:ml-20'
-        }`}
-      >
-        {/* Header */}
-        <header className="h-16 bg-white shadow flex items-center px-4 lg:px-6 border-b justify-between">
-          <div className="flex items-center">
-            <button
-              onClick={toggleSidebar}
-              className="p-3 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 mr-3 transition-colors lg:hidden touch-manipulation"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <span className="font-semibold text-lg text-gray-800">
-              Dashboard
-            </span>
-          </div>
+          {/* Scrollable Navigation */}
+          <nav className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-4 sidebar-nav">
+            <ul className="space-y-2 pb-4">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li
+                    key={item.name}
+                    className="min-h-[56px] flex items-center"
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={closeSidebar}
+                      className="flex items-center w-full px-4 py-4 lg:px-3 lg:py-4 text-base lg:text-sm font-medium text-gray-700 rounded-lg lg:rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors group touch-manipulation"
+                      title={item.name}
+                    >
+                      <Icon
+                        className={`w-6 h-6 lg:w-8 lg:h-8 mr-4 lg:mr-0 lg:group-hover:mr-4 transition-all duration-300 flex-shrink-0 ${
+                          !sidebarOpen ? 'w-12 h-12' : 'lg:w-8 lg:h-8'
+                        }`}
+                      />
+                      <span
+                        className={`ml-2 lg:ml-4 transition-opacity duration-300 flex-1 ${
+                          !sidebarOpen && 'lg:hidden'
+                        }`}
+                      >
+                        {item.name}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-          {/* Desktop user info */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <span className="text-sm text-gray-600">
-              Hello, {adminUser?.email || 'Admin'}
-            </span>
-            <button
-              onClick={logout}
-              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm"
-            >
-              Logout
-            </button>
-          </div>
-
-          {/* Mobile user dropdown */}
-          <div className="lg:hidden relative" ref={mobileMenuRef}>
-            <button
-              onClick={toggleMobileMenu}
-              className="flex items-center space-x-2 p-3 rounded-md hover:bg-gray-100 transition-all duration-200 touch-manipulation"
-              aria-label="Open admin menu"
-            >
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center transition-colors duration-200">
-                <User className="w-4 h-4 text-blue-600" />
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                  mobileMenuOpen ? 'rotate-180' : ''
+          {/* Fixed Footer */}
+          <div className="flex-shrink-0 p-4 lg:p-4 border-t bg-white z-10">
+            <div className="flex items-center px-4 lg:px-3 py-4">
+              <User
+                className={`w-8 h-8 lg:w-6 lg:h-6 mr-4 lg:mr-0 lg:group-hover:mr-4 text-gray-400 transition-all duration-300 flex-shrink-0 ${
+                  !sidebarOpen ? 'w-12 h-12' : 'lg:w-6 lg:h-6'
                 }`}
               />
+              <div
+                className={`flex-1 min-w-0 transition-opacity duration-300 ${
+                  !sidebarOpen && 'lg:hidden'
+                }`}
+              >
+                <p className="text-base lg:text-sm font-medium text-gray-700 truncate">
+                  {adminUser?.email || 'Admin'}
+                </p>
+                <p className="text-sm lg:text-xs text-gray-500">
+                  Administrator
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="w-full mt-3 flex items-center px-4 lg:px-3 py-4 text-base lg:text-sm font-medium text-red-600 rounded-lg lg:rounded-md hover:bg-red-50 hover:text-red-700 transition-colors group touch-manipulation"
+              title="Logout"
+            >
+              <LogOut
+                className={`w-6 h-6 lg:w-6 lg:h-6 mr-4 lg:mr-0 lg:group-hover:mr-4 transition-all duration-300 flex-shrink-0 ${
+                  !sidebarOpen ? 'w-12 h-12' : 'lg:w-6 lg:h-6'
+                }`}
+              />
+              <span
+                className={`transition-opacity duration-300 ${
+                  !sidebarOpen && 'lg:hidden'
+                }`}
+              >
+                Logout
+              </span>
             </button>
+          </div>
+        </aside>
 
-            {/* Mobile dropdown menu */}
-            {mobileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                <div className="py-2">
-                  {/* User info */}
-                  <div className="px-4 py-4 border-b border-gray-100">
-                    <p className="text-base font-medium text-gray-900">
-                      {adminUser?.email || 'Admin'}
-                    </p>
-                    <p className="text-sm text-gray-500">Administrator</p>
-                  </div>
+        {/* Main content area */}
+        <div
+          className={`flex-1 flex flex-col transition-all duration-300 ${
+            sidebarOpen ? 'lg:ml-0' : 'lg:ml-20'
+          }`}
+        >
+          {/* Header */}
+          <header className="h-16 bg-white shadow flex items-center px-4 lg:px-6 border-b justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={toggleSidebar}
+                className="p-3 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 mr-3 transition-colors lg:hidden touch-manipulation"
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <span className="font-semibold text-lg text-gray-800">
+                Dashboard
+              </span>
+            </div>
 
-                  {/* Menu items */}
+            {/* Desktop user info */}
+            <div className="hidden lg:flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                Hello, {adminUser?.email || 'Admin'}
+              </span>
+              <button
+                onClick={logout}
+                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors text-sm"
+              >
+                Logout
+              </button>
+            </div>
+
+            {/* Mobile user dropdown */}
+            <div className="lg:hidden relative" ref={mobileMenuRef}>
+              <button
+                onClick={toggleMobileMenu}
+                className="flex items-center space-x-2 p-3 rounded-md hover:bg-gray-100 transition-all duration-200 touch-manipulation"
+                aria-label="Open admin menu"
+              >
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center transition-colors duration-200">
+                  <User className="w-4 h-4 text-blue-600" />
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                    mobileMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Mobile dropdown menu */}
+              {mobileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
                   <div className="py-2">
-                    <Link
-                      href="/admin/dashboard/settings"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center px-4 py-3 text-base text-gray-700 hover:bg-gray-100 transition-colors touch-manipulation"
-                    >
-                      <Settings className="w-5 h-5 mr-3 text-gray-400" />
-                      Settings
-                    </Link>
+                    {/* User info */}
+                    <div className="px-4 py-4 border-b border-gray-100">
+                      <p className="text-base font-medium text-gray-900">
+                        {adminUser?.email || 'Admin'}
+                      </p>
+                      <p className="text-sm text-gray-500">Administrator</p>
+                    </div>
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center px-4 py-3 text-base text-red-600 hover:bg-red-50 transition-colors touch-manipulation"
-                    >
-                      <LogOut className="w-5 h-5 mr-3" />
-                      Logout
-                    </button>
+                    {/* Menu items */}
+                    <div className="py-2">
+                      <Link
+                        href="/admin/dashboard/settings"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center px-4 py-3 text-base text-gray-700 hover:bg-gray-100 transition-colors touch-manipulation"
+                      >
+                        <Settings className="w-5 h-5 mr-3 text-gray-400" />
+                        Settings
+                      </Link>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-4 py-3 text-base text-red-600 hover:bg-red-50 transition-colors touch-manipulation"
+                      >
+                        <LogOut className="w-5 h-5 mr-3" />
+                        Logout
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </header>
+              )}
+            </div>
+          </header>
 
-        {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-auto bg-gray-50">{children}</main>
+          {/* Page content */}
+          <main className="flex-1 p-4 lg:p-6 overflow-auto bg-gray-50">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
