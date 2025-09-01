@@ -22,11 +22,15 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status') || 'pending';
+    const userId = searchParams.get('userId');
 
     // Build query
     const query: any = { type: 'topup' };
     if (status !== 'all') {
       query.status = status;
+    }
+    if (userId) {
+      query.userId = userId;
     }
 
     // Get pending topup transactions with user details

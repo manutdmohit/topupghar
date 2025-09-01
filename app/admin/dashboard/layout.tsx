@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import {
   Menu,
@@ -17,6 +17,7 @@ import {
   Monitor,
   Layers,
   Wallet,
+  ChevronDown,
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -25,7 +26,47 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { adminUser, logout } = useAdminAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Set sidebar to open by default on large screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
@@ -43,6 +84,7 @@ export default function DashboardLayout({
     },
     { name: 'Promocodes', href: '/admin/dashboard/promocodes', icon: Tag },
     { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingCart },
+    { name: 'Customers', href: '/admin/dashboard/customers', icon: User },
     { name: 'Wallet', href: '/admin/dashboard/wallet', icon: Wallet },
     { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
   ];
@@ -53,6 +95,15 @@ export default function DashboardLayout({
 
   const closeSidebar = () => {
     setSidebarOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -187,7 +238,8 @@ export default function DashboardLayout({
           <div className="flex items-center">
             <button
               onClick={toggleSidebar}
-              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 mr-2 transition-colors"
+              className="p-2 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 mr-2 transition-colors lg:hidden"
+              aria-label="Toggle sidebar"
             >
               <Menu className="w-7 h-7" />
             </button>
@@ -209,11 +261,57 @@ export default function DashboardLayout({
             </button>
           </div>
 
-          {/* Mobile user info */}
-          <div className="lg:hidden flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-blue-600" />
-            </div>
+          {/* Mobile user dropdown */}
+          <div className="lg:hidden relative" ref={mobileMenuRef}>
+            <button
+              onClick={toggleMobileMenu}
+              className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 transition-colors"
+              aria-label="Open admin menu"
+            >
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-blue-600" />
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                  mobileMenuOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {/* Mobile dropdown menu */}
+            {mobileMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                <div className="py-2">
+                  {/* User info */}
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">
+                      {adminUser?.email || 'Admin'}
+                    </p>
+                    <p className="text-xs text-gray-500">Administrator</p>
+                  </div>
+
+                  {/* Menu items */}
+                  <div className="py-1">
+                    <Link
+                      href="/admin/dashboard/settings"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <Settings className="w-4 h-4 mr-3 text-gray-400" />
+                      Settings
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 mr-3" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 

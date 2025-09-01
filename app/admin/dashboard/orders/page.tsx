@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Check,
   X,
@@ -101,6 +102,9 @@ const platformColors = {
 };
 
 export default function OrdersPage() {
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('userId');
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -120,7 +124,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, statusFilter, platformFilter, searchTerm]);
+  }, [currentPage, statusFilter, platformFilter, searchTerm, userId]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -133,6 +137,7 @@ export default function OrdersPage() {
       if (statusFilter) params.append('status', statusFilter);
       if (platformFilter) params.append('platform', platformFilter);
       if (searchTerm) params.append('search', searchTerm);
+      if (userId) params.append('userId', userId);
 
       const res = await fetch(`/api/orders?${params.toString()}`);
       const data = await res.json();
@@ -256,7 +261,9 @@ export default function OrdersPage() {
                 Orders Management
               </h1>
               <p className="text-slate-600 mt-1">
-                Manage and track all customer orders
+                {userId
+                  ? `Showing orders for customer: ${userId.slice(-8)}`
+                  : 'Manage and track all customer orders'}
               </p>
             </div>
 

@@ -412,6 +412,7 @@ export const GET = async (req: NextRequest) => {
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status') || '';
     const platform = searchParams.get('platform') || '';
+    const userId = searchParams.get('userId') || '';
 
     // Calculate skip value for pagination
     const skip = (page - 1) * limit;
@@ -420,6 +421,7 @@ export const GET = async (req: NextRequest) => {
     const filter: any = {};
     if (status) filter.status = status;
     if (platform) filter.platform = { $regex: platform, $options: 'i' };
+    if (userId) filter.userId = userId;
 
     // Get total count for pagination
     const totalOrders = await Order.countDocuments(filter);

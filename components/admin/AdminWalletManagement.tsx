@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,6 +43,9 @@ interface Transaction {
 
 export default function AdminWalletManagement() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('userId');
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState({
     totalRequests: 0,
@@ -68,9 +72,14 @@ export default function AdminWalletManagement() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `/api/admin/wallet/pending?page=${page}&status=${status}`
-      );
+      const url = new URL('/api/admin/wallet/pending', window.location.origin);
+      url.searchParams.set('page', page.toString());
+      url.searchParams.set('status', status);
+      if (userId) {
+        url.searchParams.set('userId', userId);
+      }
+
+      const response = await fetch(url.toString());
       const data = await response.json();
 
       if (response.ok) {
@@ -117,12 +126,13 @@ export default function AdminWalletManagement() {
 
       return () => clearTimeout(timer);
     }
-  }, [session?.user?.id, session?.user?.role, selectedStatus]);
+  }, [session?.user?.id, session?.user?.role, selectedStatus, userId]);
 
   // Memoize the fetchTransactions function to prevent infinite loops
   const memoizedFetchTransactions = useCallback(fetchTransactions, [
     session?.user?.id,
     session?.user?.role,
+    userId,
   ]);
 
   const handleAction = async (
@@ -252,7 +262,11 @@ export default function AdminWalletManagement() {
           <div>
             <h1 className="text-3xl font-bold mb-2">Wallet Management</h1>
             <p className="text-blue-100 text-lg">
-              Monitor and manage wallet top-up requests
+              {userId
+                ? `Showing wallet transactions for customer: ${userId.slice(
+                    -8
+                  )}`
+                : 'Monitor and manage wallet top-up requests'}
             </p>
           </div>
           <div className="flex items-center gap-3">
