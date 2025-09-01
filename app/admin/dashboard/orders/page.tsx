@@ -20,6 +20,8 @@ import {
   MoreVertical,
   Download,
   Mail,
+  Package,
+  Hash,
 } from 'lucide-react';
 
 type OrderStatus = 'pending' | 'approved' | 'rejected';
@@ -31,6 +33,7 @@ interface Order {
   uid_email?: string;
   type: string;
   amount?: string | number;
+  quantity?: number;
   price?: number;
   originalPrice?: number;
   discountAmount?: number;
@@ -135,7 +138,12 @@ export default function OrdersPage() {
       const data = await res.json();
 
       if (data.orders) {
-        setOrders(data.orders);
+        // Process orders to ensure quantity is set for old orders
+        const processedOrders = data.orders.map((order: Order) => ({
+          ...order,
+          quantity: order.quantity || 1, // Set default quantity to 1 for old orders
+        }));
+        setOrders(processedOrders);
         setPagination(data.pagination);
       } else {
         setOrders([]);
@@ -460,6 +468,13 @@ export default function OrdersPage() {
                         <p className="text-sm text-slate-500">
                           #{order.orderId}
                         </p>
+                        {/* Quantity Badge */}
+                        {order.quantity && order.quantity > 1 && (
+                          <div className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium mt-1">
+                            <Package className="w-3 h-3 mr-1" />
+                            Qty: {order.quantity}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -482,36 +497,154 @@ export default function OrdersPage() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm">
                       <User className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">
-                        {order.uid_email ||
-                          order.uid ||
-                          order.tiktokLoginId ||
-                          'No ID provided'}
-                      </span>
+                      <div className="flex-1">
+                        <span className="text-slate-600 font-medium">
+                          Customer ID:
+                        </span>
+                        <span className="text-slate-600 ml-1">
+                          {order.uid_email ||
+                            order.uid ||
+                            order.tiktokLoginId ||
+                            'No ID provided'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">{order.phone}</span>
+                      <div className="flex-1">
+                        <span className="text-slate-600 font-medium">
+                          Phone:
+                        </span>
+                        <span className="text-slate-600 ml-1">
+                          {order.phone}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
                       <Tag className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">
-                        {order.amount ||
-                          order.level ||
-                          order.diamonds ||
-                          order.duration ||
-                          '-'}
-                      </span>
+                      <div className="flex-1">
+                        <span className="text-slate-600 font-medium">
+                          Service:
+                        </span>
+                        <span className="text-slate-600 ml-1">
+                          {order.amount ||
+                            order.level ||
+                            order.diamonds ||
+                            order.duration ||
+                            '-'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quantity Display */}
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-4 h-4 bg-blue-100 rounded flex items-center justify-center">
+                        <span className="text-xs font-bold text-blue-600">
+                          Q
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-slate-600 font-medium">
+                          Quantity:
+                        </span>
+                        <span className="text-slate-600 ml-1">
+                          {order.quantity || 1}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
                       <CreditCard className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">
-                        {order.paymentMethod || '-'}
-                      </span>
+                      <div className="flex-1">
+                        <span className="text-slate-600 font-medium">
+                          Payment:
+                        </span>
+                        <span className="text-slate-600 ml-1">
+                          {order.paymentMethod || '-'}
+                        </span>
+                        {order.paymentMethod === 'wallet' &&
+                          order.status === 'rejected' && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              💰 Refunded
+                            </span>
+                          )}
+                      </div>
                     </div>
+
+                    {/* Additional Details */}
+                    {order.duration && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-4 h-4 bg-green-100 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-green-600">
+                            D
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-slate-600 font-medium">
+                            Duration:
+                          </span>
+                          <span className="text-slate-600 ml-1">
+                            {order.duration}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {order.level && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-4 h-4 bg-purple-100 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-purple-600">
+                            L
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-slate-600 font-medium">
+                            Level:
+                          </span>
+                          <span className="text-slate-600 ml-1">
+                            {order.level}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {order.diamonds && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-4 h-4 bg-yellow-100 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-yellow-600">
+                            💎
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-slate-600 font-medium">
+                            Diamonds:
+                          </span>
+                          <span className="text-slate-600 ml-1">
+                            {order.diamonds}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {order.storage && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-4 h-4 bg-indigo-100 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-indigo-600">
+                            S
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-slate-600 font-medium">
+                            Storage:
+                          </span>
+                          <span className="text-slate-600 ml-1">
+                            {order.storage}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -520,15 +653,119 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-600">Total Amount</p>
-                      <p className="text-xl font-bold text-slate-900">
-                        {formatCurrency(order.finalPrice || order.price || 0)}
+                      <p className="text-xs text-slate-500 mb-1">
+                        {order.quantity && order.quantity > 1
+                          ? `Total for ${order.quantity} items`
+                          : 'Single item order'}
                       </p>
-                      {order.originalPrice &&
-                        order.originalPrice !== order.finalPrice && (
-                          <p className="text-sm text-slate-500 line-through">
-                            {formatCurrency(order.originalPrice)}
+                      <p className="text-xl font-bold text-slate-900">
+                        {formatCurrency(
+                          order.finalPrice ||
+                            order.price ||
+                            order.originalPrice ||
+                            0
+                        )}
+                      </p>
+                      {/* Only show price description if there's a valid price */}
+                      {(order.finalPrice ||
+                        order.price ||
+                        order.originalPrice) && (
+                        <p className="text-xs text-slate-400 mt-1">
+                          {order.finalPrice
+                            ? 'Final price after discounts'
+                            : order.price
+                            ? 'Base service price'
+                            : order.originalPrice
+                            ? 'Original listed price'
+                            : ''}
+                        </p>
+                      )}
+
+                      {/* Price Details - Only show when there are multiple price fields */}
+                      {(order.originalPrice &&
+                        order.originalPrice !==
+                          (order.finalPrice || order.price)) ||
+                      (order.finalPrice && order.finalPrice !== order.price) ||
+                      (order.price && !order.finalPrice) ? (
+                        <div className="mt-1 space-y-1">
+                          {order.originalPrice &&
+                            order.originalPrice !==
+                              (order.finalPrice || order.price) && (
+                              <p className="text-sm text-slate-500 line-through">
+                                Original: {formatCurrency(order.originalPrice)}
+                              </p>
+                            )}
+
+                          {order.finalPrice &&
+                            order.finalPrice !== order.price && (
+                              <p className="text-xs text-slate-500">
+                                Final Price: {formatCurrency(order.finalPrice)}
+                              </p>
+                            )}
+
+                          {order.price && !order.finalPrice && (
+                            <p className="text-xs text-slate-500">
+                              Base Price: {formatCurrency(order.price)}
+                            </p>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {/* Price Breakdown - Only show when there are multiple price fields or discounts */}
+                      {/* {((order.quantity && order.quantity > 1) ||
+                        (order.discountAmount && order.discountAmount > 0)) && (
+                        <div className="mt-2 space-y-1">
+                          {order.quantity &&
+                            order.quantity > 1 &&
+                            (order.finalPrice ||
+                              order.price ||
+                              order.originalPrice) && (
+                              <p className="text-xs text-slate-500">
+                                <span className="font-medium">Unit Price:</span>{' '}
+                                {order.quantity} ×{' '}
+                                {formatCurrency(
+                                  (order.finalPrice ||
+                                    order.price ||
+                                    order.originalPrice ||
+                                    0) / order.quantity
+                                )}{' '}
+                                per item
+                              </p>
+                            )}
+
+                          {order.discountAmount && order.discountAmount > 0 && (
+                            <p className="text-xs text-emerald-600">
+                              <span className="font-medium">
+                                Discount Applied:
+                              </span>{' '}
+                              -{formatCurrency(order.discountAmount)}
+                            </p>
+                          )}
+                        </div>
+                      )} */}
+
+                      {/* Order Summary */}
+                      <div className="mt-2 pt-2 border-t border-slate-200">
+                        <p className="text-xs text-slate-500">
+                          <span className="font-medium">Order Summary:</span>{' '}
+                          {order.platform} {order.type} -{' '}
+                          {order.amount ||
+                            order.level ||
+                            order.diamonds ||
+                            order.duration ||
+                            'N/A'}
+                        </p>
+                        {order.quantity && order.quantity > 1 && (
+                          <p className="text-xs text-slate-500">
+                            Total Items: {order.quantity} ×{' '}
+                            {order.amount ||
+                              order.level ||
+                              order.diamonds ||
+                              order.duration ||
+                              'N/A'}
                           </p>
                         )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -758,6 +995,32 @@ export default function OrdersPage() {
                     This action will update the order status and refresh the
                     orders list.
                   </p>
+                  {pendingStatusUpdate.newStatus === 'rejected' && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mt-0.5">
+                          <svg
+                            className="w-2.5 h-2.5 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <div className="text-sm text-green-800">
+                          <p className="font-medium">Automatic Refund:</p>
+                          <p>
+                            If this is a wallet payment, the amount will be
+                            automatically refunded to the user's wallet.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-3">

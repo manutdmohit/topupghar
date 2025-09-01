@@ -25,6 +25,7 @@ export default function PaymentSuccessPage() {
     amount: '',
     price: '',
     orderId: '',
+    quantity: '',
   });
 
   useEffect(() => {
@@ -34,8 +35,9 @@ export default function PaymentSuccessPage() {
     const amount = searchParams.get('amount') || '';
     const price = searchParams.get('price') || '';
     const orderId = searchParams.get('orderId') || generateTempOrderId();
+    const quantity = searchParams.get('quantity') || '';
 
-    setOrderDetails({ platform, type, amount, price, orderId });
+    setOrderDetails({ platform, type, amount, price, orderId, quantity });
   }, [searchParams]);
 
   const contactInfo = {
@@ -150,10 +152,19 @@ export default function PaymentSuccessPage() {
                 </div>
               )}
 
+              {orderDetails.quantity && (
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600">Quantity:</span>
+                  <span className="font-semibold text-gray-800">
+                    {orderDetails.quantity}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between items-center py-3">
                 <span className="text-gray-600">Total Paid:</span>
                 <span className="font-bold text-green-600 text-lg">
-                  NPR {orderDetails.price}
+                  NPR {Math.round(parseFloat(orderDetails.price || '0'))}
                 </span>
               </div>
             </div>

@@ -169,7 +169,7 @@ export default function PaymentFailurePage() {
               <div className="flex justify-between items-center py-3 border-b border-gray-100">
                 <span className="text-gray-600">Amount:</span>
                 <span className="font-bold text-red-600 text-lg">
-                  NPR {orderDetails.price}
+                  NPR {Math.round(parseFloat(orderDetails.price || '0'))}
                 </span>
               </div>
 

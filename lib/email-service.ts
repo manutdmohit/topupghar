@@ -8,6 +8,7 @@ export interface OrderEmailData {
   platform: string;
   type: string;
   amount: string;
+  quantity?: number;
   price: string;
   customerName?: string;
   customerPhone?: string;
@@ -218,11 +219,22 @@ function generateOrderEmailContent(orderData: OrderEmailData): string {
             <span class="value">${orderData.amount}</span>
           </div>
           
+          ${
+            orderData.quantity
+              ? `
+          <div class="detail-row">
+            <span class="label">Quantity:</span>
+            <span class="value">${orderData.quantity}</span>
+          </div>
+          `
+              : ''
+          }
+          
           <div class="detail-row">
             <span class="label">Price:</span>
-            <span class="value">₹${
-              orderData.finalPrice || orderData.price
-            }</span>
+                    <span class="value">₹${Math.round(
+                      orderData.finalPrice || orderData.price || 0
+                    )}</span>
           </div>
           
           ${
@@ -230,22 +242,30 @@ function generateOrderEmailContent(orderData: OrderEmailData): string {
               ? `
           <div class="detail-row">
             <span class="label">Promocode Applied:</span>
-            <span class="value" style="color: #059669; font-weight: bold;">${orderData.promocode}</span>
+            <span class="value" style="color: #059669; font-weight: bold;">${
+              orderData.promocode
+            }</span>
           </div>
           
           <div class="detail-row">
             <span class="label">Original Price:</span>
-            <span class="value" style="text-decoration: line-through; color: #6b7280;">₹${orderData.originalPrice}</span>
+            <span class="value" style="text-decoration: line-through; color: #6b7280;">₹${Math.round(
+              orderData.originalPrice || 0
+            )}</span>
           </div>
           
           <div class="detail-row">
             <span class="label">Discount:</span>
-            <span class="value" style="color: #059669; font-weight: bold;">- ₹${orderData.discountAmount}</span>
+            <span class="value" style="color: #059669; font-weight: bold;">- ₹${
+              orderData.discountAmount
+            }</span>
           </div>
           
           <div class="detail-row">
             <span class="label">Final Price:</span>
-            <span class="value" style="color: #059669; font-weight: bold; font-size: 1.1em;">₹${orderData.finalPrice}</span>
+            <span class="value" style="color: #059669; font-weight: bold; font-size: 1.1em;">₹${Math.round(
+              orderData.finalPrice || 0
+            )}</span>
           </div>
           `
               : ''
@@ -284,6 +304,61 @@ function generateOrderEmailContent(orderData: OrderEmailData): string {
           <div class="detail-row">
             <span class="label">Customer Email:</span>
             <span class="value">${orderData.customerEmail}</span>
+          </div>
+          `
+              : ''
+          }
+          
+          ${
+            orderData.uid
+              ? `
+          <div class="detail-row">
+            <span class="label">Game ID / User ID:</span>
+            <span class="value">${orderData.uid}</span>
+          </div>
+          `
+              : ''
+          }
+          
+          ${
+            orderData.uid_email
+              ? `
+          <div class="detail-row">
+            <span class="label">UID/Email:</span>
+            <span class="value">${orderData.uid_email}</span>
+          </div>
+          `
+              : ''
+          }
+          
+          ${
+            orderData.phone
+              ? `
+          <div class="detail-row">
+            <span class="label">Phone Number:</span>
+            <span class="value">${orderData.phone}</span>
+          </div>
+          `
+              : ''
+          }
+          
+          ${
+            orderData.paymentMethod
+              ? `
+          <div class="detail-row">
+            <span class="label">Payment Method:</span>
+            <span class="value">${orderData.paymentMethod}</span>
+          </div>
+          `
+              : ''
+          }
+          
+          ${
+            orderData.referredBy
+              ? `
+          <div class="detail-row">
+            <span class="label">Referred By:</span>
+            <span class="value">${orderData.referredBy}</span>
           </div>
           `
               : ''
@@ -334,21 +409,27 @@ Order ID: ${orderData.orderId}
 Platform: ${orderData.platform}
 Type: ${orderData.type}
 Amount: ${orderData.amount}
+${orderData.quantity ? `Quantity: ${orderData.quantity}` : ''}
 ${
   orderData.promocode
     ? `
 Promocode Applied: ${orderData.promocode}
-Original Price: ₹${orderData.originalPrice}
-Discount: - ₹${orderData.discountAmount}
-Final Price: ₹${orderData.finalPrice}
+Original Price: ₹${Math.round(orderData.originalPrice || 0)}
+Discount: - ₹${Math.round(orderData.discountAmount || 0)}
+Final Price: ₹${Math.round(orderData.finalPrice || 0)}
 `
-    : `Price: ₹${orderData.finalPrice || orderData.price}`
+    : `Price: ₹${Math.round(orderData.finalPrice || orderData.price || 0)}`
 }
 Date: ${new Date(orderData.createdAt).toLocaleString()}
 
 ${orderData.customerName ? `Customer: ${orderData.customerName}` : ''}
 ${orderData.customerPhone ? `Phone: ${orderData.customerPhone}` : ''}
 ${orderData.customerEmail ? `Email: ${orderData.customerEmail}` : ''}
+${orderData.uid ? `Game ID / User ID: ${orderData.uid}` : ''}
+${orderData.uid_email ? `UID/Email: ${orderData.uid_email}` : ''}
+${orderData.phone ? `Phone Number: ${orderData.phone}` : ''}
+${orderData.paymentMethod ? `Payment Method: ${orderData.paymentMethod}` : ''}
+${orderData.referredBy ? `Referred By: ${orderData.referredBy}` : ''}
 
 Please process this order as soon as possible.
       `,

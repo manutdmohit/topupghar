@@ -3,16 +3,138 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { generateFailedOrderId } from '@/lib/order-utils';
+import Link from 'next/link';
 // Remove client-side token verification - will use API route instead
+
+// Wallet Balance Check Component
+function WalletBalanceCheck({
+  finalPrice,
+  walletBalance,
+}: {
+  finalPrice: number;
+  walletBalance: number | null;
+}) {
+  if (walletBalance === null) {
+    return (
+      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm text-gray-600">
+            Checking wallet balance...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const isInsufficient = walletBalance < finalPrice;
+  const shortfall = finalPrice - walletBalance;
+
+  if (isInsufficient) {
+    return (
+      <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex items-start gap-3">
+          <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center mt-0.5">
+            <svg
+              className="w-3 h-3 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h4 className="font-semibold text-amber-800 mb-2">
+              Insufficient Wallet Balance
+            </h4>
+            <div className="space-y-2 text-sm text-amber-700">
+              <p>
+                Your current wallet balance:{' '}
+                <span className="font-semibold">NPR {walletBalance}</span>
+              </p>
+              <p>
+                Order total:{' '}
+                <span className="font-semibold">NPR {finalPrice}</span>
+              </p>
+              <p>
+                Additional amount needed:{' '}
+                <span className="font-semibold text-red-600">
+                  NPR {shortfall}
+                </span>
+              </p>
+            </div>
+            <div className="mt-3 flex flex-col sm:flex-row gap-2">
+              <Link
+                href="/wallet?tab=topup"
+                className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                💰 Top Up Wallet
+              </Link>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                🔄 Choose Other Payment Method
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+      <div className="flex items-center gap-3">
+        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+          <svg
+            className="w-3 h-3 text-white"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+        <div>
+          <h4 className="font-semibold text-green-800">
+            Wallet Balance Sufficient
+          </h4>
+          <p className="text-sm text-green-700">
+            Your wallet balance:{' '}
+            <span className="font-semibold">NPR {walletBalance}</span>
+            (Order total:{' '}
+            <span className="font-semibold">NPR {finalPrice}</span>)
+          </p>
+          <p className="text-xs text-green-600 mt-1">
+            Remaining balance after purchase:{' '}
+            <span className="font-semibold">
+              NPR {walletBalance - finalPrice}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TopupPaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
 
   const [data, setData] = useState({
     platform: '',
@@ -29,6 +151,7 @@ export default function TopupPaymentPage() {
   // Common fields
   const [uid, setUid] = useState('');
   const [phone, setPhone] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [receipt, setReceipt] = useState<File | null>(null);
   const [referredBy, setReferredBy] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
@@ -36,6 +159,7 @@ export default function TopupPaymentPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   // Promocode fields
   const [promocode, setPromocode] = useState('');
@@ -46,6 +170,8 @@ export default function TopupPaymentPage() {
     parseFloat(data.price || '0')
   );
   const [discountAmount, setDiscountAmount] = useState(0);
+  const [baseDiscountAmount, setBaseDiscountAmount] = useState(0);
+  const [baseOriginalPrice, setBaseOriginalPrice] = useState(0);
 
   // TikTok login fields (for coins only)
   const [loginId, setLoginId] = useState('');
@@ -56,6 +182,44 @@ export default function TopupPaymentPage() {
 
   // Garena
   const [password, setPassword] = useState('');
+
+  // Authentication check
+  useEffect(() => {
+    if (status === 'loading') return; // Still loading, wait
+
+    if (status === 'unauthenticated') {
+      // Redirect to login page with return URL
+      const currentUrl = window.location.href;
+      router.push(`/login?callbackUrl=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+  }, [status, router]);
+
+  // Fetch wallet balance when authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      const fetchWalletBalance = async () => {
+        try {
+          console.log('Fetching wallet balance for user:', session.user.id);
+          const response = await fetch('/api/wallet/balance');
+          console.log('Wallet balance response status:', response.status);
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Wallet balance data:', data);
+            setWalletBalance(data.wallet.balance);
+          } else {
+            const errorData = await response.json();
+            console.error('Wallet balance API error:', errorData);
+          }
+        } catch (error) {
+          console.error('Failed to fetch wallet balance:', error);
+        }
+      };
+
+      fetchWalletBalance();
+    }
+  }, [status, session?.user]);
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -88,14 +252,46 @@ export default function TopupPaymentPage() {
               storage: sessionData.storage,
             });
 
-            // Initialize price states
-            setOriginalPrice(sessionData.originalPrice || sessionData.price);
-            setFinalPrice(sessionData.price);
+            // Set quantity from session data
+            setQuantity(sessionData.quantity || 1);
+
+            // Initialize price states with quantity consideration
+            // The sessionData.price should be the base price per unit
+            const basePricePerUnit = sessionData.price;
+            const quantityPrice =
+              basePricePerUnit * (sessionData.quantity || 1);
+            const originalPriceWithQuantity =
+              (sessionData.originalPrice || sessionData.price) *
+              (sessionData.quantity || 1);
+
+            setOriginalPrice(originalPriceWithQuantity);
+            setFinalPrice(Math.round(quantityPrice));
+
             if (
               sessionData.discountPercentage &&
               sessionData.discountPercentage > 0
             ) {
-              setDiscountAmount(sessionData.originalPrice - sessionData.price);
+              // Store base original price per unit
+              setBaseOriginalPrice(
+                sessionData.originalPrice || sessionData.price
+              );
+              // Calculate base discount amount (per unit)
+              const baseDiscountPerUnit =
+                (sessionData.originalPrice || sessionData.price) -
+                sessionData.price;
+              setBaseDiscountAmount(baseDiscountPerUnit);
+              // Calculate total discount for current quantity
+              const totalDiscountAmount =
+                baseDiscountPerUnit * (sessionData.quantity || 1);
+              setDiscountAmount(totalDiscountAmount);
+              setFinalPrice(
+                Math.round(originalPriceWithQuantity - totalDiscountAmount)
+              );
+            } else {
+              // No discount, store base original price
+              setBaseOriginalPrice(
+                sessionData.originalPrice || sessionData.price
+              );
             }
             return;
           } else {
@@ -129,11 +325,48 @@ export default function TopupPaymentPage() {
     });
     setReferredBy(searchParams.get('referredBy') || '');
 
-    // Initialize price states
+    // Initialize price states (for fallback URL parameters)
     const priceNum = parseFloat(price || '0');
     setOriginalPrice(priceNum);
-    setFinalPrice(priceNum);
-  }, [searchParams]);
+    setFinalPrice(Math.round(priceNum));
+    // Set default quantity to 1 for fallback
+    setQuantity(1);
+  }, [searchParams, uid]);
+
+  // Recalculate price when quantity changes
+  useEffect(() => {
+    // Use base original price for calculations
+    const baseOriginalPricePerUnit =
+      baseOriginalPrice || parseFloat(data.price || '0');
+    const originalPriceWithQuantity = baseOriginalPricePerUnit * quantity;
+
+    // Update original price with quantity
+    setOriginalPrice(originalPriceWithQuantity);
+
+    // Update final price with quantity (considering promocode if applied)
+    if (appliedPromocode) {
+      // Recalculate promocode discount on the new quantity price
+      const promocodeDiscountAmount =
+        (originalPriceWithQuantity * appliedPromocode.discountPercentage) / 100;
+      // Add base discount if exists
+      const baseDiscountTotal = baseDiscountAmount * quantity;
+      const totalDiscountAmount = promocodeDiscountAmount + baseDiscountTotal;
+      setDiscountAmount(totalDiscountAmount);
+      setFinalPrice(
+        Math.round(originalPriceWithQuantity - totalDiscountAmount)
+      );
+    } else {
+      // If no promocode, check if there's a base discount amount
+      if (baseDiscountAmount > 0) {
+        const totalDiscountAmount = baseDiscountAmount * quantity;
+        setDiscountAmount(totalDiscountAmount);
+        setFinalPrice(originalPriceWithQuantity - totalDiscountAmount);
+      } else {
+        setDiscountAmount(0);
+        setFinalPrice(originalPriceWithQuantity);
+      }
+    }
+  }, [quantity, baseOriginalPrice, appliedPromocode, baseDiscountAmount]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -154,9 +387,8 @@ export default function TopupPaymentPage() {
     setIsValidatingPromocode(true);
     try {
       // Determine the base price for promocode calculation
-      // If there's a product discount, use the discounted price, otherwise use original price
-      const basePriceForPromocode =
-        finalPrice !== originalPrice ? finalPrice : originalPrice;
+      // Use the current final price (which includes quantity) for promocode calculation
+      const basePriceForPromocode = finalPrice;
 
       const response = await fetch('/api/promocodes/validate', {
         method: 'POST',
@@ -175,22 +407,38 @@ export default function TopupPaymentPage() {
         toast.error(responseData.message || 'Invalid promocode');
         setAppliedPromocode(null);
         // Reset to the price without promocode
-        // Use the price from session data (which might be discounted)
-        const priceWithoutPromocode = parseFloat(data.price || '0');
-        setFinalPrice(priceWithoutPromocode);
+        // Use the base original price with quantity
+        const baseOriginalPricePerUnit =
+          baseOriginalPrice || parseFloat(data.price || '0');
+        const originalPriceWithQuantity = baseOriginalPricePerUnit * quantity;
         // Reset promocode discount but keep product discount if any
-        const productDiscountAmount =
-          originalPrice - parseFloat(data.price || '0');
-        setDiscountAmount(
-          productDiscountAmount > 0 ? productDiscountAmount : 0
-        );
+        if (baseDiscountAmount > 0) {
+          const totalDiscountAmount = baseDiscountAmount * quantity;
+          setDiscountAmount(totalDiscountAmount);
+          setFinalPrice(
+            Math.round(originalPriceWithQuantity - totalDiscountAmount)
+          );
+        } else {
+          setDiscountAmount(0);
+          setFinalPrice(Math.round(originalPriceWithQuantity));
+        }
         return;
       }
 
       // Apply promocode discount to the base price (discounted or original)
       setAppliedPromocode(responseData.promocode);
-      setDiscountAmount(responseData.calculation.discountAmount);
-      setFinalPrice(responseData.calculation.finalAmount);
+      // Add promocode discount to existing base discount
+      const baseDiscountTotal = baseDiscountAmount * quantity;
+      const totalDiscountAmount =
+        responseData.calculation.discountAmount + baseDiscountTotal;
+      setDiscountAmount(totalDiscountAmount);
+      // Recalculate final price with combined discounts
+      const baseOriginalPricePerUnit =
+        baseOriginalPrice || parseFloat(data.price || '0');
+      const originalPriceWithQuantity = baseOriginalPricePerUnit * quantity;
+      setFinalPrice(
+        Math.round(originalPriceWithQuantity - totalDiscountAmount)
+      );
       toast.success(
         `Promocode applied! ${responseData.promocode.discountPercentage}% discount`
       );
@@ -198,13 +446,19 @@ export default function TopupPaymentPage() {
       toast.error('Failed to validate promocode');
       setAppliedPromocode(null);
       // Reset to the price without promocode
-      // Use the price from session data (which might be discounted)
-      const priceWithoutPromocode = parseFloat(data.price || '0');
-      setFinalPrice(priceWithoutPromocode);
+      // Use the base original price with quantity
+      const baseOriginalPricePerUnit =
+        baseOriginalPrice || parseFloat(data.price || '0');
+      const originalPriceWithQuantity = baseOriginalPricePerUnit * quantity;
       // Reset promocode discount but keep product discount if any
-      const productDiscountAmount =
-        originalPrice - parseFloat(data.price || '0');
-      setDiscountAmount(productDiscountAmount > 0 ? productDiscountAmount : 0);
+      if (baseDiscountAmount > 0) {
+        const totalDiscountAmount = baseDiscountAmount * quantity;
+        setDiscountAmount(totalDiscountAmount);
+        setFinalPrice(originalPriceWithQuantity - totalDiscountAmount);
+      } else {
+        setDiscountAmount(0);
+        setFinalPrice(originalPriceWithQuantity);
+      }
     } finally {
       setIsValidatingPromocode(false);
     }
@@ -214,12 +468,21 @@ export default function TopupPaymentPage() {
     setPromocode('');
     setAppliedPromocode(null);
     // Reset to the price without promocode
-    // Use the price from session data (which might be discounted)
-    const priceWithoutPromocode = parseFloat(data.price || '0');
-    setFinalPrice(priceWithoutPromocode);
+    // Use the base original price with quantity
+    const baseOriginalPricePerUnit =
+      baseOriginalPrice || parseFloat(data.price || '0');
+    const originalPriceWithQuantity = baseOriginalPricePerUnit * quantity;
     // Reset promocode discount but keep product discount if any
-    const productDiscountAmount = originalPrice - parseFloat(data.price || '0');
-    setDiscountAmount(productDiscountAmount > 0 ? productDiscountAmount : 0);
+    if (baseDiscountAmount > 0) {
+      const totalDiscountAmount = baseDiscountAmount * quantity;
+      setDiscountAmount(totalDiscountAmount);
+      setFinalPrice(
+        Math.round(originalPriceWithQuantity - totalDiscountAmount)
+      );
+    } else {
+      setDiscountAmount(0);
+      setFinalPrice(Math.round(originalPriceWithQuantity));
+    }
     toast.success('Promocode removed');
   };
 
@@ -305,6 +568,15 @@ export default function TopupPaymentPage() {
     // Prevent multiple submissions
     if (isSubmitting) return;
 
+    // Check if user is authenticated
+    if (!session?.user) {
+      toast.error('You must be logged in to make a purchase');
+      router.push(
+        `/login?callbackUrl=${encodeURIComponent(window.location.href)}`
+      );
+      return;
+    }
+
     // Validation (your validation logic)
     if (!isAgeConfirmed) {
       toast.error("You must confirm you're 16 or older.");
@@ -342,11 +614,13 @@ export default function TopupPaymentPage() {
       if (
         (!uid && !(data.platform === 'tiktok' && data.type === 'coins')) ||
         !phone ||
-        !receipt ||
+        (selectedPaymentMethod !== 'wallet' && !receipt) ||
         (data.platform === 'garena' && !password)
       ) {
         toast.error(
-          'Please fill in all required fields and upload the receipt.'
+          selectedPaymentMethod === 'wallet'
+            ? 'Please fill in all required fields for wallet payment.'
+            : 'Please fill in all required fields and upload the receipt.'
         );
         return;
       }
@@ -364,6 +638,20 @@ export default function TopupPaymentPage() {
       }
     }
 
+    // Check wallet balance if wallet payment is selected
+    if (selectedPaymentMethod === 'wallet') {
+      if (walletBalance === null) {
+        toast.error('Unable to verify wallet balance. Please try again.');
+        return;
+      }
+      if (walletBalance < finalPrice) {
+        toast.error(
+          `Insufficient wallet balance. You have ${walletBalance} NPR but need ${finalPrice} NPR. Please top up your wallet or choose another payment method.`
+        );
+        return;
+      }
+    }
+
     // Build FormData for file upload
     const formData = new FormData();
     formData.append(
@@ -375,6 +663,8 @@ export default function TopupPaymentPage() {
     formData.append('type', data.type);
     if (data.amount) formData.append('amount', data.amount);
     if (data.price) formData.append('price', data.price);
+    // Add quantity
+    formData.append('quantity', quantity.toString());
     // Add original price for proper discount calculation
     formData.append('originalPrice', originalPrice.toString());
     if (data.duration) formData.append('duration', data.duration);
@@ -396,19 +686,29 @@ export default function TopupPaymentPage() {
       formData.append('tiktokPassword', tiktokPassword);
       formData.append('loginMethod', loginMethod);
     }
-    if (receipt) {
+    if (receipt && selectedPaymentMethod !== 'wallet') {
       formData.append('receipt', receipt);
     }
 
     try {
       setIsSubmitting(true);
+      console.log(
+        'Submitting order with payment method:',
+        selectedPaymentMethod
+      );
+      console.log('Wallet balance at submission:', walletBalance);
+      console.log('Final price:', finalPrice);
+
       const response = await fetch('/api/orders', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Order creation response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Order creation error:', errorData);
         toast.error(errorData.message || 'Failed to create order');
         setIsSubmitting(false);
         return; // Important! Do not redirect if error
@@ -422,8 +722,9 @@ export default function TopupPaymentPage() {
         platform: data.platform,
         type: data.type,
         amount: data.amount,
-        price: data.price,
+        price: Math.round(finalPrice).toString(),
         orderId: orderData.orderId || orderData._id,
+        quantity: quantity.toString(),
       });
 
       router.push(`/topup/payment/success?${successParams}`);
@@ -433,7 +734,7 @@ export default function TopupPaymentPage() {
         platform: data.platform,
         type: data.type,
         amount: data.amount,
-        price: data.price,
+        price: Math.round(finalPrice).toString(),
         orderId: generateFailedOrderId(),
         error:
           error instanceof Error ? error.message : 'Payment processing failed',
@@ -444,6 +745,23 @@ export default function TopupPaymentPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the page if user is not authenticated
+  if (status === 'unauthenticated') {
+    return null; // Will redirect in useEffect
+  }
 
   if (!data.platform) return null;
 
@@ -463,8 +781,8 @@ export default function TopupPaymentPage() {
   } else if (data.platform === 'tiktok' && data.type === 'coins') {
     summary = (
       <>
-        You're buying <strong>{data.amount} TikTok Coins</strong> for{' '}
-        <strong>NPR {finalPrice}</strong>
+        You're buying <strong>{data.amount} TikTok Coins</strong> x {quantity}{' '}
+        for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'tiktok' && data.type !== 'coins') {
@@ -474,7 +792,7 @@ export default function TopupPaymentPage() {
         <strong>
           {data.amount} TikTok {data.type}
         </strong>{' '}
-        for <strong>NPR {finalPrice}</strong>
+        x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (
@@ -524,7 +842,7 @@ export default function TopupPaymentPage() {
 
     summary = (
       <>
-        You're buying <strong>{diamondCount} diamonds</strong> for{' '}
+        You're buying <strong>{diamondCount} diamonds</strong> x {quantity} for{' '}
         <strong>NPR {finalPrice}</strong>
       </>
     );
@@ -645,7 +963,7 @@ export default function TopupPaymentPage() {
             ? 'Views'
             : 'Likes'}
         </strong>{' '}
-        for <strong>NPR {finalPrice}</strong>
+        x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'facebook') {
@@ -660,7 +978,7 @@ export default function TopupPaymentPage() {
             ? 'Views'
             : 'Likes'}
         </strong>{' '}
-        for <strong>NPR {finalPrice}</strong>
+        x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else if (data.platform === 'youtube' && data.type === 'subscribers') {
@@ -670,7 +988,7 @@ export default function TopupPaymentPage() {
         <strong>
           {data.amount} {data.type == 'subscribers' ? 'Subscribers' : 'Views'}
         </strong>{' '}
-        for <strong>NPR {finalPrice}</strong>
+        x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
   } else {
@@ -689,13 +1007,39 @@ export default function TopupPaymentPage() {
             ? 'USD'
             : data.type}
         </strong>{' '}
-        for <strong>NPR {finalPrice}</strong>
+        x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
+      {/* User Authentication Status */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <svg
+              className="w-5 h-5 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <p className="font-semibold text-green-800">Authenticated User</p>
+            <p className="text-sm text-green-600">
+              Logged in as:{' '}
+              {session?.user?.email || session?.user?.name || 'User'}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <h1 className="text-3xl font-bold text-purple-700 text-center capitalize">
         {data.platform}{' '}
         {data.type === 'usd' ? data.type.toUpperCase() : data.type} Payment
@@ -813,6 +1157,44 @@ export default function TopupPaymentPage() {
         />
       </div>
 
+      {/* Quantity */}
+      <div>
+        <label className="block mb-1 font-medium text-gray-700">
+          Quantity <span className="text-red-500">*</span>
+        </label>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center justify-center text-gray-700 font-bold transition-colors"
+          >
+            -
+          </button>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            value={quantity}
+            onChange={(e) =>
+              setQuantity(
+                Math.max(1, Math.min(10, parseInt(e.target.value) || 1))
+              )
+            }
+            className="w-20 text-center px-3 py-2 border rounded-lg font-semibold"
+          />
+          <button
+            type="button"
+            onClick={() => setQuantity(Math.min(10, quantity + 1))}
+            className="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center justify-center text-white font-bold transition-colors"
+          >
+            +
+          </button>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          Select quantity (1-10). Total price will be updated automatically.
+        </p>
+      </div>
+
       {/* Referred By (optional) */}
       <div>
         <label className="block mb-1 font-medium text-gray-700">
@@ -879,17 +1261,21 @@ export default function TopupPaymentPage() {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Original Price:</span>
-              <span className="font-medium">NPR {originalPrice}</span>
+              <span className="font-medium">
+                NPR {Math.round(originalPrice)}
+              </span>
             </div>
             {discountAmount > 0 && (
               <div className="flex justify-between text-green-600">
                 <span>Discount:</span>
-                <span>- NPR {discountAmount}</span>
+                <span>- NPR {Math.round(discountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between border-t pt-1">
               <span className="font-semibold">Final Price:</span>
-              <span className="font-bold text-lg">NPR {finalPrice}</span>
+              <span className="font-bold text-lg">
+                NPR {Math.round(finalPrice)}
+              </span>
             </div>
           </div>
         </div>
@@ -927,8 +1313,17 @@ export default function TopupPaymentPage() {
         <p className="text-center text-lg font-semibold text-gray-700 mb-4">
           Choose your payment method <span className="text-red-500">*</span>
         </p>
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
+            {
+              id: 'wallet',
+              label: 'Wallet Balance',
+              qrImage: '/wallet.svg',
+              color: 'from-blue-400 to-blue-600',
+              borderColor: 'border-blue-300',
+              selectedBorderColor: 'border-blue-500',
+              icon: '💰',
+            },
             {
               id: 'esewa',
               label: 'eSewa',
@@ -1021,7 +1416,9 @@ export default function TopupPaymentPage() {
           <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <span className="font-semibold">Selected:</span>{' '}
-              {selectedPaymentMethod === 'esewa'
+              {selectedPaymentMethod === 'wallet'
+                ? 'Wallet Balance'
+                : selectedPaymentMethod === 'esewa'
                 ? 'eSewa'
                 : selectedPaymentMethod === 'khalti'
                 ? 'Khalti/IME'
@@ -1030,31 +1427,69 @@ export default function TopupPaymentPage() {
                 : ''}
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              Please scan the QR code above and upload your payment receipt
-              after completing the transaction.
+              {selectedPaymentMethod === 'wallet'
+                ? 'Your wallet balance will be deducted immediately and the order will be pending admin review.'
+                : 'Please scan the QR code above and upload your payment receipt after completing the transaction.'}
             </p>
+            {selectedPaymentMethod === 'wallet' && (
+              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <div className="w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center mt-0.5">
+                    <svg
+                      className="w-2.5 h-2.5 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="text-xs text-amber-800">
+                    <p className="font-medium">Important:</p>
+                    <p>
+                      Wallet payments require admin approval. If your order is
+                      rejected, your payment will be automatically refunded to
+                      your wallet.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Wallet Balance Check */}
+        {selectedPaymentMethod === 'wallet' && (
+          <WalletBalanceCheck
+            finalPrice={finalPrice}
+            walletBalance={walletBalance}
+          />
         )}
       </div>
 
-      {/* Receipt Upload */}
-      <div>
-        <label className="block mb-1 font-medium text-gray-700">
-          Upload Payment Receipt <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          ref={fileInputRef}
-          className="w-full px-4 py-2 border rounded-lg"
-        />
-        {receipt && (
-          <p className="mt-2 text-sm text-green-600">
-            Uploaded: {receipt.name}
-          </p>
-        )}
-      </div>
+      {/* Receipt Upload - Only for non-wallet payments */}
+      {selectedPaymentMethod !== 'wallet' && (
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Upload Payment Receipt <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            ref={fileInputRef}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+          {receipt && (
+            <p className="mt-2 text-sm text-green-600">
+              Uploaded: {receipt.name}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Submit */}
       <div className="text-center">
@@ -1073,11 +1508,25 @@ export default function TopupPaymentPage() {
         </div>
         <Button
           onClick={handleSubmit}
-          disabled={!isAgeConfirmed || isSubmitting}
+          disabled={
+            !isAgeConfirmed ||
+            isSubmitting ||
+            (selectedPaymentMethod === 'wallet' &&
+              walletBalance !== null &&
+              walletBalance < finalPrice)
+          }
           className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Submitting...' : 'Submit for Verification'}
         </Button>
+        {selectedPaymentMethod === 'wallet' &&
+          walletBalance !== null &&
+          walletBalance < finalPrice && (
+            <p className="text-sm text-red-600 mt-2">
+              ⚠️ Cannot proceed with wallet payment due to insufficient balance.
+              Please top up your wallet or choose another payment method.
+            </p>
+          )}
       </div>
     </div>
   );

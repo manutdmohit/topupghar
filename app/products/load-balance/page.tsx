@@ -87,47 +87,49 @@ export default function LoadBalancePage() {
 
   // Transform API data to match ProductCard props
   const transformProductToCardProps = (product: Product) => {
-    const lowestPrice = Math.min(...product.variants.map((v) => v.price));
-    const highestPrice = Math.max(...product.variants.map((v) => v.price));
+    // Use the first variant price as the main price, or lowest if multiple variants
+    const mainPrice =
+      product.variants.length > 0
+        ? Math.min(...product.variants.map((v) => v.price))
+        : 0;
 
     // Determine badge based on platform and type
     let badge = 'LOAD BALANCE';
-    if (product.platform.includes('paypal')) {
+    if (product.platform.toLowerCase().includes('paypal')) {
       badge = 'BESTSELLER';
-    } else if (product.platform.includes('skrill')) {
+    } else if (product.platform.toLowerCase().includes('skrill')) {
       badge = 'HOT DEAL';
-    } else if (product.platform.includes('esewa')) {
+    } else if (product.platform.toLowerCase().includes('esewa')) {
       badge = 'POPULAR';
-    } else if (product.platform.includes('khalti')) {
+    } else if (product.platform.toLowerCase().includes('khalti')) {
       badge = 'TRENDING';
     }
 
     // Use slug as href if available, otherwise fallback to platform
-      const generateHref = (product: Product) => {
-    if (product.slug) {
-      return `/${product.slug}`;
-    }
-    return `/${product.platform}`;
-  };
+    const generateHref = (product: Product) => {
+      if (product.slug) {
+        return `/${product.slug}`;
+      }
+      return `/${product.platform}`;
+    };
+
+    // Only show discount if product has a discountPercentage field
+    const hasDiscount =
+      product.discountPercentage && product.discountPercentage > 0;
+    const discountedPrice = hasDiscount
+      ? Math.round(mainPrice * (1 - product.discountPercentage / 100))
+      : mainPrice;
 
     return {
       title: product.name,
       href: generateHref(product),
       image: product.image || `/${product.platform}.jpg`,
       badge,
-      price: `NPR ${lowestPrice}`,
-      originalPrice:
-        highestPrice !== lowestPrice
-          ? `NPR ${highestPrice}`
-          : `NPR ${lowestPrice}`,
-      discount:
-        highestPrice !== lowestPrice
-          ? `${Math.round(
-              ((highestPrice - lowestPrice) / highestPrice) * 100
-            )}% OFF`
-          : undefined,
-      isPopular: product.platform.includes('paypal'),
-      rating: 4.8 + Math.random() * 0.2,
+      price: `NPR ${discountedPrice}`,
+      originalPrice: hasDiscount ? `NPR ${mainPrice}` : undefined,
+      discount: hasDiscount ? `${product.discountPercentage}% OFF` : undefined,
+      isPopular: product.platform.toLowerCase().includes('paypal'),
+      rating: 4.8, // Fixed rating instead of random
       deliveryTime: 'Instant',
       inStock: product.inStock,
     };

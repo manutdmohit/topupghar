@@ -3,9 +3,11 @@ import mongoose, { Document, Schema, model, models } from 'mongoose';
 // --- Order Interface ---
 export interface IOrder extends Document {
   orderId: string; // Auto-generated unique order ID
+  userId?: string; // Reference to the user who created the order
   platform: string; // e.g. 'instagram', 'freefire'
   type: string; // e.g. 'followers', 'diamonds'
   amount?: number | string; // E.g. 1000 (followers) or '1 month' (subscription)
+  quantity: number; // Quantity of items ordered (default: 1)
   price?: number; // Always in NPR
   duration?: string; // E.g. '1 month', '1 year'
   level?: string; // For level up
@@ -14,7 +16,7 @@ export interface IOrder extends Document {
   uid?: string; // User/game account id
   phone: string;
   referredBy?: string;
-  paymentMethod?: string; // e.g. 'eSewa'
+  paymentMethod?: string; // e.g. 'eSewa', 'wallet'
   receiptUrl: string; // CDN URL or S3 key
   uid_email?: string;
   password?: string;
@@ -54,10 +56,12 @@ const OrderSchema = new Schema<IOrder>(
         return `ORD-${dateStr}-${timeStr}-${random}`;
       },
     },
+    userId: { type: String }, // Reference to the user who created the order
     platform: { type: String, required: true },
     uid_email: { type: String }, // Combined UID/Email for easier search
     type: { type: String, required: true },
     amount: { type: Schema.Types.Mixed },
+    quantity: { type: Number, default: 1 }, // Quantity of items ordered
     price: { type: Number },
     duration: { type: String },
     level: { type: String },
@@ -90,6 +94,7 @@ const OrderSchema = new Schema<IOrder>(
 
 // --- Indexes for Fast Search ---
 OrderSchema.index({ orderId: 1 }, { unique: true });
+OrderSchema.index({ userId: 1 }); // Index for user-specific queries
 OrderSchema.index({ phone: 1 });
 OrderSchema.index({ platform: 1 });
 OrderSchema.index({ type: 1 });

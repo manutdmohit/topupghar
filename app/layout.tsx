@@ -5,6 +5,7 @@ import './globals.css';
 
 import AppShell from '@/components/AppShell';
 import WelcomeModal from '@/components/WelcomeModal';
+import SessionProvider from '@/components/providers/SessionProvider';
 
 export const metadata: Metadata = {
   title: 'Topup Ghar || Instant Game Topups and Digital Services',
@@ -33,8 +34,10 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans">
-        <AppShell>{children}</AppShell>
-        <WelcomeModal />
+        <SessionProvider>
+          <AppShell>{children}</AppShell>
+          <WelcomeModal />
+        </SessionProvider>
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
       platform,
       type,
       amount,
+      quantity,
       price,
       originalPrice,
       discountPercentage,
@@ -36,7 +37,8 @@ export async function POST(request: NextRequest) {
       platform,
       type,
       amount: amount || '',
-      price: priceNum,
+      quantity: quantity ? parseInt(quantity) : 1, // Default to 1 if not provided
+      price: priceNum, // This should be the base price per unit
       originalPrice: originalPrice ? parseFloat(originalPrice) : priceNum,
       discountPercentage: discountPercentage
         ? parseFloat(discountPercentage)

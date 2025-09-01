@@ -19,5 +19,9 @@ TELEGRAM_GROUP_ID=your_telegram_channel_or_group_id_here
 NEXTAUTH_SECRET=your_nextauth_secret_here
 NEXTAUTH_URL=http://localhost:3000
 
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+
 # Session Security
 SESSION_SECRET=your_session_secret_key_here

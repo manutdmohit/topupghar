@@ -23,10 +23,10 @@ export function calculateDiscountedPrice(
 
   return {
     originalPrice,
-    discountedPrice: Math.round(discountedPrice * 100) / 100, // Round to 2 decimal places
+    discountedPrice: Math.round(discountedPrice), // Round to whole number
     discountPercentage,
     hasDiscount,
-    discountAmount: Math.round(discountAmount * 100) / 100,
+    discountAmount: Math.round(discountAmount), // Round to whole number
   };
 }
 
@@ -79,7 +79,7 @@ export function calculatePriceRange(
  * Format price for display
  */
 export function formatPrice(price: number): string {
-  return `NPR ${price.toFixed(2)}`;
+  return `NPR ${Math.round(price)}`;
 }
 
 /**

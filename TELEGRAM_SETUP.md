@@ -106,19 +106,33 @@ The bot will automatically send notifications for:
    - Order timestamp
 
 2. **Order Status Updates**: When orders are approved, rejected, or processing
+
    - Order ID
    - New status
    - Additional notes (if any)
+
+3. **Wallet Top-up Requests**: When a user submits a wallet top-up request
+
+   - Transaction details (ID, amount, payment method)
+   - User information (email, name)
+   - Payment receipt link
+   - Transaction timestamp
+
+4. **Wallet Top-up Status Updates**: When wallet top-ups are approved or rejected
+   - Transaction ID
+   - New status (approved/rejected)
+   - Admin notes (if any)
 
 ### Message Format
 
 The bot sends formatted HTML messages with:
 
-- 📋 Order details
-- 👤 Customer information
-- 📅 Order timestamps
+- 📋 Order/Transaction details
+- 👤 Customer/User information
+- 📅 Order/Transaction timestamps
 - 🧾 Receipt links
 - 📊 Status updates
+- 💰 Wallet top-up information
 
 ## Troubleshooting
 
@@ -163,6 +177,21 @@ curl -X POST http://localhost:3000/api/test-telegram \
 curl -X POST http://localhost:3000/api/test-telegram \
   -H "Content-Type: application/json" \
   -d '{"testType": "status"}'
+
+# Test wallet top-up request
+curl -X POST http://localhost:3000/api/test-telegram \
+  -H "Content-Type: application/json" \
+  -d '{"testType": "wallet-topup"}'
+
+# Test wallet top-up approval
+curl -X POST http://localhost:3000/api/test-telegram \
+  -H "Content-Type: application/json" \
+  -d '{"testType": "wallet-approval"}'
+
+# Test wallet top-up rejection
+curl -X POST http://localhost:3000/api/test-telegram \
+  -H "Content-Type: application/json" \
+  -d '{"testType": "wallet-rejection"}'
 ```
 
 ## Security Notes

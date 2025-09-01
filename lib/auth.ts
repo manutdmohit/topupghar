@@ -1,5 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import User from './models/User';
 import { connect } from 'mongoose';
 
@@ -8,6 +9,10 @@ const MONGODB_URI =
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -41,6 +46,8 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user._id.toString(),
             email: user.email,
+            name: user.name,
+            image: user.image,
             role: user.role,
           };
         } catch (error) {
@@ -54,25 +61,132 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.role = user.role;
+        token.id = user.id;
+        token.name = user.name;
+        token.image = user.image;
       }
+
+      // If this is a Google OAuth sign-in, ensure the user has a role
+      if (account?.provider === 'google' && user) {
+        try {
+          await connect(MONGODB_URI);
+          const dbUser = await User.findById(user.id);
+          if (dbUser && !dbUser.role) {
+            await User.findByIdAndUpdate(user.id, { role: 'user' });
+            token.role = 'user';
+          }
+        } catch (error) {
+          console.error('Error updating user role:', error);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub!;
-        session.user.role = token.role;
+        session.user.role = token.role as string;
+        session.user.name = token.name as string;
+        session.user.image = token.image as string;
       }
       return session;
     },
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        try {
+          await connect(MONGODB_URI);
+
+          // Check if user already exists
+          const existingUser = await User.findOne({ email: user.email });
+
+          if (!existingUser) {
+            // Create new user with Google OAuth data
+            const newUser = new User({
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              role: 'user',
+              isActive: true,
+              emailVerified: new Date(),
+              accounts: [
+                {
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                },
+              ],
+            });
+
+            await newUser.save();
+            user.id = newUser._id.toString();
+          } else {
+            // For existing users, always allow linking Google account
+            // This prevents OAuthAccountNotLinked error
+
+            // Check if this Google account is already linked
+            const existingAccount = existingUser.accounts?.find(
+              (acc: any) =>
+                acc.provider === 'google' &&
+                acc.providerAccountId === account.providerAccountId
+            );
+
+            if (!existingAccount) {
+              // Link the Google account to the existing user
+              if (!existingUser.accounts) {
+                existingUser.accounts = [];
+              }
+
+              existingUser.accounts.push({
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+              });
+
+              // Update user info if not already set
+              if (!existingUser.name && user.name) {
+                existingUser.name = user.name;
+              }
+              if (!existingUser.image && user.image) {
+                existingUser.image = user.image;
+              }
+              if (!existingUser.emailVerified) {
+                existingUser.emailVerified = new Date();
+              }
+
+              await existingUser.save();
+            }
+
+            user.id = existingUser._id.toString();
+            user.name = existingUser.name || user.name;
+            user.image = existingUser.image || user.image;
+            user.role = existingUser.role;
+          }
+
+          return true;
+        } catch (error) {
+          console.error('Google sign-in error:', error);
+          return false;
+        }
+      }
+
+      return true;
+    },
   },
   pages: {
-    signIn: '/admin/login',
-    error: '/admin/login',
+    signIn: '/login',
+    error: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export async function registerUser(email: string, password: string) {

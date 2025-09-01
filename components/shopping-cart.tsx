@@ -1,47 +1,61 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { useState } from 'react';
+import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 interface CartItem {
-  id: string
-  title: string
-  price: number
-  quantity: number
-  image: string
+  id: string;
+  title: string;
+  price: number;
+  quantity: number;
+  image: string;
 }
 
 export function ShoppingCartComponent() {
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
-      id: "1",
-      title: "Free Fire 1000 Diamonds",
+      id: '1',
+      title: 'Free Fire 1000 Diamonds',
       price: 15.99,
       quantity: 1,
-      image: "/free-fire.jpg",
+      image: '/free-fire.jpg',
     },
     {
-      id: "2",
-      title: "TikTok 1000 Coins",
+      id: '2',
+      title: 'TikTok 1000 Coins',
       price: 12.99,
       quantity: 2,
-      image: "/mobile-gaming.jpg",
+      image: '/mobile-gaming.jpg',
     },
-  ])
+  ]);
 
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity === 0) {
-      setCartItems(cartItems.filter((item) => item.id !== id))
+      setCartItems(cartItems.filter((item) => item.id !== id));
     } else {
-      setCartItems(cartItems.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
+      setCartItems(
+        cartItems.map((item) =>
+          item.id === id ? { ...item, quantity: newQuantity } : item
+        )
+      );
     }
-  }
+  };
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <Sheet>
@@ -66,7 +80,7 @@ export function ShoppingCartComponent() {
             Shopping Cart
           </SheetTitle>
           <SheetDescription className="text-gray-600">
-            {totalItems} item{totalItems !== 1 ? "s" : ""} ready for checkout
+            {totalItems} item{totalItems !== 1 ? 's' : ''} ready for checkout
           </SheetDescription>
         </SheetHeader>
 
@@ -85,13 +99,17 @@ export function ShoppingCartComponent() {
                   className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300"
                 >
                   <img
-                    src={item.image || "/placeholder.svg"}
+                    src={item.image || '/placeholder.svg'}
                     alt={item.title}
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800 text-sm mb-1">{item.title}</h4>
-                    <p className="text-purple-600 font-bold text-lg">${item.price}</p>
+                    <h4 className="font-semibold text-gray-800 text-sm mb-1">
+                      {item.title}
+                    </h4>
+                    <p className="text-purple-600 font-bold text-lg">
+                      ${item.price}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <Button
@@ -102,7 +120,9 @@ export function ShoppingCartComponent() {
                     >
                       <Minus className="w-3 h-3" />
                     </Button>
-                    <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                    <span className="w-8 text-center font-semibold">
+                      {item.quantity}
+                    </span>
                     <Button
                       variant="outline"
                       size="sm"
@@ -126,21 +146,27 @@ export function ShoppingCartComponent() {
               <div className="border-t border-purple-100 pt-6 mt-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-semibold text-gray-700">Subtotal:</span>
-                  <span className="font-bold text-2xl text-purple-600">${totalPrice.toFixed(2)}</span>
+                  <span className="font-bold text-2xl text-purple-600">
+                    ${Math.round(totalPrice)}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center mb-6 text-sm text-gray-600">
                   <span>Delivery:</span>
-                  <span className="text-green-600 font-semibold">FREE (Instant)</span>
+                  <span className="text-green-600 font-semibold">
+                    FREE (Instant)
+                  </span>
                 </div>
                 <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
                   Proceed to Checkout
                 </Button>
-                <p className="text-xs text-gray-500 text-center mt-3">Secure checkout with 256-bit SSL encryption</p>
+                <p className="text-xs text-gray-500 text-center mt-3">
+                  Secure checkout with 256-bit SSL encryption
+                </p>
               </div>
             </>
           )}
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

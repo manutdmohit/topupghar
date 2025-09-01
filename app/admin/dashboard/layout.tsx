@@ -16,6 +16,7 @@ import {
   FolderOpen,
   Monitor,
   Layers,
+  Wallet,
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -24,7 +25,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { adminUser, logout } = useAdminAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
@@ -42,6 +43,7 @@ export default function DashboardLayout({
     },
     { name: 'Promocodes', href: '/admin/dashboard/promocodes', icon: Tag },
     { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingCart },
+    { name: 'Wallet', href: '/admin/dashboard/wallet', icon: Wallet },
     { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
   ];
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 
 interface AdminUser {
   id: string;
@@ -14,36 +15,48 @@ export function useAdminAuth() {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Check for admin user in localStorage
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        if (user.role === 'admin' && user.isActive) {
-          setAdminUser(user);
-        } else {
-          // Invalid user data, redirect to login
-          localStorage.removeItem('adminUser');
-          router.push('/admin/login');
-        }
-      } catch (error) {
-        console.error('Error parsing admin user:', error);
-        localStorage.removeItem('adminUser');
-        router.push('/admin/login');
-      }
-    } else {
-      // No user found, redirect to login
+    if (status === 'loading') return;
+
+    if (status === 'authenticated' && session?.user?.role === 'admin') {
+      // User is authenticated as admin via NextAuth
+      const user: AdminUser = {
+        id: session.user.id,
+        email: session.user.email || '',
+        role: session.user.role,
+        isActive: true,
+      };
+
+      // Store in localStorage for consistency with existing admin system
+      localStorage.setItem('adminUser', JSON.stringify(user));
+      setAdminUser(user);
+      setLoading(false);
+    } else if (status === 'authenticated' && session?.user?.role !== 'admin') {
+      // User is authenticated but not admin
+      localStorage.removeItem('adminUser');
+      setAdminUser(null);
+      setLoading(false);
+      router.push('/admin/login');
+    } else if (status === 'unauthenticated') {
+      // User is not authenticated
+      localStorage.removeItem('adminUser');
+      setAdminUser(null);
+      setLoading(false);
       router.push('/admin/login');
     }
-    setLoading(false);
-  }, [router]);
+  }, [session, status, router]);
 
-  const logout = () => {
+  const logout = async () => {
+    // Clear local state and localStorage
     localStorage.removeItem('adminUser');
     setAdminUser(null);
-    router.push('/admin/login');
+
+    // Sign out from NextAuth with redirect to admin login
+    await signOut({
+      callbackUrl: '/admin/login',
+    });
   };
 
   return { adminUser, loading, logout };

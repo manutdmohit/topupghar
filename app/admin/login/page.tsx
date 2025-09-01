@@ -1,23 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [showPw, setShowPw] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [msg, setMsg] = useState<{
     type: 'error' | 'success';
     text: string;
   } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Check if user is already authenticated as admin
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (status === 'authenticated' && session?.user?.role === 'admin') {
+      // Store admin user data in localStorage for the admin system
+      const adminUser = {
+        id: session.user.id,
+        email: session.user.email,
+        role: session.user.role,
+        isActive: true,
+      };
+      localStorage.setItem('adminUser', JSON.stringify(adminUser));
+
+      // Redirect to dashboard
+      router.push('/admin/dashboard');
+    }
+  }, [session, status, router]);
+
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
 
@@ -29,36 +50,23 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password: pw }),
+      const result = await signIn('credentials', {
+        email,
+        password: pw,
+        redirect: false,
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // Check if user is admin
-        if (data.user.role === 'admin') {
-          setMsg({ type: 'success', text: 'Login successful! Redirecting…' });
-          // Store user data in localStorage or session
-          localStorage.setItem('adminUser', JSON.stringify(data.user));
-          setTimeout(() => {
-            router.push('/admin/dashboard');
-          }, 1000);
-        } else {
-          setMsg({
-            type: 'error',
-            text: 'Access denied. Admin privileges required.',
-          });
-        }
-      } else {
+      if (result?.error) {
         setMsg({
           type: 'error',
-          text: data.error || 'Login failed. Please try again.',
+          text:
+            result.error === 'CredentialsSignin'
+              ? 'Invalid email or password.'
+              : result.error,
         });
+      } else if (result?.ok) {
+        // The session will be updated automatically, and the useEffect above will handle the redirect
+        setMsg({ type: 'success', text: 'Login successful! Redirecting…' });
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -71,6 +79,30 @@ export default function AdminLoginPage() {
     }
   };
 
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="mt-4 text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If already authenticated as admin, show loading while redirecting
+  if (status === 'authenticated' && session?.user?.role === 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="mt-4 text-white">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-800 relative">
       {/* Background animation */}
@@ -80,7 +112,7 @@ export default function AdminLoginPage() {
       <div className="relative z-10 w-full max-w-md">
         <form
           className="bg-white/95 border border-purple-100 shadow-2xl rounded-2xl px-8 py-10 flex flex-col gap-7 animate-fade-in"
-          onSubmit={handleSubmit}
+          onSubmit={handleCredentialsSubmit}
         >
           <div className="flex flex-col items-center mb-3">
             <Lock className="w-10 h-10 text-purple-700 mb-2" />
@@ -91,6 +123,7 @@ export default function AdminLoginPage() {
               Topup Ghar Admin Panel
             </span>
           </div>
+
           {/* Email */}
           <div>
             <label

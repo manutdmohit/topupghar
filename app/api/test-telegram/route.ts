@@ -3,6 +3,8 @@ import {
   sendPaymentDetailsToTelegram,
   sendSimpleNotificationToTelegram,
   sendOrderStatusUpdateToTelegram,
+  sendWalletTopupDetailsToTelegram,
+  sendWalletTopupStatusUpdateToTelegram,
 } from '@/lib/telegram-service';
 
 export const POST = async (req: NextRequest) => {
@@ -46,11 +48,45 @@ export const POST = async (req: NextRequest) => {
         );
         break;
 
+      case 'wallet-topup':
+        const testWalletTopupData = {
+          transactionId: 'WALLET-20241201-123456-001',
+          userId: 'test_user_123',
+          amount: 1000,
+          paymentMethod: 'esewa',
+          receiptUrl: 'https://example.com/test-wallet-receipt.jpg',
+          createdAt: new Date(),
+          status: 'pending' as const,
+          user: {
+            email: 'test@example.com',
+            name: 'Test User',
+          },
+        };
+        result = await sendWalletTopupDetailsToTelegram(testWalletTopupData);
+        break;
+
+      case 'wallet-approval':
+        result = await sendWalletTopupStatusUpdateToTelegram(
+          'WALLET-20241201-123456-001',
+          'approved',
+          'Wallet top-up approved successfully'
+        );
+        break;
+
+      case 'wallet-rejection':
+        result = await sendWalletTopupStatusUpdateToTelegram(
+          'WALLET-20241201-123456-001',
+          'rejected',
+          'Wallet top-up rejected - invalid receipt'
+        );
+        break;
+
       default:
         return NextResponse.json(
           {
             success: false,
-            message: 'Invalid test type. Use: payment, simple, or status',
+            message:
+              'Invalid test type. Use: payment, simple, status, wallet-topup, wallet-approval, or wallet-rejection',
           },
           { status: 400 }
         );

@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex items-center justify-between sm:flex-col sm:items-end sm:space-y-1">
                     <p className="font-semibold text-gray-900 text-sm sm:text-base">
-                      NPR {order.price}
+                      NPR {Math.round(order.price || 0)}
                     </p>
                     <span
                       className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${

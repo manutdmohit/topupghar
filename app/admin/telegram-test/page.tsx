@@ -16,6 +16,7 @@ import {
   MessageCircle,
   CheckCircle,
   AlertCircle,
+  Wallet,
 } from 'lucide-react';
 
 export default function TelegramTestPage() {
@@ -68,6 +69,30 @@ export default function TelegramTestPage() {
       description: 'Test sending order status update to Telegram',
       icon: <CheckCircle className="w-5 h-5" />,
       color: 'bg-purple-500',
+    },
+    {
+      id: 'wallet-topup',
+      title: 'Wallet Top-up Request',
+      description:
+        'Test sending wallet top-up request notification to Telegram',
+      icon: <Wallet className="w-5 h-5" />,
+      color: 'bg-orange-500',
+    },
+    {
+      id: 'wallet-approval',
+      title: 'Wallet Top-up Approved',
+      description:
+        'Test sending wallet top-up approval notification to Telegram',
+      icon: <CheckCircle className="w-5 h-5" />,
+      color: 'bg-emerald-500',
+    },
+    {
+      id: 'wallet-rejection',
+      title: 'Wallet Top-up Rejected',
+      description:
+        'Test sending wallet top-up rejection notification to Telegram',
+      icon: <AlertCircle className="w-5 h-5" />,
+      color: 'bg-red-500',
     },
   ];
 

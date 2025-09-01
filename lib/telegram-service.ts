@@ -7,6 +7,7 @@ export interface PaymentDetails {
   platform: string;
   type: string;
   amount?: string | number;
+  quantity?: number;
   price?: number;
   customerName?: string;
   customerPhone?: string;
@@ -28,6 +29,21 @@ export interface PaymentDetails {
   originalPrice?: number;
   discountAmount?: number;
   finalPrice?: number;
+}
+
+export interface WalletTopupDetails {
+  transactionId: string;
+  userId: string;
+  amount: number;
+  paymentMethod: string;
+  receiptUrl: string;
+  createdAt: Date;
+  status: 'pending' | 'completed' | 'cancelled';
+  user?: {
+    email: string;
+    name: string;
+  };
+  notes?: string;
 }
 
 /**
@@ -146,16 +162,28 @@ function formatPaymentMessage(paymentDetails: PaymentDetails): string {
     message += `📊 Amount: <b>${amount}</b>\n`;
   }
 
+  if (paymentDetails.quantity) {
+    message += `🔢 Quantity: <b>${paymentDetails.quantity}</b>\n`;
+  }
+
   if (price) {
-    message += `💰 Price: <b>NPR ${paymentDetails.finalPrice || price}</b>\n`;
+    message += `💰 Price: <b>NPR ${Math.round(
+      paymentDetails.finalPrice || price || 0
+    )}</b>\n`;
   }
 
   // Add promocode information if applied
   if (paymentDetails.promocode) {
     message += `🎫 Promocode: <code>${paymentDetails.promocode}</code>\n`;
-    message += `💸 Original Price: <s>NPR ${paymentDetails.originalPrice}</s>\n`;
-    message += `💰 Discount: <b>- NPR ${paymentDetails.discountAmount}</b>\n`;
-    message += `💳 Final Price: <b>NPR ${paymentDetails.finalPrice}</b>\n`;
+    message += `💸 Original Price: <s>NPR ${Math.round(
+      paymentDetails.originalPrice || 0
+    )}</s>\n`;
+    message += `💰 Discount: <b>- NPR ${Math.round(
+      paymentDetails.discountAmount || 0
+    )}</b>\n`;
+    message += `💳 Final Price: <b>NPR ${Math.round(
+      paymentDetails.finalPrice || 0
+    )}</b>\n`;
   }
 
   if (duration) {
@@ -251,6 +279,236 @@ export async function sendSimpleNotificationToTelegram(
     return { success: true, data: result };
   } catch (error) {
     console.error('Error sending simple notification to Telegram:', error);
+
+    // Handle specific network errors
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error(
+          'Telegram request timed out. Please check your internet connection.'
+        );
+      }
+      if (
+        error.message.includes('fetch failed') ||
+        error.message.includes('timeout')
+      ) {
+        throw new Error(
+          'Network error: Unable to reach Telegram servers. Please check your internet connection.'
+        );
+      }
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * Sends wallet top-up details to Telegram channel
+ * @param topupDetails - The wallet top-up details to send
+ * @returns Promise with telegram sending result
+ */
+export async function sendWalletTopupDetailsToTelegram(
+  topupDetails: WalletTopupDetails
+) {
+  try {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_GROUP_ID) {
+      console.error('Telegram configuration is missing');
+      throw new Error('Telegram configuration is missing');
+    }
+
+    // Format the message
+    const message = formatWalletTopupMessage(topupDetails);
+
+    // Send to group
+    const groupResponse = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_GROUP_ID,
+          text: message,
+          parse_mode: 'HTML',
+          disable_web_page_preview: false,
+        }),
+        // Add timeout and retry configuration
+        signal: AbortSignal.timeout(15000), // 15 second timeout
+      }
+    );
+
+    if (!groupResponse.ok) {
+      const error = await groupResponse.json();
+      throw new Error(
+        `Telegram API error: ${error.description || 'Unknown error'}`
+      );
+    }
+
+    const result = await groupResponse.json();
+    console.log('Wallet top-up details sent to Telegram successfully:', result);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Error sending wallet top-up details to Telegram:', error);
+
+    // Handle specific network errors
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error(
+          'Telegram request timed out. Please check your internet connection.'
+        );
+      }
+      if (
+        error.message.includes('fetch failed') ||
+        error.message.includes('timeout')
+      ) {
+        throw new Error(
+          'Network error: Unable to reach Telegram servers. Please check your internet connection.'
+        );
+      }
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * Formats wallet top-up details into a readable Telegram message
+ * @param topupDetails - The wallet top-up details to format
+ * @returns Formatted HTML message
+ */
+function formatWalletTopupMessage(topupDetails: WalletTopupDetails): string {
+  const {
+    transactionId,
+    amount,
+    paymentMethod,
+    receiptUrl,
+    createdAt,
+    status,
+    user,
+    notes,
+  } = topupDetails;
+
+  const date = new Date(createdAt).toLocaleString('en-US', {
+    timeZone: 'Asia/Kathmandu',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const statusEmoji = {
+    pending: '⏳',
+    completed: '✅',
+    cancelled: '❌',
+  };
+
+  const statusText = {
+    pending: 'PENDING',
+    completed: 'APPROVED',
+    cancelled: 'REJECTED',
+  };
+
+  let message = `💰 <b>WALLET TOP-UP</b> 💰\n`;
+  message += `${statusEmoji[status]} <b>${statusText[status]}</b> ${statusEmoji[status]}\n\n`;
+
+  message += `📋 <b>Transaction Details:</b>\n`;
+  message += `🆔 Transaction ID: <code>${transactionId}</code>\n`;
+  message += `💰 Amount: <b>NPR ${amount}</b>\n`;
+  message += `💳 Payment Method: <b>${paymentMethod.toUpperCase()}</b>\n`;
+  message += `📅 Date: <b>${date}</b>\n`;
+
+  if (user) {
+    message += `\n👤 <b>User Information:</b>\n`;
+    message += `📧 Email: <code>${user.email}</code>\n`;
+    if (user.name) {
+      message += `👤 Name: <b>${user.name}</b>\n`;
+    }
+  }
+
+  if (notes) {
+    message += `\n📝 <b>Notes:</b>\n`;
+    message += `${notes}\n`;
+  }
+
+  message += `\n🧾 <b>Receipt:</b>\n`;
+  message += `<a href="${receiptUrl}">View Receipt</a>\n`;
+
+  return message;
+}
+
+/**
+ * Sends wallet top-up status update to Telegram
+ * @param transactionId - The transaction ID
+ * @param status - The new status
+ * @param additionalInfo - Any additional information
+ * @returns Promise with telegram sending result
+ */
+export async function sendWalletTopupStatusUpdateToTelegram(
+  transactionId: string,
+  status: 'approved' | 'rejected',
+  additionalInfo?: string
+) {
+  try {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_GROUP_ID) {
+      console.error('Telegram configuration is missing');
+      throw new Error('Telegram configuration is missing');
+    }
+
+    const statusEmoji = {
+      approved: '✅',
+      rejected: '❌',
+    };
+
+    const statusText = {
+      approved: 'APPROVED',
+      rejected: 'REJECTED',
+    };
+
+    let message = `💰 <b>WALLET TOP-UP</b> 💰\n`;
+    message += `${statusEmoji[status]} <b>${statusText[status]}</b> ${statusEmoji[status]}\n\n`;
+    message += `🆔 Transaction ID: <code>${transactionId}</code>\n`;
+    message += `📊 Status: <b>${statusText[status]}</b>\n`;
+
+    if (additionalInfo) {
+      message += `📝 Note: ${additionalInfo}\n`;
+    }
+
+    const groupResponse = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_GROUP_ID,
+          text: message,
+          parse_mode: 'HTML',
+        }),
+        // Add timeout configuration
+        signal: AbortSignal.timeout(15000), // 15 second timeout
+      }
+    );
+
+    if (!groupResponse.ok) {
+      const error = await groupResponse.json();
+      throw new Error(
+        `Telegram API error: ${error.description || 'Unknown error'}`
+      );
+    }
+
+    const result = await groupResponse.json();
+    console.log(
+      'Wallet top-up status update sent to Telegram successfully:',
+      result
+    );
+    return { success: true, data: result };
+  } catch (error) {
+    console.error(
+      'Error sending wallet top-up status update to Telegram:',
+      error
+    );
 
     // Handle specific network errors
     if (error instanceof Error) {

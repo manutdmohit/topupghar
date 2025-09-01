@@ -89,47 +89,49 @@ export default function SubscriptionPage() {
 
   // Transform API data to match ProductCard props
   const transformProductToCardProps = (product: Product) => {
-    const lowestPrice = Math.min(...product.variants.map((v) => v.price));
-    const highestPrice = Math.max(...product.variants.map((v) => v.price));
+    // Use the first variant price as the main price, or lowest if multiple variants
+    const mainPrice =
+      product.variants.length > 0
+        ? Math.min(...product.variants.map((v) => v.price))
+        : 0;
 
     // Determine badge based on platform and type
     let badge = 'SUBSCRIPTION';
-    if (product.platform.includes('netflix')) {
+    if (product.platform.toLowerCase().includes('netflix')) {
       badge = 'BESTSELLER';
-    } else if (product.platform.includes('chatgpt')) {
+    } else if (product.platform.toLowerCase().includes('chatgpt')) {
       badge = 'HOT DEAL';
-    } else if (product.platform.includes('youtube')) {
+    } else if (product.platform.toLowerCase().includes('youtube')) {
       badge = 'POPULAR';
-    } else if (product.platform.includes('microsoft')) {
+    } else if (product.platform.toLowerCase().includes('microsoft')) {
       badge = 'PREMIUM';
     }
 
     // Use slug as href if available, otherwise fallback to platform
-      const generateHref = (product: Product) => {
-    if (product.slug) {
-      return `/${product.slug}`;
-    }
-    return `/${product.platform}`;
-  };
+    const generateHref = (product: Product) => {
+      if (product.slug) {
+        return `/${product.slug}`;
+      }
+      return `/${product.platform}`;
+    };
+
+    // Only show discount if product has a discountPercentage field
+    const hasDiscount =
+      product.discountPercentage && product.discountPercentage > 0;
+    const discountedPrice = hasDiscount
+      ? Math.round(mainPrice * (1 - product.discountPercentage / 100))
+      : mainPrice;
 
     return {
       title: product.name,
       href: generateHref(product),
       image: product.image || `/${product.platform}.jpg`,
       badge,
-      price: `NPR ${lowestPrice}`,
-      originalPrice:
-        highestPrice !== lowestPrice
-          ? `NPR ${highestPrice}`
-          : `NPR ${lowestPrice}`,
-      discount:
-        highestPrice !== lowestPrice
-          ? `${Math.round(
-              ((highestPrice - lowestPrice) / highestPrice) * 100
-            )}% OFF`
-          : undefined,
-      isPopular: product.platform.includes('netflix'),
-      rating: 4.8 + Math.random() * 0.2,
+      price: `NPR ${discountedPrice}`,
+      originalPrice: hasDiscount ? `NPR ${mainPrice}` : undefined,
+      discount: hasDiscount ? `${product.discountPercentage}% OFF` : undefined,
+      isPopular: product.platform.toLowerCase().includes('netflix'),
+      rating: 4.8, // Fixed rating instead of random
       deliveryTime: 'Instant',
       inStock: product.inStock,
     };

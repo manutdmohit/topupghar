@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import Order from '@/models/Order';
 import Promocode from '@/lib/models/Promocode';
 import connectDB from '@/config/db';
+import { Wallet, WalletTransaction } from '@/models/Wallet';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import {
   sendOrderNotificationToAdmin,
@@ -50,18 +53,21 @@ export const POST = async (req: NextRequest) => {
   try {
     await connectDB(); // Ensure database connection is established
 
-    const formData = await req.formData();
-    const receipt = formData.get('receipt') as File | null;
+    // Get user session for authentication
+    const session = await getServerSession(authOptions);
 
-    if (!receipt) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { message: 'Receipt image is required.' },
-        { status: 400 }
+        {
+          message: 'Authentication required. Please log in to create an order.',
+        },
+        { status: 401 }
       );
     }
 
-    // Upload receipt to Cloudinary
-    const uploadResult = (await uploadImage(receipt)) as UploadApiResponse;
+    const formData = await req.formData();
+    const receipt = formData.get('receipt') as File | null;
+    const paymentMethod = formData.get('paymentMethod') as string;
 
     // Prepare order data from form fields
     const orderData: { [key: string]: any } = {};
@@ -72,18 +78,45 @@ export const POST = async (req: NextRequest) => {
       }
     });
 
+    // Handle wallet payments (no receipt required)
+    if (paymentMethod === 'wallet') {
+      // For wallet payments, we'll process the payment immediately
+      // No receipt upload needed
+    } else if (!receipt) {
+      return NextResponse.json(
+        { message: 'Receipt image is required for non-wallet payments.' },
+        { status: 400 }
+      );
+    } else {
+      // Upload receipt to Cloudinary for non-wallet payments
+      const uploadResult = (await uploadImage(receipt)) as UploadApiResponse;
+      orderData.receiptUrl = uploadResult.secure_url;
+    }
+
+    // Add userId to order data
+    orderData.userId = session.user.id;
+
     // Handle promocode if provided
-    let finalPrice = parseFloat(orderData.price || '0');
+    // The price from the form is the base price per unit
+    const basePricePerUnit = parseFloat(orderData.price || '0');
+    const quantity = parseInt(orderData.quantity || '1');
+
+    // Calculate total prices with quantity
+    let finalPrice = basePricePerUnit * quantity;
     let originalPrice = parseFloat(
-      orderData.originalPrice || orderData.price || '0'
+      orderData.originalPrice || (basePricePerUnit * quantity).toString()
     );
     let discountAmount = 0;
     let appliedPromocode = null;
 
     console.log('Order creation debug:', {
+      userId: session.user.id,
       receivedPrice: orderData.price,
       receivedOriginalPrice: orderData.originalPrice,
+      quantity: quantity,
+      basePricePerUnit: basePricePerUnit,
       calculatedOriginalPrice: originalPrice,
+      calculatedFinalPrice: finalPrice,
       receivedPromocode: orderData.promocode,
     });
 
@@ -101,12 +134,10 @@ export const POST = async (req: NextRequest) => {
           promocode.usedCount < promocode.maxCount
         ) {
           // Determine the base price for promocode calculation
-          // If there's a product discount (price < originalPrice), use the discounted price
-          // Otherwise, use the original price
-          const basePriceForPromocode =
-            finalPrice < originalPrice ? finalPrice : originalPrice;
+          // Use the current final price (which includes quantity) for promocode calculation
+          const basePriceForPromocode = finalPrice;
 
-          // Calculate promocode discount on the base price
+          // Calculate promocode discount on the quantity-adjusted price
           const promocodeDiscountAmount =
             (basePriceForPromocode * promocode.discountPercentage) / 100;
           finalPrice = basePriceForPromocode - promocodeDiscountAmount;
@@ -123,30 +154,152 @@ export const POST = async (req: NextRequest) => {
         // Continue without promocode if there's an error
       }
     } else {
-      // No promocode applied, use the price as provided (which might already include product discount)
-      finalPrice = parseFloat(orderData.price || '0');
+      // No promocode applied, use the quantity-adjusted price
+      finalPrice = basePricePerUnit * quantity;
     }
 
     // Create a new order with the Cloudinary URL and promocode data
     const newOrder = new Order({
       ...orderData,
-      receiptUrl: uploadResult.secure_url,
+      receiptUrl:
+        paymentMethod === 'wallet' ? 'wallet-payment' : orderData.receiptUrl,
       promocode: appliedPromocode,
       originalPrice: originalPrice,
-      discountAmount: Math.round(discountAmount * 100) / 100,
-      finalPrice: Math.round(finalPrice * 100) / 100,
+      discountAmount: Math.round(discountAmount),
+      finalPrice: Math.round(finalPrice),
     });
 
     await newOrder.save();
+
+    // Process wallet payment if selected
+    if (paymentMethod === 'wallet') {
+      try {
+        // Get user wallet and check balance
+        const wallet = await Wallet.findOne({ userId: session.user.id });
+        console.log('Wallet lookup result:', {
+          userId: session.user.id,
+          wallet: wallet
+            ? { balance: wallet.balance, totalSpent: wallet.totalSpent }
+            : null,
+        });
+
+        if (!wallet) {
+          // Create wallet if it doesn't exist
+          const newWallet = new Wallet({
+            userId: session.user.id,
+            balance: 0,
+            totalTopups: 0,
+            totalSpent: 0,
+            isActive: true,
+          });
+          await newWallet.save();
+
+          // Delete the order since wallet creation failed
+          await Order.findByIdAndDelete(newOrder._id);
+          return NextResponse.json(
+            {
+              message: 'Wallet not found. Please top up your wallet first.',
+            },
+            { status: 400 }
+          );
+        }
+
+        // Check if wallet has sufficient balance
+        const requiredAmount = Math.round(finalPrice);
+        console.log('Balance check:', {
+          walletBalance: wallet.balance,
+          requiredAmount,
+          isSufficient: wallet.balance >= requiredAmount,
+        });
+
+        if (wallet.balance < requiredAmount) {
+          // Delete the order since balance is insufficient
+          await Order.findByIdAndDelete(newOrder._id);
+          return NextResponse.json(
+            {
+              message: `Insufficient wallet balance. You have NPR ${wallet.balance} but need NPR ${requiredAmount}. Please top up your wallet.`,
+            },
+            { status: 400 }
+          );
+        }
+
+        // Create payment transaction
+        const paymentTransaction = new WalletTransaction({
+          userId: session.user.id,
+          type: 'payment',
+          amount: -requiredAmount, // Negative amount for payments
+          balance: wallet.balance - requiredAmount,
+          description: `Payment for order ${newOrder.orderId}`,
+          status: 'completed',
+          orderId: newOrder.orderId,
+        });
+
+        // Update wallet balance
+        wallet.balance -= requiredAmount;
+        wallet.totalSpent += requiredAmount;
+        wallet.lastTransactionDate = new Date();
+
+        // Update order status and payment method
+        newOrder.status = 'pending'; // Set as pending for admin review
+        newOrder.paymentMethod = 'wallet';
+
+        // Save all changes in a transaction
+        try {
+          await Promise.all([
+            paymentTransaction.save(),
+            wallet.save(),
+            newOrder.save(),
+          ]);
+        } catch (saveError) {
+          console.error('Error saving wallet payment data:', saveError);
+          throw new Error(
+            `Failed to save wallet payment: ${
+              saveError instanceof Error ? saveError.message : 'Unknown error'
+            }`
+          );
+        }
+
+        console.log('Wallet payment processed successfully:', {
+          orderId: newOrder.orderId,
+          amount: requiredAmount,
+          newBalance: wallet.balance,
+        });
+
+        // Add note about pending status
+        newOrder.adminNotes =
+          'Wallet payment processed. Order pending admin review.';
+      } catch (error) {
+        // If wallet payment fails, delete the order
+        await Order.findByIdAndDelete(newOrder._id);
+        console.error('Wallet payment error details:', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : 'No stack trace',
+          userId: session.user.id,
+          orderId: newOrder.orderId,
+          amount: Math.round(finalPrice),
+          timestamp: new Date().toISOString(),
+        });
+        return NextResponse.json(
+          {
+            message: `Wallet payment failed: ${
+              error instanceof Error ? error.message : 'Unknown error'
+            }. Please try again or use a different payment method.`,
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     // Send email notification to admin
     try {
       const emailData = {
         orderId: newOrder.orderId,
+        userId: newOrder.userId, // Include userId in notifications
         platform: newOrder.platform,
         type: newOrder.type,
         amount: newOrder.amount,
-        price: newOrder.price,
+        quantity: newOrder.quantity,
+        price: newOrder.finalPrice,
         customerName: newOrder.customerName,
         customerPhone: newOrder.customerPhone,
         customerEmail: newOrder.customerEmail,
@@ -188,10 +341,12 @@ export const POST = async (req: NextRequest) => {
     try {
       const telegramData = {
         orderId: newOrder.orderId,
+        userId: newOrder.userId, // Include userId in notifications
         platform: newOrder.platform,
         type: newOrder.type,
         amount: newOrder.amount,
-        price: newOrder.price,
+        quantity: newOrder.quantity,
+        price: newOrder.finalPrice,
         customerName: newOrder.customerName,
         customerPhone: newOrder.customerPhone,
         customerEmail: newOrder.customerEmail,
@@ -225,7 +380,7 @@ export const POST = async (req: NextRequest) => {
       try {
         await sendSimpleNotificationToTelegram(
           'New Payment Received',
-          `Order ID: ${newOrder.orderId}\nPlatform: ${newOrder.platform}\nType: ${newOrder.type}\nPrice: NPR ${newOrder.price}`
+          `Order ID: ${newOrder.orderId}\nPlatform: ${newOrder.platform}\nType: ${newOrder.type}\nPrice: NPR ${newOrder.finalPrice}`
         );
         console.log('Simple Telegram notification sent as fallback');
       } catch (fallbackError) {

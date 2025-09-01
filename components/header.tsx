@@ -1,13 +1,45 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronDown, User, LogOut, Wallet } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MobileMenu } from './mobile-menu';
+import WalletBalanceDisplay from './wallet/WalletBalanceDisplay';
+import WalletNotificationBadge from './wallet/WalletNotificationBadge';
 
 const HeaderSection = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    if (isUserDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserDropdownOpen]);
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/' });
+  };
 
   return (
     <header className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white px-4 py-4 sticky top-0 z-50 shadow-2xl backdrop-blur-md border-b border-purple-500/20 animate-fade-in-down">
@@ -90,6 +122,117 @@ const HeaderSection = () => {
             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full" />
           </Link>
         </nav>
+
+        {/* Authentication Section */}
+        <div className="hidden md:flex items-center space-x-4">
+          {status === 'loading' ? (
+            // Loading state
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-purple-600 rounded-full animate-pulse" />
+              <div className="w-16 h-4 bg-purple-600 rounded animate-pulse" />
+            </div>
+          ) : session?.user ? (
+            // Logged in user
+            <>
+              <WalletBalanceDisplay />
+              {session.user.role === 'admin' && <WalletNotificationBadge />}
+              <div className="relative" ref={userDropdownRef}>
+                <button
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex items-center space-x-2 hover:bg-purple-500/10 rounded-lg p-2 transition-colors"
+                >
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage
+                      src={session.user.image || ''}
+                      alt={session.user.name || 'User'}
+                    />
+                    <AvatarFallback className="bg-purple-600 text-white text-sm">
+                      {session.user.name ? (
+                        session.user.name.charAt(0).toUpperCase()
+                      ) : (
+                        <User className="w-4 h-4" />
+                      )}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-white">
+                    {session.user.name || 'User'}
+                  </span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {/* User Dropdown */}
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-purple-500/20 rounded-lg shadow-2xl">
+                    <div className="px-4 py-3 border-b border-purple-500/20">
+                      <p className="text-sm font-medium text-white">
+                        {session.user.name || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {session.user.email}
+                      </p>
+                    </div>
+                    <Link
+                      href="/my-orders"
+                      className="w-full flex items-center space-x-2 px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/10 hover:text-purple-300 transition-colors"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                        />
+                      </svg>
+                      <span>My Orders</span>
+                    </Link>
+                    <Link
+                      href="/wallet"
+                      className="w-full flex items-center space-x-2 px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/10 hover:text-purple-300 transition-colors"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                    >
+                      <Wallet className="w-4 h-4" />
+                      <span>My Wallet</span>
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center space-x-2 px-4 py-3 text-sm text-gray-200 hover:bg-purple-500/10 hover:text-purple-300 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            // Guest user - show login/signup buttons
+            <div className="flex items-center space-x-3">
+              <Link
+                href={`/login?callbackUrl=${encodeURIComponent(
+                  window.location.href
+                )}`}
+              >
+                <Button
+                  variant="ghost"
+                  className="text-white hover:text-purple-300 hover:bg-purple-500/10"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center">

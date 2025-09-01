@@ -7,13 +7,17 @@ const MONGODB_URI =
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { name, email, password } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
       );
+    }
+
+    if (!name) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
     if (password.length < 6) {
@@ -36,6 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Create new user
     const user = new User({
+      name,
       email: email.toLowerCase(),
       password,
       role: 'user',
@@ -47,6 +52,7 @@ export async function POST(request: NextRequest) {
     // Return user data without password
     const userData = {
       id: user._id.toString(),
+      name: user.name,
       email: user.email,
       role: user.role,
       isActive: user.isActive,

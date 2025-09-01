@@ -7,6 +7,7 @@ export interface OrderSessionData {
   platform: string;
   type: string;
   amount: string;
+  quantity: number;
   price: number;
   originalPrice?: number;
   discountPercentage?: number;
