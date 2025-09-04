@@ -21,30 +21,20 @@ const PopupSchema = new Schema<IPopup>(
     title: {
       type: String,
       required: true,
-      default: 'Welcome to Topup घर',
     },
     message: {
       type: String,
       required: true,
-      default:
-        'Your one-stop destination for gaming top-ups, streaming services, and social media boosts. Get instant delivery and amazing deals on all your favorite platforms!',
     },
     features: [
       {
         type: String,
         required: true,
-        default: [
-          'Instant delivery on all orders',
-          'Secure payment methods',
-          '24/7 customer support',
-          'Best prices guaranteed',
-        ],
       },
     ],
     ctaText: {
       type: String,
       required: true,
-      default: 'Get Started Now! 🚀',
     },
     isActive: {
       type: Boolean,
@@ -54,13 +44,11 @@ const PopupSchema = new Schema<IPopup>(
     showDelay: {
       type: Number,
       required: true,
-      default: 1000, // 1 second
     },
     frequency: {
       type: String,
       enum: ['2hours'],
       required: true,
-      default: '2hours',
     },
   },
   {
