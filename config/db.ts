@@ -13,6 +13,12 @@ async function connectDB() {
     console.log('Creating new database connection...');
     const opts = {
       bufferCommands: false,
+      // Disable caching in production
+      maxPoolSize: 1,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      // Force fresh reads
+      readPreference: 'primary' as const,
     };
 
     const connection = await mongoose.connect(MONGODB_URI!, opts);

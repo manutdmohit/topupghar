@@ -6,6 +6,7 @@ export async function GET() {
   try {
     await connectDB();
 
+    // Force fresh data retrieval in production
     const popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
