@@ -8,49 +8,16 @@ if (!MONGODB_URI) {
   );
 }
 
-interface Cached {
-  conn: typeof mongoose | null;
-  promise: Promise<typeof mongoose> | null;
-}
-
-declare global {
-  var mongoose: Cached;
-}
-
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
 async function connectDB() {
   try {
-    if (cached.conn) {
-      console.log('Using cached database connection');
-      return cached.conn;
-    }
+    console.log('Creating new database connection...');
+    const opts = {
+      bufferCommands: false,
+    };
 
-    if (!cached.promise) {
-      console.log('Creating new database connection...');
-      const opts = {
-        bufferCommands: false,
-      };
-
-      cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-        console.log('Database connected successfully');
-        return mongoose;
-      });
-    }
-
-    try {
-      cached.conn = await cached.promise;
-    } catch (e) {
-      cached.promise = null;
-      console.error('Database connection error:', e);
-      throw e;
-    }
-
-    return cached.conn;
+    const connection = await mongoose.connect(MONGODB_URI!, opts);
+    console.log('Database connected successfully');
+    return connection;
   } catch (error) {
     console.error('Error in connectDB:', error);
     throw error;
