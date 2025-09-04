@@ -18,6 +18,7 @@ import {
   Layers,
   Wallet,
   ChevronDown,
+  MessageSquare,
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -96,6 +97,11 @@ export default function DashboardLayout({
     { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingCart },
     { name: 'Customers', href: '/admin/dashboard/customers', icon: User },
     { name: 'Wallet', href: '/admin/dashboard/wallet', icon: Wallet },
+    {
+      name: 'Popup Management',
+      href: '/admin/dashboard/popup',
+      icon: MessageSquare,
+    },
     { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
   ];
 
