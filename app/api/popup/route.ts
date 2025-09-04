@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
 
-    const popup = await Popup.getDefaultPopup();
+    const popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
       return NextResponse.json({ error: 'No popup found' }, { status: 404 });

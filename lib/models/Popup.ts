@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IPopup extends Document {
   title: string;
@@ -10,6 +10,10 @@ export interface IPopup extends Document {
   frequency: '2hours';
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IPopupModel extends Model<IPopup> {
+  findActivePopup(): Promise<IPopup | null>;
 }
 
 const PopupSchema = new Schema<IPopup>(
@@ -64,29 +68,9 @@ const PopupSchema = new Schema<IPopup>(
   }
 );
 
-// Create a default popup if none exists
-PopupSchema.statics.getDefaultPopup = async function () {
-  let popup = await this.findOne({ isActive: true });
-
-  if (!popup) {
-    popup = await this.create({
-      title: 'Welcome to Topup घर',
-      message:
-        'Your one-stop destination for gaming top-ups, streaming services, and social media boosts. Get instant delivery and amazing deals on all your favorite platforms!',
-      features: [
-        'Instant delivery on all orders',
-        'Secure payment methods',
-        '24/7 customer support',
-        'Best prices guaranteed',
-      ],
-      ctaText: 'Get Started Now! 🚀',
-      isActive: true,
-      showDelay: 1000,
-      frequency: '2hours',
-    });
-  }
-
-  return popup;
+// Find active popup from database only
+PopupSchema.statics.findActivePopup = async function () {
+  return await this.findOne({ isActive: true });
 };
 
 export default mongoose.models.Popup ||
