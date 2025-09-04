@@ -9,7 +9,10 @@ export async function GET() {
     const popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
-      return NextResponse.json({ error: 'No popup found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'No active popup found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -27,7 +30,11 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching popup:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch popup' },
+      {
+        error: `Failed to fetch popup: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      },
       { status: 500 }
     );
   }
