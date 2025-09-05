@@ -15,7 +15,15 @@ export async function PUT(request: NextRequest) {
 
     await connectDB();
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
     const {
       title,
       message,
@@ -64,30 +72,27 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Find existing popup or create if none exists
-    let popup = await Popup.findOne({ isActive: true });
+    // Find existing popup (should always exist)
+    const popup = await Popup.findOne({ isActive: true });
 
-    if (popup) {
-      // Update existing popup
-      popup.title = title.trim();
-      popup.message = message.trim();
-      popup.features = validFeatures;
-      popup.ctaText = ctaText.trim();
-      popup.isActive = Boolean(isActive);
-      popup.showDelay = Math.max(0, showDelay);
-      popup.frequency = frequency || '2hours';
-    } else {
-      // Create new popup only if none exists
-      popup = new Popup({
-        title: title.trim(),
-        message: message.trim(),
-        features: validFeatures,
-        ctaText: ctaText.trim(),
-        isActive: Boolean(isActive),
-        showDelay: Math.max(0, showDelay),
-        frequency: frequency || '2hours',
-      });
+    if (!popup) {
+      return NextResponse.json(
+        {
+          error:
+            'No popup found in database. Please check if popup data is seeded.',
+        },
+        { status: 404 }
+      );
     }
+
+    // Update existing popup
+    popup.title = title.trim();
+    popup.message = message.trim();
+    popup.features = validFeatures;
+    popup.ctaText = ctaText.trim();
+    popup.isActive = Boolean(isActive);
+    popup.showDelay = Math.max(0, showDelay);
+    popup.frequency = frequency || '2hours';
 
     await popup.save();
 
@@ -122,25 +127,13 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    let popup = await Popup.findOne({ isActive: true });
+    const popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
-      // Create a default popup if none exists
-      popup = new Popup({
-        title: 'Welcome to Topup घर',
-        message: 'Discover amazing deals on gaming, subscriptions, and more!',
-        features: [
-          '🎮 Gaming Top-ups & Gift Cards',
-          '📱 Social Media Services',
-          '🎬 Premium Subscriptions',
-          '💰 Secure & Fast Delivery',
-        ],
-        ctaText: 'Get Started Now! 🚀',
-        isActive: true,
-        showDelay: 1000,
-        frequency: '2hours',
-      });
-      await popup.save();
+      return NextResponse.json(
+        { error: 'No popup found. Create one using PUT method.' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -173,16 +166,23 @@ export async function DELETE(request: NextRequest) {
 
     await connectDB();
 
-    // Deactivate all active popups
-    const result = await Popup.updateMany(
-      { isActive: true },
-      { isActive: false }
-    );
+    // Find and deactivate the active popup
+    const popup = await Popup.findOne({ isActive: true });
+
+    if (!popup) {
+      return NextResponse.json(
+        { error: 'No active popup found' },
+        { status: 404 }
+      );
+    }
+
+    popup.isActive = false;
+    await popup.save();
 
     return NextResponse.json({
       success: true,
-      message: `Deactivated ${result.modifiedCount} popup(s)`,
-      data: { modifiedCount: result.modifiedCount },
+      message: 'Popup deactivated successfully',
+      data: { id: popup._id },
     });
   } catch (error) {
     console.error('Error deactivating popup:', error);
