@@ -64,19 +64,30 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Deactivate all existing popups first
-    await Popup.updateMany({ isActive: true }, { isActive: false });
+    // Find existing popup or create if none exists
+    let popup = await Popup.findOne({ isActive: true });
 
-    // Create new popup
-    const popup = new Popup({
-      title: title.trim(),
-      message: message.trim(),
-      features: validFeatures,
-      ctaText: ctaText.trim(),
-      isActive: Boolean(isActive),
-      showDelay: Math.max(0, showDelay),
-      frequency: frequency || '2hours',
-    });
+    if (popup) {
+      // Update existing popup
+      popup.title = title.trim();
+      popup.message = message.trim();
+      popup.features = validFeatures;
+      popup.ctaText = ctaText.trim();
+      popup.isActive = Boolean(isActive);
+      popup.showDelay = Math.max(0, showDelay);
+      popup.frequency = frequency || '2hours';
+    } else {
+      // Create new popup only if none exists
+      popup = new Popup({
+        title: title.trim(),
+        message: message.trim(),
+        features: validFeatures,
+        ctaText: ctaText.trim(),
+        isActive: Boolean(isActive),
+        showDelay: Math.max(0, showDelay),
+        frequency: frequency || '2hours',
+      });
+    }
 
     await popup.save();
 
@@ -111,13 +122,25 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const popup = await Popup.findOne({ isActive: true });
+    let popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
-      return NextResponse.json(
-        { error: 'No popup found and failed to create default' },
-        { status: 404 }
-      );
+      // Create a default popup if none exists
+      popup = new Popup({
+        title: 'Welcome to Topup घर',
+        message: 'Discover amazing deals on gaming, subscriptions, and more!',
+        features: [
+          '🎮 Gaming Top-ups & Gift Cards',
+          '📱 Social Media Services',
+          '🎬 Premium Subscriptions',
+          '💰 Secure & Fast Delivery',
+        ],
+        ctaText: 'Get Started Now! 🚀',
+        isActive: true,
+        showDelay: 1000,
+        frequency: '2hours',
+      });
+      await popup.save();
     }
 
     return NextResponse.json({
