@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const popup = await (Popup as any).getDefaultPopup();
+    const popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
       return NextResponse.json(
