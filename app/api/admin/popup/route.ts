@@ -73,16 +73,29 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find existing popup (should always exist)
-    const popup = await Popup.findOne({ isActive: true });
+    let popup = await Popup.findOne({ isActive: true });
 
     if (!popup) {
-      return NextResponse.json(
-        {
-          error:
-            'No popup found in database. Please check if popup data is seeded.',
-        },
-        { status: 404 }
-      );
+      // Auto-create a default popup if none exists
+      console.log('🔧 Admin API: No popup found, creating default popup...');
+      popup = new Popup({
+        title: 'Welcome to Topup घर',
+        message:
+          'Your one-stop destination for gaming top-ups, streaming services, and social media boosts. Get instant delivery and amazing deals on all your favorite platforms!',
+        features: [
+          '🎮 Gaming Top-ups & Gift Cards',
+          '📱 Social Media Services',
+          '🎬 Premium Subscriptions',
+          '💰 Secure & Fast Delivery',
+        ],
+        ctaText: 'Get Started Now! 🚀',
+        isActive: true,
+        showDelay: 1000,
+        frequency: '2hours',
+      });
+
+      await popup.save();
+      console.log('✅ Admin API: Default popup created');
     }
 
     // Update existing popup

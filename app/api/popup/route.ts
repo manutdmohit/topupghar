@@ -4,12 +4,16 @@ import Popup from '@/lib/models/Popup';
 
 export async function GET() {
   try {
+    console.log('🔍 Popup API: Starting popup fetch...');
     await connectDB();
+    console.log('✅ Popup API: Database connected');
 
     // Force fresh data retrieval in production
     const popup = await Popup.findOne({ isActive: true });
+    console.log('🔍 Popup API: Popup found:', popup ? 'YES' : 'NO');
 
     if (!popup) {
+      console.log('❌ Popup API: No active popup found');
       return NextResponse.json(
         { error: 'No active popup found' },
         { status: 404 }
