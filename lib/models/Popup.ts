@@ -14,6 +14,7 @@ export interface IPopup extends Document {
 
 export interface IPopupModel extends Model<IPopup> {
   findActivePopup(): Promise<IPopup | null>;
+  getDefaultPopup(): Promise<IPopup | null>;
 }
 
 const PopupSchema = new Schema<IPopup>(
@@ -59,6 +60,32 @@ const PopupSchema = new Schema<IPopup>(
 // Find active popup from database only
 PopupSchema.statics.findActivePopup = async function () {
   return await this.findOne({ isActive: true });
+};
+
+// Get default popup (active popup or create default if none exists)
+PopupSchema.statics.getDefaultPopup = async function () {
+  let popup = await this.findOne({ isActive: true });
+
+  if (!popup) {
+    // Create a default popup if none exists
+    popup = new this({
+      title: 'Welcome to Topup घर',
+      message: 'Discover amazing deals on gaming, subscriptions, and more!',
+      features: [
+        '🎮 Gaming Top-ups & Gift Cards',
+        '📱 Social Media Services',
+        '🎬 Premium Subscriptions',
+        '💰 Secure & Fast Delivery',
+      ],
+      ctaText: 'Get Started Now! 🚀',
+      isActive: true,
+      showDelay: 1000,
+      frequency: '2hours',
+    });
+    await popup.save();
+  }
+
+  return popup;
 };
 
 export default mongoose.models.Popup ||
