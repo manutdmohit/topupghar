@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/config/db';
-import Popup, { IPopupModel } from '@/lib/models/Popup';
+import Popup from '@/lib/models/Popup';
 
 export async function PUT(request: NextRequest) {
   try {
