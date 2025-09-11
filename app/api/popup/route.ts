@@ -2,28 +2,62 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/config/db';
 import Popup from '@/lib/models/Popup';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Check for force refresh parameter
+    const { searchParams } = new URL(request.url);
+    const forceRefresh = searchParams.get('force') === 'true';
+
     console.log('🔍 Popup API: Starting popup fetch...');
     console.log('🔍 Popup API: Environment:', process.env.NODE_ENV);
     console.log('🔍 Popup API: MongoDB URI exists:', !!process.env.MONGODB_URI);
+    console.log('🔍 Popup API: Force refresh:', forceRefresh);
+
+    // Force a completely fresh database connection
     await connectDB();
     console.log('✅ Popup API: Database connected');
 
-    // Force fresh data retrieval - clear any potential caches
-    const popup = (await Popup.findOne({ isActive: true })
-      .sort({ updatedAt: -1, createdAt: -1 })
+    // AGGRESSIVE CACHE BUSTING - Multiple approaches
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(7);
+
+    console.log(
+      '🔍 Popup API: Cache busting with timestamp:',
+      timestamp,
+      'randomId:',
+      randomId
+    );
+
+    // Method 1: Direct query with timestamp condition
+    const popup1 = (await Popup.findOne({
+      isActive: true,
+      updatedAt: { $exists: true }, // Force fresh query
+    })
+      .sort({ updatedAt: -1 })
       .lean()
       .exec()) as any;
 
-    // Force a fresh query by adding a random condition (always true)
-    const freshPopup = (await Popup.findOne({
+    // Method 2: Query by ID with additional conditions
+    const popup2 = (await Popup.findOne({
       isActive: true,
-      _id: { $exists: true }, // This forces a fresh query
+      _id: { $exists: true },
+      title: { $exists: true },
     })
-      .sort({ updatedAt: -1, createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .lean()
       .exec()) as any;
+
+    // Method 3: Force fresh query with timestamp
+    const popup3 = (await Popup.findOne({
+      isActive: true,
+      $expr: { $gte: ['$updatedAt', new Date(0)] }, // Always true but forces fresh query
+    })
+      .sort({ updatedAt: -1 })
+      .lean()
+      .exec()) as any;
+
+    // Use the most recent result
+    const popup = popup1 || popup2 || popup3;
     // Debug: Check all active popups
     const allActivePopups = await Popup.find({ isActive: true }).sort({
       updatedAt: -1,
@@ -38,18 +72,18 @@ export async function GET() {
       });
     });
 
-    console.log('🔍 Popup API: Original popup title:', popup?.title);
-    console.log('🔍 Popup API: Fresh popup title:', freshPopup?.title);
-    console.log('🔍 Popup API: Using fresh popup:', freshPopup ? 'YES' : 'NO');
-    console.log('🔍 Popup API: Fresh popup ID:', freshPopup?._id);
+    console.log('🔍 Popup API: Method 1 result:', popup1?.title);
+    console.log('🔍 Popup API: Method 2 result:', popup2?.title);
+    console.log('🔍 Popup API: Method 3 result:', popup3?.title);
+    console.log('🔍 Popup API: Final popup title:', popup?.title);
+    console.log('🔍 Popup API: Final popup ID:', popup?._id);
+    console.log('🔍 Popup API: Final popup updatedAt:', popup?.updatedAt);
     console.log(
-      '🔍 Popup API: Full fresh popup object:',
-      JSON.stringify(freshPopup, null, 2)
+      '🔍 Popup API: Full popup object:',
+      JSON.stringify(popup, null, 2)
     );
 
-    const finalPopup = freshPopup || popup;
-
-    if (!finalPopup) {
+    if (!popup) {
       console.log('❌ Popup API: No active popup found');
       return NextResponse.json(
         { error: 'No active popup found' },
@@ -60,13 +94,13 @@ export async function GET() {
     const response = NextResponse.json({
       success: true,
       data: {
-        title: finalPopup.title,
-        message: finalPopup.message,
-        features: finalPopup.features,
-        ctaText: finalPopup.ctaText,
-        isActive: finalPopup.isActive,
-        showDelay: finalPopup.showDelay,
-        frequency: finalPopup.frequency,
+        title: popup.title,
+        message: popup.message,
+        features: popup.features,
+        ctaText: popup.ctaText,
+        isActive: popup.isActive,
+        showDelay: popup.showDelay,
+        frequency: popup.frequency,
       },
     });
 

@@ -12,7 +12,7 @@ interface PopupData {
   ctaText: string;
   isActive: boolean;
   showDelay: number;
-  frequency: '2hours';
+  frequency: string;
 }
 
 export default function WelcomeModal() {
@@ -72,7 +72,17 @@ export default function WelcomeModal() {
       return;
     }
 
-    // Show popup immediately after data loads (no localStorage caching)
+    // Check frequency logic
+    const shouldShowPopup = checkFrequencyLogic(popupData.frequency);
+
+    if (!shouldShowPopup) {
+      console.log(
+        '❌ WelcomeModal: Not showing popup - frequency check failed'
+      );
+      return;
+    }
+
+    // Show popup after the configured delay
     console.log(
       '✅ WelcomeModal: Setting timer to show popup in',
       popupData.showDelay,
@@ -87,9 +97,48 @@ export default function WelcomeModal() {
     return () => clearTimeout(timer);
   }, [popupData, loading]);
 
+  const checkFrequencyLogic = (frequency: string) => {
+    const lastShown = localStorage.getItem('lastModalShown');
+    const currentTime = Date.now();
+
+    console.log('🔍 WelcomeModal: Frequency:', frequency);
+    console.log('🔍 WelcomeModal: Last shown:', lastShown);
+
+    if (!lastShown) {
+      console.log('✅ WelcomeModal: First time user - will show popup');
+      return true;
+    }
+
+    const lastShownTime = parseInt(lastShown);
+    const diffHours = (currentTime - lastShownTime) / (1000 * 60 * 60);
+
+    console.log('🔍 WelcomeModal: Time since last shown:', diffHours, 'hours');
+
+    // Handle different frequency settings
+    switch (frequency) {
+      case '2hours':
+        const shouldShow = diffHours >= 2;
+        console.log('🔍 WelcomeModal: 2-hour check - should show:', shouldShow);
+        return shouldShow;
+      case 'daily':
+        return diffHours >= 24;
+      case 'weekly':
+        return diffHours >= 168; // 7 days
+      case 'always':
+        return true;
+      default:
+        console.log(
+          '⚠️ WelcomeModal: Unknown frequency, defaulting to 2 hours'
+        );
+        return diffHours >= 2;
+    }
+  };
+
   const handleClose = () => {
     setIsOpen(false);
-    // No localStorage caching - popup will show again on next page load
+    // Record when the popup was shown for frequency checking
+    localStorage.setItem('lastModalShown', Date.now().toString());
+    console.log('✅ WelcomeModal: Recorded popup shown time');
   };
 
   if (!isOpen || !popupData || loading) return null;
