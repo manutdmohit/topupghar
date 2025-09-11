@@ -19,13 +19,15 @@ export default function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [popupData, setPopupData] = useState<PopupData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    // Fetch popup data from API
+    // Fetch popup data from API with cache-busting
     const fetchPopupData = async () => {
       try {
         console.log('🔍 WelcomeModal: Fetching popup data...');
-        const response = await fetch('/api/popup');
+        // Add timestamp to prevent caching
+        const response = await fetch(`/api/popup?t=${Date.now()}`);
         console.log('🔍 WelcomeModal: API response status:', response.status);
 
         if (response.ok) {
@@ -47,6 +49,15 @@ export default function WelcomeModal() {
     };
 
     fetchPopupData();
+  }, [refreshKey]);
+
+  // Add a periodic refresh to check for admin changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, 30000); // Check every 30 seconds for updates
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -61,58 +72,24 @@ export default function WelcomeModal() {
       return;
     }
 
-    // Check if user has seen the modal before based on frequency
-    const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
-    const lastShown = localStorage.getItem('lastModalShown');
-    const currentTime = Date.now();
+    // Show popup immediately after data loads (no localStorage caching)
+    console.log(
+      '✅ WelcomeModal: Setting timer to show popup in',
+      popupData.showDelay,
+      'ms'
+    );
 
-    console.log('🔍 WelcomeModal: hasSeenModal:', hasSeenModal);
-    console.log('🔍 WelcomeModal: lastShown:', lastShown);
+    const timer = setTimeout(() => {
+      console.log('🎉 WelcomeModal: Showing popup now!');
+      setIsOpen(true);
+    }, popupData.showDelay);
 
-    let shouldShow = false;
-
-    // Popup shows every 2 hours
-    if (!lastShown) {
-      shouldShow = true;
-      console.log('✅ WelcomeModal: First time user - will show popup');
-    } else {
-      const lastShownTime = parseInt(lastShown);
-      const currentTime = Date.now();
-      const diffHours = (currentTime - lastShownTime) / (1000 * 60 * 60);
-      shouldShow = diffHours >= 2;
-      console.log(
-        '🔍 WelcomeModal: Time since last shown:',
-        diffHours,
-        'hours'
-      );
-      console.log('🔍 WelcomeModal: Should show:', shouldShow);
-    }
-
-    if (shouldShow) {
-      console.log(
-        '✅ WelcomeModal: Setting timer to show popup in',
-        popupData.showDelay,
-        'ms'
-      );
-      // Show modal after the configured delay
-      const timer = setTimeout(() => {
-        console.log('🎉 WelcomeModal: Showing popup now!');
-        setIsOpen(true);
-      }, popupData.showDelay);
-
-      return () => clearTimeout(timer);
-    } else {
-      console.log(
-        '❌ WelcomeModal: Not showing popup - user has seen it recently'
-      );
-    }
+    return () => clearTimeout(timer);
   }, [popupData, loading]);
 
   const handleClose = () => {
     setIsOpen(false);
-    // Mark as seen and record timestamp
-    localStorage.setItem('hasSeenWelcomeModal', 'true');
-    localStorage.setItem('lastModalShown', Date.now().toString());
+    // No localStorage caching - popup will show again on next page load
   };
 
   if (!isOpen || !popupData || loading) return null;
