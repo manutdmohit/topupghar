@@ -8,13 +8,28 @@ export async function GET() {
     await connectDB();
     console.log('✅ Popup API: Database connected');
 
-    // Force fresh data retrieval in production - use sort to get latest
+    // Force fresh data retrieval in production - get the most recently updated active popup
     const popup = await Popup.findOne({ isActive: true }).sort({
       updatedAt: -1,
+      createdAt: -1,
     });
-    console.log('🔍 Popup API: Popup found:', popup ? 'YES' : 'NO');
-    console.log('🔍 Popup API: Popup title:', popup?.title);
-    console.log('🔍 Popup API: Popup ID:', popup?._id);
+    // Debug: Check all active popups
+    const allActivePopups = await Popup.find({ isActive: true }).sort({
+      updatedAt: -1,
+    });
+    console.log('🔍 Popup API: Total active popups:', allActivePopups.length);
+    allActivePopups.forEach((p, index) => {
+      console.log(`🔍 Popup API: Popup ${index + 1}:`, {
+        id: p._id,
+        title: p.title,
+        updatedAt: p.updatedAt,
+        createdAt: p.createdAt,
+      });
+    });
+
+    console.log('🔍 Popup API: Selected popup found:', popup ? 'YES' : 'NO');
+    console.log('🔍 Popup API: Selected popup title:', popup?.title);
+    console.log('🔍 Popup API: Selected popup ID:', popup?._id);
 
     if (!popup) {
       console.log('❌ Popup API: No active popup found');
