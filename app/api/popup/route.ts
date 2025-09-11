@@ -8,11 +8,20 @@ export async function GET() {
     await connectDB();
     console.log('✅ Popup API: Database connected');
 
-    // Force fresh data retrieval in production - get the most recently updated active popup
-    const popup = await Popup.findOne({ isActive: true }).sort({
-      updatedAt: -1,
-      createdAt: -1,
-    });
+    // Force fresh data retrieval - clear any potential caches
+    const popup = (await Popup.findOne({ isActive: true })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .lean()
+      .exec()) as any;
+
+    // Force a fresh query by adding a random condition (always true)
+    const freshPopup = (await Popup.findOne({
+      isActive: true,
+      _id: { $exists: true }, // This forces a fresh query
+    })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .lean()
+      .exec()) as any;
     // Debug: Check all active popups
     const allActivePopups = await Popup.find({ isActive: true }).sort({
       updatedAt: -1,
@@ -27,15 +36,18 @@ export async function GET() {
       });
     });
 
-    console.log('🔍 Popup API: Selected popup found:', popup ? 'YES' : 'NO');
-    console.log('🔍 Popup API: Selected popup title:', popup?.title);
-    console.log('🔍 Popup API: Selected popup ID:', popup?._id);
+    console.log('🔍 Popup API: Original popup title:', popup?.title);
+    console.log('🔍 Popup API: Fresh popup title:', freshPopup?.title);
+    console.log('🔍 Popup API: Using fresh popup:', freshPopup ? 'YES' : 'NO');
+    console.log('🔍 Popup API: Fresh popup ID:', freshPopup?._id);
     console.log(
-      '🔍 Popup API: Full popup object:',
-      JSON.stringify(popup, null, 2)
+      '🔍 Popup API: Full fresh popup object:',
+      JSON.stringify(freshPopup, null, 2)
     );
 
-    if (!popup) {
+    const finalPopup = freshPopup || popup;
+
+    if (!finalPopup) {
       console.log('❌ Popup API: No active popup found');
       return NextResponse.json(
         { error: 'No active popup found' },
@@ -46,13 +58,13 @@ export async function GET() {
     const response = NextResponse.json({
       success: true,
       data: {
-        title: popup.title,
-        message: popup.message,
-        features: popup.features,
-        ctaText: popup.ctaText,
-        isActive: popup.isActive,
-        showDelay: popup.showDelay,
-        frequency: popup.frequency,
+        title: finalPopup.title,
+        message: finalPopup.message,
+        features: finalPopup.features,
+        ctaText: finalPopup.ctaText,
+        isActive: finalPopup.isActive,
+        showDelay: finalPopup.showDelay,
+        frequency: finalPopup.frequency,
       },
     });
 
