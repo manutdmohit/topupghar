@@ -140,7 +140,12 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const popup = await Popup.findOne({ isActive: true });
+    const popup = await Popup.findOne({ isActive: true }).sort({
+      updatedAt: -1,
+    });
+    console.log('🔍 Admin API: Popup found:', popup ? 'YES' : 'NO');
+    console.log('🔍 Admin API: Popup title:', popup?.title);
+    console.log('🔍 Admin API: Popup ID:', popup?._id);
 
     if (!popup) {
       return NextResponse.json(

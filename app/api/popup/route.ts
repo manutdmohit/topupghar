@@ -8,9 +8,13 @@ export async function GET() {
     await connectDB();
     console.log('✅ Popup API: Database connected');
 
-    // Force fresh data retrieval in production
-    const popup = await Popup.findOne({ isActive: true });
+    // Force fresh data retrieval in production - use sort to get latest
+    const popup = await Popup.findOne({ isActive: true }).sort({
+      updatedAt: -1,
+    });
     console.log('🔍 Popup API: Popup found:', popup ? 'YES' : 'NO');
+    console.log('🔍 Popup API: Popup title:', popup?.title);
+    console.log('🔍 Popup API: Popup ID:', popup?._id);
 
     if (!popup) {
       console.log('❌ Popup API: No active popup found');
