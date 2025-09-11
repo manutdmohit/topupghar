@@ -5,6 +5,8 @@ import Popup from '@/lib/models/Popup';
 export async function GET() {
   try {
     console.log('🔍 Popup API: Starting popup fetch...');
+    console.log('🔍 Popup API: Environment:', process.env.NODE_ENV);
+    console.log('🔍 Popup API: MongoDB URI exists:', !!process.env.MONGODB_URI);
     await connectDB();
     console.log('✅ Popup API: Database connected');
 
