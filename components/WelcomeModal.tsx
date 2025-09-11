@@ -25,24 +25,14 @@ export default function WelcomeModal() {
     // Fetch popup data from API with cache-busting
     const fetchPopupData = async () => {
       try {
-        console.log('🔍 WelcomeModal: Fetching popup data...');
-        // Add timestamp to prevent caching
         const response = await fetch(`/api/popup?t=${Date.now()}`);
-        console.log('🔍 WelcomeModal: API response status:', response.status);
 
         if (response.ok) {
           const result = await response.json();
-          console.log('✅ WelcomeModal: Popup data received:', result);
           setPopupData(result.data);
-        } else {
-          const errorData = await response.json();
-          console.error(
-            '❌ WelcomeModal: Failed to fetch popup data:',
-            errorData
-          );
         }
       } catch (error) {
-        console.error('❌ WelcomeModal: Error fetching popup:', error);
+        console.error('Error fetching popup:', error);
       } finally {
         setLoading(false);
       }
@@ -61,14 +51,7 @@ export default function WelcomeModal() {
   }, []);
 
   useEffect(() => {
-    console.log('🔍 WelcomeModal: Checking popup display logic...');
-    console.log('🔍 WelcomeModal: popupData:', popupData);
-    console.log('🔍 WelcomeModal: loading:', loading);
-
     if (!popupData || !popupData.isActive || loading) {
-      console.log(
-        '❌ WelcomeModal: Not showing popup - missing data or loading'
-      );
       return;
     }
 
@@ -76,21 +59,11 @@ export default function WelcomeModal() {
     const shouldShowPopup = checkFrequencyLogic(popupData.frequency);
 
     if (!shouldShowPopup) {
-      console.log(
-        '❌ WelcomeModal: Not showing popup - frequency check failed'
-      );
       return;
     }
 
     // Show popup after the configured delay
-    console.log(
-      '✅ WelcomeModal: Setting timer to show popup in',
-      popupData.showDelay,
-      'ms'
-    );
-
     const timer = setTimeout(() => {
-      console.log('🎉 WelcomeModal: Showing popup now!');
       setIsOpen(true);
     }, popupData.showDelay);
 
@@ -101,25 +74,17 @@ export default function WelcomeModal() {
     const lastShown = localStorage.getItem('lastModalShown');
     const currentTime = Date.now();
 
-    console.log('🔍 WelcomeModal: Frequency:', frequency);
-    console.log('🔍 WelcomeModal: Last shown:', lastShown);
-
     if (!lastShown) {
-      console.log('✅ WelcomeModal: First time user - will show popup');
       return true;
     }
 
     const lastShownTime = parseInt(lastShown);
     const diffHours = (currentTime - lastShownTime) / (1000 * 60 * 60);
 
-    console.log('🔍 WelcomeModal: Time since last shown:', diffHours, 'hours');
-
     // Handle different frequency settings
     switch (frequency) {
       case '2hours':
-        const shouldShow = diffHours >= 2;
-        console.log('🔍 WelcomeModal: 2-hour check - should show:', shouldShow);
-        return shouldShow;
+        return diffHours >= 2;
       case 'daily':
         return diffHours >= 24;
       case 'weekly':
@@ -127,9 +92,6 @@ export default function WelcomeModal() {
       case 'always':
         return true;
       default:
-        console.log(
-          '⚠️ WelcomeModal: Unknown frequency, defaulting to 2 hours'
-        );
         return diffHours >= 2;
     }
   };
@@ -138,7 +100,6 @@ export default function WelcomeModal() {
     setIsOpen(false);
     // Record when the popup was shown for frequency checking
     localStorage.setItem('lastModalShown', Date.now().toString());
-    console.log('✅ WelcomeModal: Recorded popup shown time');
   };
 
   if (!isOpen || !popupData || loading) return null;

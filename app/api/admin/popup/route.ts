@@ -143,9 +143,6 @@ export async function GET(request: NextRequest) {
     const popup = await Popup.findOne({ isActive: true }).sort({
       updatedAt: -1,
     });
-    console.log('🔍 Admin API: Popup found:', popup ? 'YES' : 'NO');
-    console.log('🔍 Admin API: Popup title:', popup?.title);
-    console.log('🔍 Admin API: Popup ID:', popup?._id);
 
     if (!popup) {
       return NextResponse.json(
