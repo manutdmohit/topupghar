@@ -30,6 +30,10 @@ export async function GET() {
     console.log('🔍 Popup API: Selected popup found:', popup ? 'YES' : 'NO');
     console.log('🔍 Popup API: Selected popup title:', popup?.title);
     console.log('🔍 Popup API: Selected popup ID:', popup?._id);
+    console.log(
+      '🔍 Popup API: Full popup object:',
+      JSON.stringify(popup, null, 2)
+    );
 
     if (!popup) {
       console.log('❌ Popup API: No active popup found');
