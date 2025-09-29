@@ -1313,7 +1313,7 @@ export default function TopupPaymentPage() {
         <p className="text-center text-lg font-semibold text-gray-700 mb-4">
           Choose your payment method <span className="text-red-500">*</span>
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {[
             {
               id: 'wallet',
@@ -1359,7 +1359,7 @@ export default function TopupPaymentPage() {
                 selectedPaymentMethod === method.id
                   ? `${method.selectedBorderColor} border-2 shadow-lg scale-105`
                   : `${method.borderColor} border-2 hover:border-gray-400`
-              } rounded-xl p-4 text-center bg-white shadow-sm`}
+              } rounded-xl p-4 lg:p-6 text-center bg-white shadow-sm`}
             >
               {/* Selection Indicator */}
               {selectedPaymentMethod === method.id && (
@@ -1379,13 +1379,15 @@ export default function TopupPaymentPage() {
               )}
 
               {/* Method Icon */}
-              <div className="text-3xl mb-2">{method.icon}</div>
+              <div className="text-3xl lg:text-4xl mb-3">{method.icon}</div>
 
               {/* Method Label */}
-              <p className="font-semibold text-gray-800 mb-3">{method.label}</p>
+              <p className="font-semibold text-gray-800 mb-3 text-base lg:text-lg">
+                {method.label}
+              </p>
 
               {/* QR Code */}
-              <div className="w-64 h-64 mx-auto mb-3 flex items-center justify-center">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 mx-auto mb-4 flex items-center justify-center">
                 <Image
                   src={method.qrImage}
                   alt={`${method.label} QR`}
@@ -1397,7 +1399,7 @@ export default function TopupPaymentPage() {
 
               {/* Selection Status */}
               <div
-                className={`text-sm font-medium ${
+                className={`text-sm lg:text-base font-medium ${
                   selectedPaymentMethod === method.id
                     ? 'text-green-600'
                     : 'text-gray-500'
