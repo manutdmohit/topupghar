@@ -56,3 +56,29 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await connectDB();
+
+    const product = await Product.findByIdAndDelete(params.id);
+
+    if (!product) {
+      return NextResponse.json(
+        { message: 'Product not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

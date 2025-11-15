@@ -10,6 +10,18 @@ import {
   getStockStatusColor,
 } from '@/lib/stock-utils';
 import { calculateDiscountedPrice, formatPrice } from '@/lib/price-utils';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Eye,
   Plus,
@@ -68,10 +80,46 @@ export default function AdminProductListPage() {
     totalActiveProducts: 0,
     totalInStockProducts: 0,
   });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     if (adminUser && !authLoading) {
       fetchProducts();
+
+      // Check for success/error message in URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const deleted = urlParams.get('deleted');
+      const error = urlParams.get('error');
+
+      if (deleted === 'true') {
+        setMessage({
+          type: 'success',
+          text: 'Product has been deleted successfully.',
+        });
+        // Clear message after 5 seconds
+        setTimeout(() => {
+          setMessage(null);
+          // Clean up URL
+          window.history.replaceState({}, '', window.location.pathname);
+        }, 5000);
+      } else if (error) {
+        setMessage({
+          type: 'error',
+          text: decodeURIComponent(error),
+        });
+        // Clear message after 5 seconds
+        setTimeout(() => {
+          setMessage(null);
+          // Clean up URL
+          window.history.replaceState({}, '', window.location.pathname);
+        }, 5000);
+      }
     }
   }, [adminUser, authLoading]);
 
@@ -131,6 +179,69 @@ export default function AdminProductListPage() {
     fetchProducts(page);
   };
 
+  // Handle delete product
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!productToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/products/${productToDelete._id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete product');
+      }
+
+      const productName = productToDelete.name;
+
+      // Show success message
+      toast.success(`${productName} has been deleted successfully.`);
+      setMessage({
+        type: 'success',
+        text: `Product "${productName}" has been deleted successfully.`,
+      });
+
+      // Close dialog and reset state
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
+
+      // Refresh the product list first
+      await fetchProducts(currentPage);
+
+      // Reload the page with success parameter to show message after reload
+      setTimeout(() => {
+        window.location.href = '/admin/dashboard/products?deleted=true';
+      }, 1500);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to delete product. Please try again.';
+
+      toast.error(errorMessage);
+      setMessage({
+        type: 'error',
+        text: errorMessage,
+      });
+
+      // Keep error message visible (don't reload on error)
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Get unique categories (we'll need to fetch this separately or use a different approach)
   const categories = ['streaming', 'gaming', 'software', 'social', 'other']; // Default categories
 
@@ -166,6 +277,35 @@ export default function AdminProductListPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Success/Error Message Banner */}
+      {message && (
+        <div className="mb-6">
+          <Alert
+            variant={message.type === 'error' ? 'destructive' : 'default'}
+            className={
+              message.type === 'success'
+                ? 'bg-green-50 border-green-200 text-green-800'
+                : ''
+            }
+          >
+            <AlertTitle className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Success
+                </>
+              ) : (
+                <>
+                  <XCircle className="w-5 h-5" />
+                  Error
+                </>
+              )}
+            </AlertTitle>
+            <AlertDescription>{message.text}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -336,13 +476,7 @@ export default function AdminProductListPage() {
                   <button
                     className="text-red-600 hover:text-red-800 p-1 rounded"
                     title="Delete Product"
-                    onClick={() => {
-                      if (
-                        confirm('Are you sure you want to delete this product?')
-                      ) {
-                        console.log('Delete product:', product._id);
-                      }
-                    }}
+                    onClick={() => handleDeleteClick(product)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -571,15 +705,7 @@ export default function AdminProductListPage() {
                       <button
                         className="text-red-600 hover:text-red-800 p-1 rounded"
                         title="Delete Product"
-                        onClick={() => {
-                          if (
-                            confirm(
-                              'Are you sure you want to delete this product?'
-                            )
-                          ) {
-                            console.log('Delete product:', product._id);
-                          }
-                        }}
+                        onClick={() => handleDeleteClick(product)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -635,6 +761,30 @@ export default function AdminProductListPage() {
             ` (Page ${pagination.currentPage} of ${pagination.totalPages})`}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{' '}
+              <strong>{productToDelete?.name}</strong>? This action cannot be
+              undone and will permanently delete the product and all its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Product'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
