@@ -22,6 +22,7 @@ interface Variant {
   label: string;
   duration: string;
   price: number;
+  inStock: boolean;
 }
 
 interface ProductFormData {
@@ -88,7 +89,7 @@ export default function NewProductPage() {
     platform: '',
     category: '',
     type: 'account',
-    variants: [{ label: '', duration: '', price: 0 }],
+    variants: [{ label: '', duration: '', price: 0, inStock: true }],
     discountPercentage: 0,
     inStock: true,
     isActive: true,
@@ -167,7 +168,7 @@ export default function NewProductPage() {
   const handleVariantChange = (
     index: number,
     field: keyof Variant,
-    value: string | number
+    value: string | number | boolean
   ) => {
     const newVariants = [...formData.variants];
     newVariants[index] = { ...newVariants[index], [field]: value };
@@ -177,7 +178,7 @@ export default function NewProductPage() {
   const addVariant = () => {
     setFormData((prev) => ({
       ...prev,
-      variants: [...prev.variants, { label: '', duration: '', price: 0 }],
+      variants: [...prev.variants, { label: '', duration: '', price: 0, inStock: true }],
     }));
   };
 
@@ -661,16 +662,39 @@ export default function NewProductPage() {
                         />
                         <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       </div>
-                      {errors[`variant-${index}-price`] && (
-                        <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-4 h-4" />
-                          {errors[`variant-${index}-price`]}
+                        {errors[`variant-${index}-price`] && (
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors[`variant-${index}-price`]}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* In Stock Toggle */}
+                    <div className="mt-4 flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
+                      <div>
+                        <h4 className="font-medium text-gray-900 text-sm">
+                          In Stock
+                        </h4>
+                        <p className="text-xs text-gray-600">
+                          Toggle to show/hide this variant
                         </p>
-                      )}
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={variant.inStock !== undefined ? variant.inStock : true}
+                          onChange={(e) =>
+                            handleVariantChange(index, 'inStock', e.target.checked)
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 

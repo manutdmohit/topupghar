@@ -40,6 +40,7 @@ interface IVariant {
   label: string;
   duration: string;
   price: number;
+  inStock?: boolean;
 }
 
 interface Product {

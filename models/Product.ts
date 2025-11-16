@@ -4,6 +4,7 @@ export interface IVariant {
   label: string; // e.g., "1 Month"
   duration: string; // e.g., "1 Month"
   price: number; // e.g., 425 (in INR)
+  inStock: boolean; // NEW -> admin toggles this to show/hide the variant from the product
 }
 
 export interface IProduct extends Document {
@@ -27,6 +28,7 @@ const VariantSchema = new Schema<IVariant>(
     label: { type: String, required: true },
     duration: { type: String, required: true },
     price: { type: Number, required: true },
+    inStock: { type: Boolean, required: true, default: true }, // NEW -> admin toggles this to show/hide the variant from the product
   },
   { _id: false }
 );

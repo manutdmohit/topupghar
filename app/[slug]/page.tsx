@@ -21,6 +21,7 @@ interface Variant {
   label: string;
   duration: string;
   price: number;
+  inStock?: boolean;
 }
 
 interface Product {
@@ -748,7 +749,9 @@ export default function ProductPage() {
               webkit-playsinline="true"
               onLoadedMetadata={(e) => {
                 // Set the video time to match the original video
-                const originalVideo = document.querySelector('.relative video');
+                const originalVideo = document.querySelector(
+                  '.relative video'
+                ) as HTMLVideoElement | null;
                 if (originalVideo) {
                   const currentTime =
                     originalVideo.getAttribute('data-current-time');
@@ -771,8 +774,18 @@ export default function ProductPage() {
                 setIsTransitioning(true);
 
                 // Sync the current time from modal video to original video
-                const modalVideo = document.querySelector('.fixed video');
-                const originalVideo = document.querySelector('.relative video');
+                const modalVideoElement =
+                  document.querySelector('.fixed video');
+                const originalVideoElement =
+                  document.querySelector('.relative video');
+                const modalVideo =
+                  modalVideoElement instanceof HTMLVideoElement
+                    ? modalVideoElement
+                    : null;
+                const originalVideo =
+                  originalVideoElement instanceof HTMLVideoElement
+                    ? originalVideoElement
+                    : null;
                 if (modalVideo && originalVideo) {
                   // Pause modal video first
                   modalVideo.pause();

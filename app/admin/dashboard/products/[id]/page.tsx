@@ -24,6 +24,7 @@ interface Variant {
   label: string;
   duration: string;
   price: number;
+  inStock: boolean;
 }
 
 interface Product {
@@ -100,6 +101,13 @@ export default function EditProductPage() {
         }
 
         const productData = await productResponse.json();
+        // Ensure all variants have inStock field (default to true if missing)
+        if (productData.variants && Array.isArray(productData.variants)) {
+          productData.variants = productData.variants.map((variant: Variant) => ({
+            ...variant,
+            inStock: variant.inStock !== undefined ? variant.inStock : true,
+          }));
+        }
         setProduct(productData);
         setFormData(productData);
 
@@ -172,7 +180,7 @@ export default function EditProductPage() {
   const handleVariantChange = (
     index: number,
     field: keyof Variant,
-    value: string | number
+    value: string | number | boolean
   ) => {
     const newVariants = [...(formData.variants || [])];
     newVariants[index] = { ...newVariants[index], [field]: value };
@@ -180,7 +188,7 @@ export default function EditProductPage() {
   };
 
   const addVariant = () => {
-    const newVariant = { label: '', duration: '', price: 0 };
+    const newVariant = { label: '', duration: '', price: 0, inStock: true };
     setFormData((prev) => ({
       ...prev,
       variants: [...(prev.variants || []), newVariant],
@@ -697,6 +705,29 @@ export default function EditProductPage() {
                           </p>
                         )}
                       </div>
+                    </div>
+
+                    {/* In Stock Toggle */}
+                    <div className="mt-4 flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
+                      <div>
+                        <h4 className="font-medium text-gray-900 text-sm">
+                          In Stock
+                        </h4>
+                        <p className="text-xs text-gray-600">
+                          Toggle to show/hide this variant
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={variant.inStock !== undefined ? variant.inStock : true}
+                          onChange={(e) =>
+                            handleVariantChange(index, 'inStock', e.target.checked)
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                     </div>
                   </div>
                 ))

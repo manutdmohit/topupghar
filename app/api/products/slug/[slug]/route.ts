@@ -18,7 +18,15 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(product);
+    // Filter out variants that are not in stock
+    const productObj = product.toObject();
+    if (productObj.variants && Array.isArray(productObj.variants)) {
+      productObj.variants = productObj.variants.filter(
+        (variant: any) => variant.inStock !== false
+      );
+    }
+
+    return NextResponse.json(productObj);
   } catch (error) {
     console.error('Error fetching product by slug:', error);
     return NextResponse.json(

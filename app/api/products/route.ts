@@ -97,19 +97,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('Starting product creation...');
     await connectDB();
-    console.log('Database connected successfully');
 
     const formData = await req.formData();
     const data = formData.get('data') as string;
     const imageFile = formData.get('image') as File;
-
-    console.log('Form data received:', {
-      hasData: !!data,
-      hasImage: !!imageFile,
-      imageSize: imageFile?.size,
-    });
 
     if (!data) {
       return NextResponse.json(
@@ -119,14 +111,6 @@ export async function POST(req: NextRequest) {
     }
 
     const productData = JSON.parse(data);
-    console.log('Product data parsed:', {
-      name: productData.name,
-      platform: productData.platform,
-      category: productData.category,
-      type: productData.type,
-      variantsCount: productData.variants?.length,
-    });
-
     // Validate required fields
     if (
       !productData.name ||
@@ -166,11 +150,9 @@ export async function POST(req: NextRequest) {
     // Upload image to Cloudinary if provided
     if (imageFile) {
       try {
-        console.log('Starting image upload to Cloudinary...');
         // Convert File to buffer
         const bytes = await imageFile.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        console.log('Image converted to buffer, size:', buffer.length);
 
         // Upload to Cloudinary
         const result = await new Promise((resolve, reject) => {
@@ -209,20 +191,12 @@ export async function POST(req: NextRequest) {
       console.log('No image file provided');
     }
 
-    // Create new product
-    console.log('Creating product with data:', {
-      ...productData,
-      image: imageUrl,
-    });
-
     const newProduct = new Product({
       ...productData,
       image: imageUrl,
     });
 
-    console.log('Product instance created, saving to database...');
     await newProduct.save();
-    console.log('Product saved successfully:', newProduct._id);
 
     return NextResponse.json(
       {
