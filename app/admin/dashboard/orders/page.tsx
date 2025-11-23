@@ -31,6 +31,7 @@ interface Order {
   _id: string;
   orderId: string;
   platform: string;
+  userId: string;
   uid_email?: string;
   type: string;
   amount?: string | number;
@@ -160,6 +161,44 @@ export default function OrdersPage() {
       setPagination(null);
     }
     setLoading(false);
+  };
+
+  // Helper component to fetch and display user name
+  const CustomerName = ({ userId }: { userId: string }) => {
+    const [name, setName] = useState<string>('');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      if (!userId) {
+        setName('Unknown User');
+        setLoading(false);
+        return;
+      }
+
+      const fetchUserName = async () => {
+        try {
+          const res = await fetch(`/api/admin/users/${userId}`);
+          const data = await res.json();
+          // Adjust 'data.name' based on your actual API response structure (e.g., data.user.name)
+
+          setName(data.user.name || data.user.fullName || 'No Name Found');
+        } catch (error) {
+          console.error('Error fetching user:', error);
+          setName('Error loading name');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchUserName();
+    }, [userId]);
+
+    if (loading)
+      return (
+        <span className="animate-pulse bg-slate-200 h-4 w-24 rounded inline-block align-middle"></span>
+      );
+
+    return <span className="font-semibold text-slate-900">{name}</span>;
   };
 
   const handleStatusUpdateClick = (
@@ -513,6 +552,18 @@ export default function OrdersPage() {
                             order.uid ||
                             order.tiktokLoginId ||
                             'No ID provided'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm">
+                      <User className="w-4 h-4 text-slate-400" />
+                      <div className="flex-1">
+                        <span className="text-slate-600 font-medium">
+                          Customer Name:
+                        </span>
+                        <span className="text-slate-600 ml-1">
+                          <CustomerName userId={order.userId} />
                         </span>
                       </div>
                     </div>
