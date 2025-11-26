@@ -25,6 +25,7 @@ export interface IOrder extends Document {
   tiktokLoginMethod?: string;
   facebookLink?: string;
   garenaPassword?: string; // ENCRYPTED if stored
+  zone?: string; // MLBB zone
   promocode?: string; // Applied promocode name
   originalPrice?: number; // Original price before discount
   discountAmount?: number; // Amount discounted

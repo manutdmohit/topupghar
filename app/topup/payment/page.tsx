@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { generateFailedOrderId } from '@/lib/order-utils';
 import Link from 'next/link';
+import { platform } from 'os';
 // Remove client-side token verification - will use API route instead
 
 // Wallet Balance Check Component
@@ -146,6 +147,7 @@ export default function TopupPaymentPage() {
     level: '',
     diamonds: '',
     storage: '',
+    zone: '',
   });
 
   // Common fields
@@ -250,6 +252,7 @@ export default function TopupPaymentPage() {
               level: sessionData.level,
               diamonds: sessionData.diamonds,
               storage: sessionData.storage,
+              zone: sessionData.zone,
             });
 
             // Set quantity from session data
@@ -322,6 +325,7 @@ export default function TopupPaymentPage() {
       level: searchParams.get('level') || '',
       diamonds: searchParams.get('diamonds') || '',
       storage: searchParams.get('storage') || '',
+      zone: searchParams.get('zone') || '',
     });
     setReferredBy(searchParams.get('referredBy') || '');
 
@@ -491,6 +495,8 @@ export default function TopupPaymentPage() {
   let idPlaceholder = 'Enter your email address';
   let idType: 'text' | 'email' = 'text';
 
+  // console.log(data.platform);
+
   if (data.platform === 'freefire') {
     idLabel = 'Free Fire UID';
     idPlaceholder = 'Enter your Free Fire UID';
@@ -561,6 +567,9 @@ export default function TopupPaymentPage() {
       data.type === 'followers'
         ? 'Enter your TikTok username (Paste your username)'
         : 'Enter your TikTok post link (Paste your post link)';
+  } else if (data.platform === 'MLBB') {
+    idLabel = 'Enter user Id';
+    idPlaceholder = 'Enter user ID';
   }
 
   // ----------- Submission Logic -----------
@@ -585,6 +594,11 @@ export default function TopupPaymentPage() {
 
     if (!selectedPaymentMethod) {
       toast.error('Please select a payment method.');
+      return;
+    }
+
+    if (data.platform === 'MLBB' && !data.zone.trim()) {
+      toast.error('Zone is required.');
       return;
     }
 
@@ -652,12 +666,19 @@ export default function TopupPaymentPage() {
       }
     }
 
+    let finalUidEmail =
+      data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid;
+
+    if (data.platform === 'MLBB') {
+      finalUidEmail = `${uid} - ${data.zone}`;
+    }
+
+    console.log({ platform: data.platform }, finalUidEmail);
+
     // Build FormData for file upload
     const formData = new FormData();
-    formData.append(
-      'uid_email',
-      data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid
-    );
+    formData.append('uid_email', finalUidEmail);
+
     formData.append('phone', phone);
     formData.append('platform', data.platform);
     formData.append('type', data.type);
@@ -671,6 +692,8 @@ export default function TopupPaymentPage() {
     if (data.level) formData.append('level', data.level);
     if (data.diamonds) formData.append('diamonds', data.diamonds);
     if (data.storage) formData.append('storage', data.storage);
+    if (data.zone) formData.append('zone', data.zone);
+
     if (referredBy.trim()) formData.append('referredBy', referredBy.trim());
     formData.append('paymentMethod', selectedPaymentMethod);
 
@@ -728,6 +751,7 @@ export default function TopupPaymentPage() {
       });
 
       router.push(`/topup/payment/success?${successParams}`);
+      console.log(formData.get('uid_email'));
     } catch (error) {
       // Redirect to failure page with error details
       const failureParams = new URLSearchParams({
@@ -1143,6 +1167,22 @@ export default function TopupPaymentPage() {
         </div>
       )}
 
+      {data.platform === 'MLBB' && (
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Zone <span className="text-red-500">*</span>
+          </label>
+          <input
+            type={idType}
+            placeholder="Enter Zone"
+            value={data.zone}
+            onChange={(e) =>
+              setData((prev) => ({ ...prev, zone: e.target.value }))
+            }
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+        </div>
+      )}
       {/* Phone */}
       <div>
         <label className="block mb-1 font-medium text-gray-700">
