@@ -148,6 +148,7 @@ export default function TopupPaymentPage() {
     diamonds: '',
     storage: '',
     zone: '',
+    konamiPassword: '',
   });
 
   // Common fields
@@ -253,6 +254,7 @@ export default function TopupPaymentPage() {
               diamonds: sessionData.diamonds,
               storage: sessionData.storage,
               zone: sessionData.zone,
+              konamiPassword: sessionData.konamiPassword,
             });
 
             // Set quantity from session data
@@ -326,6 +328,7 @@ export default function TopupPaymentPage() {
       diamonds: searchParams.get('diamonds') || '',
       storage: searchParams.get('storage') || '',
       zone: searchParams.get('zone') || '',
+      konamiPassword: searchParams.get('konamiPassword') || '',
     });
     setReferredBy(searchParams.get('referredBy') || '');
 
@@ -570,6 +573,9 @@ export default function TopupPaymentPage() {
   } else if (data.platform === 'MLBB') {
     idLabel = 'Enter user Id';
     idPlaceholder = 'Enter user ID';
+  } else if (data.platform === 'konami') {
+    idLabel = 'Enter your email address';
+    idPlaceholder = 'Enter your email address';
   }
 
   // ----------- Submission Logic -----------
@@ -669,11 +675,11 @@ export default function TopupPaymentPage() {
     let finalUidEmail =
       data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid;
 
-    if (data.platform === 'MLBB') {
-      finalUidEmail = `${uid} - ${data.zone}`;
+    if (data.platform === 'MLBB' || data.platform === 'konami') {
+      finalUidEmail = `${uid} - ${
+        data.platform === 'konami' ? data.konamiPassword : data.zone
+      }`;
     }
-
-    console.log({ platform: data.platform }, finalUidEmail);
 
     // Build FormData for file upload
     const formData = new FormData();
@@ -1178,6 +1184,23 @@ export default function TopupPaymentPage() {
             value={data.zone}
             onChange={(e) =>
               setData((prev) => ({ ...prev, zone: e.target.value }))
+            }
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+        </div>
+      )}
+
+      {data.platform === 'konami' && (
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Konami Code <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your Konami Code"
+            value={data.konamiPassword}
+            onChange={(e) =>
+              setData((prev) => ({ ...prev, konamiPassword: e.target.value }))
             }
             className="w-full px-4 py-2 border rounded-lg"
           />
