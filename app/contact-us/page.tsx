@@ -107,7 +107,7 @@ export default function ContactUsPage() {
     },
     {
       name: 'Facebook',
-      href: 'https://www.facebook.com/profile.php?id=100083244470979',
+      href: 'https://www.facebook.com/share/1HaEjS42Er/?mibextid=wwXIfr',
       color: 'hover:bg-blue-700',
       icon: '📘',
     },
