@@ -9,7 +9,7 @@ const FloatingContactButtons = () => {
   const contactInfo = {
     whatsapp: '+35795676054',
     telegram: '+35795676054',
-    facebook: 'https://www.facebook.com/profile.php?id=100083244470979',
+    facebook: 'https://www.facebook.com/share/1HaEjS42Er/?mibextid=wwXIfr',
   };
 
   const handleContact = (type: 'whatsapp' | 'telegram' | 'facebook') => {
