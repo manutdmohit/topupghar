@@ -576,6 +576,9 @@ export default function TopupPaymentPage() {
   } else if (data.platform === 'konami') {
     idLabel = 'Enter your email address';
     idPlaceholder = 'Enter your email address';
+  } else if (data.platform === 'Age of empires mobile ') {
+    idLabel = 'Age of empires mobile User ID';
+    idPlaceholder = 'Enter your Age of empires mobile User ID';
   }
 
   // ----------- Submission Logic -----------
