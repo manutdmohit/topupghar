@@ -1024,7 +1024,16 @@ export default function TopupPaymentPage() {
         x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
-  } else {
+  } 
+  else if (data.platform == "Pieces" && data.type == "account"){
+ summary = (
+      <>
+      You're buying <strong>{data.amount} Pieces Unipin Voucher</strong> for <strong>NPR {finalPrice}</strong>
+      </>
+    );
+  }
+  
+  else {
     summary = (
       <>
         You're buying{' '}
@@ -1074,7 +1083,7 @@ export default function TopupPaymentPage() {
       </div>
 
       <h1 className="text-3xl font-bold text-purple-700 text-center capitalize">
-        {data.platform}{' '}
+        {data.platform == "Pieces" ? "Unipin" : data.platform}{' '}
         {data.type === 'usd' ? data.type.toUpperCase() : data.type} Payment
       </h1>
 
