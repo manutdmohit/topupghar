@@ -1205,17 +1205,25 @@ export default function TopupPaymentPage() {
       {data.platform === 'konami' && (
         <div>
           <label className="block mb-1 font-medium text-gray-700">
-            Konami Code <span className="text-red-500">*</span>
+            Konami Password <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            placeholder="Enter your Konami Code"
+            placeholder="Enter your Konami Password"
             value={data.konamiPassword}
             onChange={(e) =>
               setData((prev) => ({ ...prev, konamiPassword: e.target.value }))
             }
             className="w-full px-4 py-2 border rounded-lg"
           />
+
+          <p className="text-xs text-gray-500 mt-1">
+            Password is the password you use to login to your Konami account.
+          </p>
+
+          <p className="text-xs text-red-500 font-bold mt-1">
+           Please contact the admin to get one time code for your konami account after the successful purchase.
+          </p>
         </div>
       )}
       {/* Phone */}
