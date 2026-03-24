@@ -170,7 +170,7 @@ export default function TopupPaymentPage() {
   const [isValidatingPromocode, setIsValidatingPromocode] = useState(false);
   const [finalPrice, setFinalPrice] = useState(parseFloat(data.price || '0'));
   const [originalPrice, setOriginalPrice] = useState(
-    parseFloat(data.price || '0')
+    parseFloat(data.price || '0'),
   );
   const [discountAmount, setDiscountAmount] = useState(0);
   const [baseDiscountAmount, setBaseDiscountAmount] = useState(0);
@@ -180,7 +180,7 @@ export default function TopupPaymentPage() {
   const [loginId, setLoginId] = useState('');
   const [tiktokPassword, setTiktokPassword] = useState('');
   const [loginMethod, setLoginMethod] = useState<'google' | 'facebook' | ''>(
-    ''
+    '',
   );
 
   // Garena
@@ -278,7 +278,7 @@ export default function TopupPaymentPage() {
             ) {
               // Store base original price per unit
               setBaseOriginalPrice(
-                sessionData.originalPrice || sessionData.price
+                sessionData.originalPrice || sessionData.price,
               );
               // Calculate base discount amount (per unit)
               const baseDiscountPerUnit =
@@ -290,12 +290,12 @@ export default function TopupPaymentPage() {
                 baseDiscountPerUnit * (sessionData.quantity || 1);
               setDiscountAmount(totalDiscountAmount);
               setFinalPrice(
-                Math.round(originalPriceWithQuantity - totalDiscountAmount)
+                Math.round(originalPriceWithQuantity - totalDiscountAmount),
               );
             } else {
               // No discount, store base original price
               setBaseOriginalPrice(
-                sessionData.originalPrice || sessionData.price
+                sessionData.originalPrice || sessionData.price,
               );
             }
             return;
@@ -360,7 +360,7 @@ export default function TopupPaymentPage() {
       const totalDiscountAmount = promocodeDiscountAmount + baseDiscountTotal;
       setDiscountAmount(totalDiscountAmount);
       setFinalPrice(
-        Math.round(originalPriceWithQuantity - totalDiscountAmount)
+        Math.round(originalPriceWithQuantity - totalDiscountAmount),
       );
     } else {
       // If no promocode, check if there's a base discount amount
@@ -423,7 +423,7 @@ export default function TopupPaymentPage() {
           const totalDiscountAmount = baseDiscountAmount * quantity;
           setDiscountAmount(totalDiscountAmount);
           setFinalPrice(
-            Math.round(originalPriceWithQuantity - totalDiscountAmount)
+            Math.round(originalPriceWithQuantity - totalDiscountAmount),
           );
         } else {
           setDiscountAmount(0);
@@ -444,10 +444,10 @@ export default function TopupPaymentPage() {
         baseOriginalPrice || parseFloat(data.price || '0');
       const originalPriceWithQuantity = baseOriginalPricePerUnit * quantity;
       setFinalPrice(
-        Math.round(originalPriceWithQuantity - totalDiscountAmount)
+        Math.round(originalPriceWithQuantity - totalDiscountAmount),
       );
       toast.success(
-        `Promocode applied! ${responseData.promocode.discountPercentage}% discount`
+        `Promocode applied! ${responseData.promocode.discountPercentage}% discount`,
       );
     } catch (error) {
       toast.error('Failed to validate promocode');
@@ -484,7 +484,7 @@ export default function TopupPaymentPage() {
       const totalDiscountAmount = baseDiscountAmount * quantity;
       setDiscountAmount(totalDiscountAmount);
       setFinalPrice(
-        Math.round(originalPriceWithQuantity - totalDiscountAmount)
+        Math.round(originalPriceWithQuantity - totalDiscountAmount),
       );
     } else {
       setDiscountAmount(0);
@@ -579,8 +579,13 @@ export default function TopupPaymentPage() {
   } else if (data.platform === 'Age of empires mobile ') {
     idLabel = 'Age of empires mobile User ID';
     idPlaceholder = 'Enter your Age of empires mobile User ID';
+  } else if (
+    data.platform === 'Clash of clans gems' ||
+    data.platform === 'Gems'
+  ) {
+    idLabel = 'Supercell ID';
+    idPlaceholder = 'Enter your Supercell ID';
   }
-
   // ----------- Submission Logic -----------
   const handleSubmit = async () => {
     // Prevent multiple submissions
@@ -590,7 +595,7 @@ export default function TopupPaymentPage() {
     if (!session?.user) {
       toast.error('You must be logged in to make a purchase');
       router.push(
-        `/login?callbackUrl=${encodeURIComponent(window.location.href)}`
+        `/login?callbackUrl=${encodeURIComponent(window.location.href)}`,
       );
       return;
     }
@@ -614,7 +619,7 @@ export default function TopupPaymentPage() {
     if (data.platform === 'tiktok' && data.type === 'coins') {
       if (!loginId || !tiktokPassword || !loginMethod || !phone || !receipt) {
         toast.error(
-          'Please fill in all required TikTok fields and upload the receipt.'
+          'Please fill in all required TikTok fields and upload the receipt.',
         );
         return;
       }
@@ -625,7 +630,7 @@ export default function TopupPaymentPage() {
     } else if (data.platform === 'facebook' && data.type !== 'followers') {
       if (!uid || !phone || !receipt) {
         toast.error(
-          'कृपया Facebook को Profile वा Page को Link, फोन, र Receipt अपलोड गर्नुहोस्।'
+          'कृपया Facebook को Profile वा Page को Link, फोन, र Receipt अपलोड गर्नुहोस्।',
         );
         return;
       }
@@ -643,7 +648,7 @@ export default function TopupPaymentPage() {
         toast.error(
           selectedPaymentMethod === 'wallet'
             ? 'Please fill in all required fields for wallet payment.'
-            : 'Please fill in all required fields and upload the receipt.'
+            : 'Please fill in all required fields and upload the receipt.',
         );
         return;
       }
@@ -669,7 +674,7 @@ export default function TopupPaymentPage() {
       }
       if (walletBalance < finalPrice) {
         toast.error(
-          `Insufficient wallet balance. You have ${walletBalance} NPR but need ${finalPrice} NPR. Please top up your wallet or choose another payment method.`
+          `Insufficient wallet balance. You have ${walletBalance} NPR but need ${finalPrice} NPR. Please top up your wallet or choose another payment method.`,
         );
         return;
       }
@@ -726,7 +731,7 @@ export default function TopupPaymentPage() {
       setIsSubmitting(true);
       console.log(
         'Submitting order with payment method:',
-        selectedPaymentMethod
+        selectedPaymentMethod,
       );
       console.log('Wallet balance at submission:', walletBalance);
       console.log('Final price:', finalPrice);
@@ -974,12 +979,12 @@ export default function TopupPaymentPage() {
           {data.platform === 'linkedin'
             ? 'You are buying LinkedIn Premium of 1 Year for NPR'
             : data.platform === 'figma'
-            ? 'You are buying Figma Professional of 1 Year for NPR'
-            : data.platform === 'you.com'
-            ? 'You are buying You.com subscription of 1 Year for NPR'
-            : data.platform === 'nordvpn'
-            ? `You are buying NordVPN subscription of ${data.duration} for NPR`
-            : ''}{' '}
+              ? 'You are buying Figma Professional of 1 Year for NPR'
+              : data.platform === 'you.com'
+                ? 'You are buying You.com subscription of 1 Year for NPR'
+                : data.platform === 'nordvpn'
+                  ? `You are buying NordVPN subscription of ${data.duration} for NPR`
+                  : ''}{' '}
           {data.price}
         </strong>
       </>
@@ -993,8 +998,8 @@ export default function TopupPaymentPage() {
           {data.type == 'followers'
             ? 'Followers'
             : data.type === 'views'
-            ? 'Views'
-            : 'Likes'}
+              ? 'Views'
+              : 'Likes'}
         </strong>{' '}
         x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
@@ -1008,8 +1013,8 @@ export default function TopupPaymentPage() {
           {data.type == 'followers'
             ? 'Followers'
             : data.type === 'views'
-            ? 'Views'
-            : 'Likes'}
+              ? 'Views'
+              : 'Likes'}
         </strong>{' '}
         x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
@@ -1024,16 +1029,14 @@ export default function TopupPaymentPage() {
         x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
     );
-  } 
-  else if (data.platform == "Pieces" && data.type == "account"){
- summary = (
+  } else if (data.platform == 'Pieces' && data.type == 'account') {
+    summary = (
       <>
-      You're buying <strong>{data.amount} Pieces Unipin Voucher</strong> for <strong>NPR {finalPrice}</strong>
+        You're buying <strong>{data.amount} Pieces Unipin Voucher</strong> for{' '}
+        <strong>NPR {finalPrice}</strong>
       </>
     );
-  }
-  
-  else {
+  } else {
     summary = (
       <>
         You're buying{' '}
@@ -1042,12 +1045,12 @@ export default function TopupPaymentPage() {
           {data.type === 'uc'
             ? 'UC'
             : data.type === 'shell'
-            ? 'Shells'
-            : data.type === 'followers'
-            ? 'Followers'
-            : data.type === 'usd'
-            ? 'USD'
-            : data.type}
+              ? 'Shells'
+              : data.type === 'followers'
+                ? 'Followers'
+                : data.type === 'usd'
+                  ? 'USD'
+                  : data.type}
         </strong>{' '}
         x {quantity} for <strong>NPR {finalPrice}</strong>
       </>
@@ -1083,7 +1086,7 @@ export default function TopupPaymentPage() {
       </div>
 
       <h1 className="text-3xl font-bold text-purple-700 text-center capitalize">
-        {data.platform == "Pieces" ? "Unipin" : data.platform}{' '}
+        {data.platform == 'Pieces' ? 'Unipin' : data.platform}{' '}
         {data.type === 'usd' ? data.type.toUpperCase() : data.type} Payment
       </h1>
 
@@ -1222,7 +1225,8 @@ export default function TopupPaymentPage() {
           </p>
 
           <p className="text-xs text-red-500 font-bold mt-1">
-           Please contact the admin to get one time code for your konami account after the successful purchase.
+            Please contact the admin to get one time code for your konami
+            account after the successful purchase.
           </p>
         </div>
       )}
@@ -1260,7 +1264,7 @@ export default function TopupPaymentPage() {
             value={quantity}
             onChange={(e) =>
               setQuantity(
-                Math.max(1, Math.min(10, parseInt(e.target.value) || 1))
+                Math.max(1, Math.min(10, parseInt(e.target.value) || 1)),
               )
             }
             className="w-20 text-center px-3 py-2 border rounded-lg font-semibold"
@@ -1504,12 +1508,12 @@ export default function TopupPaymentPage() {
               {selectedPaymentMethod === 'wallet'
                 ? 'Wallet Balance'
                 : selectedPaymentMethod === 'esewa'
-                ? 'eSewa'
-                : selectedPaymentMethod === 'khalti'
-                ? 'Khalti/IME'
-                : selectedPaymentMethod === 'bank'
-                ? 'Bank Transfer'
-                : ''}
+                  ? 'eSewa'
+                  : selectedPaymentMethod === 'khalti'
+                    ? 'Khalti/IME'
+                    : selectedPaymentMethod === 'bank'
+                      ? 'Bank Transfer'
+                      : ''}
             </p>
             <p className="text-xs text-blue-600 mt-1">
               {selectedPaymentMethod === 'wallet'
