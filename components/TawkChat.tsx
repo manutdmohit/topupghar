@@ -19,12 +19,31 @@ const TawkChat = () => {
     window.Tawk_API = window.Tawk_API || {};
     window.Tawk_LoadStart = new Date();
 
+    // Set 20-minute chat session timeout
+    window.Tawk_API.visitor = {
+      name: '',
+      email: '',
+      hash: '',
+      externalId: '',
+    };
+
+    // Configure chat session timeout (20 minutes = 1200 seconds)
+    window.Tawk_API.onStatusChange = function (status: string) {
+      if (status === 'online') {
+        setTimeout(
+          () => {
+            window.Tawk_API.hideWidget();
+          },
+          20 * 60 * 1000,
+        ); // 20 minutes
+      }
+    };
+
     const script = document.createElement('script');
     script.id = 'tawk-chat-script';
     script.async = true;
     script.src = scriptUrl;
     script.charset = 'UTF-8';
-    script.setAttribute('crossorigin', '*');
 
     const firstScript = document.getElementsByTagName('script')[0];
     if (firstScript?.parentNode) {
