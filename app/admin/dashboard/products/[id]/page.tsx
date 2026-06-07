@@ -8,6 +8,7 @@ import {
   resolveCheckoutConfig,
   type ProductCheckoutConfig,
 } from '@/lib/checkout-config';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   Save,
@@ -279,7 +280,7 @@ export default function EditProductPage() {
       return data.url;
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
+      toast.error('Failed to upload image. Please try again.');
       return formData.image || null;
     } finally {
       setUploadingImage(false);
@@ -306,7 +307,8 @@ export default function EditProductPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update product');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update product');
       }
 
       const updatedProduct = await response.json();
@@ -314,10 +316,14 @@ export default function EditProductPage() {
       setFormData(updatedProduct);
       setImageFile(null);
       setImagePreview(null);
-      alert('Product updated successfully!');
+      toast.success('Product updated successfully!');
     } catch (err) {
       console.error('Error updating product:', err);
-      alert('Error updating product. Please try again.');
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : 'Error updating product. Please try again.',
+      );
     } finally {
       setSaving(false);
     }

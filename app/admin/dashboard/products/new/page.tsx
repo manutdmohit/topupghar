@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckoutConfigForm } from '@/components/admin/CheckoutConfigForm';
 import { DEFAULT_CHECKOUT, type ProductCheckoutConfig } from '@/lib/checkout-config';
+import { toast } from 'sonner';
 import {
   ArrowLeft,
   Save,
@@ -313,16 +314,16 @@ export default function NewProductPage() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        alert('Product created successfully!');
+        await response.json();
+        toast.success('Product created successfully!');
         router.push('/admin/dashboard/products');
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to create product');
+        toast.error(error.message || 'Failed to create product');
       }
     } catch (error) {
       console.error('Error creating product:', error);
-      alert('Error creating product. Please try again.');
+      toast.error('Error creating product. Please try again.');
     } finally {
       setLoading(false);
     }
