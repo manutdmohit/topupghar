@@ -13,6 +13,7 @@ const TawkChat = () => {
   const scriptUrl = 'https://embed.tawk.to/69c8b7fd0c50e01c367c3a4e/1jks0tdq6';
 
   useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') return;
     if (typeof window === 'undefined') return;
     if (document.getElementById('tawk-chat-script')) return;
 

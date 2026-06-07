@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Promocode from '@/lib/models/Promocode';
 import connectDB from '@/config/db';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
     const { searchParams } = new URL(req.url);
@@ -70,6 +74,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
     const body = await req.json();

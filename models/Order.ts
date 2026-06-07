@@ -30,6 +30,7 @@ export interface IOrder extends Document {
   originalPrice?: number; // Original price before discount
   discountAmount?: number; // Amount discounted
   finalPrice?: number; // Final price after discount
+  cashbackAmount?: number; // Cashback credited to wallet for eligible purchases
   createdAt: Date;
   status: 'pending' | 'approved' | 'rejected';
 }
@@ -83,6 +84,7 @@ const OrderSchema = new Schema<IOrder>(
     originalPrice: { type: Number }, // Original price before discount
     discountAmount: { type: Number }, // Amount discounted
     finalPrice: { type: Number }, // Final price after discount
+    cashbackAmount: { type: Number, default: 0 }, // Cashback credited to wallet for eligible purchases
     createdAt: { type: Date, default: Date.now },
     status: {
       type: String,
@@ -90,7 +92,7 @@ const OrderSchema = new Schema<IOrder>(
       default: 'pending',
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // --- Indexes for Fast Search ---

@@ -6,7 +6,7 @@ import User from '@/lib/models/User';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,9 +18,8 @@ export async function GET(
       );
     }
 
+    const { id: customerId } = await params;
     await connectDB();
-
-    const customerId = params.id;
 
     // Get customer details
     const customer = await User.findById(customerId).select(

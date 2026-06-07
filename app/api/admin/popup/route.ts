@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/config/db';
 import Popup from '@/lib/models/Popup';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function PUT(request: NextRequest) {
   try {
-    const adminEmail = request.headers.get('x-admin-email');
-
-    if (!adminEmail) {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
       return NextResponse.json(
         { error: 'Admin authentication required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -129,12 +129,11 @@ export async function PUT(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const adminEmail = request.headers.get('x-admin-email');
-
-    if (!adminEmail) {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
       return NextResponse.json(
         { error: 'Admin authentication required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -170,12 +169,11 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const adminEmail = request.headers.get('x-admin-email');
-
-    if (!adminEmail) {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
       return NextResponse.json(
         { error: 'Admin authentication required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 

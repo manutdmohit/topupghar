@@ -15,6 +15,7 @@ interface Order {
   quantity?: number;
   price?: number;
   finalPrice?: number;
+  cashbackAmount?: number;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
   phone: string;
@@ -44,7 +45,7 @@ export default function MyOrdersPage() {
 
     if (status === 'unauthenticated') {
       router.push(
-        `/login?callbackUrl=${encodeURIComponent(window.location.href)}`
+        `/login?callbackUrl=${encodeURIComponent(window.location.href)}`,
       );
       return;
     }
@@ -142,11 +143,22 @@ export default function MyOrdersPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-purple-700 mb-2">My Orders</h1>
-        <p className="text-gray-600">
-          View and track all your orders from Topup Ghar
-        </p>
+      <div className="mb-8 space-y-4">
+        <div>
+          <h1 className="text-3xl font-bold text-purple-700 mb-2">My Orders</h1>
+          <p className="text-gray-600">
+            View and track all your orders from Topup Ghar
+          </p>
+        </div>
+        <div className="rounded-3xl border border-blue-200 bg-gradient-to-r from-sky-50 to-blue-50 p-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+            Get 2% Cashback on purchases of Rs. 500 or more!
+          </p>
+          <p className="text-sm text-blue-700 mt-1">
+            Eligible cashback is credited automatically to your wallet after
+            successful order completion.
+          </p>
+        </div>
       </div>
 
       {/* User Info */}
@@ -238,7 +250,7 @@ export default function MyOrdersPage() {
                   <div className="flex flex-col items-end gap-1">
                     <span
                       className={`px-3 py-1 text-xs font-semibold rounded-full border-2 shadow-md hover:shadow-lg transition-all duration-200 ${getStatusColor(
-                        order.status
+                        order.status,
                       )}`}
                     >
                       {getStatusIcon(order.status)}{' '}
@@ -362,6 +374,34 @@ export default function MyOrdersPage() {
                       {order.paymentMethod || 'N/A'}
                     </p>
                   </div>
+
+                  {order.cashbackAmount ? (
+                    <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl p-3 border border-cyan-200 hover:shadow-md transition-all duration-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-6 h-6 bg-cyan-500 rounded-lg flex items-center justify-center shadow-sm">
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 14l2-2 4 4m0-7l-4 4-2-2"
+                            />
+                          </svg>
+                        </div>
+                        <span className="text-xs font-semibold text-cyan-700 uppercase tracking-wide">
+                          Cashback Earned
+                        </span>
+                      </div>
+                      <p className="text-sm font-bold text-gray-900">
+                        {formatPrice(order.cashbackAmount)}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* Footer with date */}

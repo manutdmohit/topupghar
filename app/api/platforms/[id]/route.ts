@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Platform } from '@/lib/models/Platform';
 import connectDB from '@/config/db';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await connectDB();
 
-    const platform = await Platform.findById(params.id);
+    const platform = await Platform.findById(id);
 
     if (!platform) {
       return NextResponse.json(
@@ -32,9 +34,13 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
     await connectDB();
 
     const body = await req.json();
@@ -49,7 +55,7 @@ export async function PUT(
     }
 
     // Check if platform exists
-    const existingPlatform = await Platform.findById(params.id);
+    const existingPlatform = await Platform.findById(id);
     if (!existingPlatform) {
       return NextResponse.json(
         { message: 'Platform not found' },
@@ -59,7 +65,7 @@ export async function PUT(
 
     // Check if another platform with same name or value already exists
     const duplicatePlatform = await Platform.findOne({
-      _id: { $ne: params.id },
+      _id: { $ne: id },
       $or: [{ name }, { value }],
     });
 
@@ -72,7 +78,7 @@ export async function PUT(
 
     // Update platform
     const updatedPlatform = await Platform.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         value,
@@ -101,12 +107,16 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
     await connectDB();
 
-    const platform = await Platform.findById(params.id);
+    const platform = await Platform.findById(id);
 
     if (!platform) {
       return NextResponse.json(
@@ -115,7 +125,7 @@ export async function DELETE(
       );
     }
 
-    await Platform.findByIdAndDelete(params.id);
+    await Platform.findByIdAndDelete(id);
 
     return NextResponse.json({
       message: 'Platform deleted successfully',
@@ -133,16 +143,20 @@ export async function DELETE(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
     await connectDB();
 
     const body = await req.json();
     const { isActive } = body;
 
     // Check if platform exists
-    const existingPlatform = await Platform.findById(params.id);
+    const existingPlatform = await Platform.findById(id);
     if (!existingPlatform) {
       return NextResponse.json(
         { message: 'Platform not found' },
@@ -152,7 +166,7 @@ export async function PATCH(
 
     // Toggle active status
     const updatedPlatform = await Platform.findByIdAndUpdate(
-      params.id,
+      id,
       { isActive: !existingPlatform.isActive },
       { new: true }
     );

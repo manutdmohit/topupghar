@@ -161,14 +161,30 @@ export default function WalletTopup() {
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
           Top Up Wallet
         </h2>
-        <p className="text-sm sm:text-base text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600 mb-4">
           Add funds to your wallet for quick payments
         </p>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-blue-200 bg-gradient-to-r from-blue-100 via-sky-50 to-white p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-blue-900">
+                Load Rs. 500+ and get 2% cashback instantly!
+              </p>
+              <p className="text-xs sm:text-sm text-blue-700 mt-1">
+                Cashback is added directly to your wallet after approval, so
+                ₹500 becomes ₹510 automatically.
+              </p>
+            </div>
+            <div className="inline-flex items-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
+              Instant cashback
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Payment Method Selection Grid */}
       <div>
-        <Label className="text-sm sm:text-base font-medium text-gray-700 mb-3 block flex items-center gap-2">
+        <Label className="text-sm sm:text-base font-medium text-gray-700 mb-3 flex items-center gap-2">
           Choose Payment Method
           {selectedPaymentMethod && (
             <span className="text-green-600 text-sm">✓</span>
@@ -267,8 +283,8 @@ export default function WalletTopup() {
               amount.trim() && parseFloat(amount) > 0
                 ? 'border-green-500 focus:border-green-500'
                 : amount.trim() && parseFloat(amount) <= 0
-                ? 'border-red-500 focus:border-red-500'
-                : ''
+                  ? 'border-red-500 focus:border-red-500'
+                  : ''
             }`}
           />
           {amount.trim() && parseFloat(amount) <= 0 && (

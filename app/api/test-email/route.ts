@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 import {
   sendOrderNotificationToAdmin,
   sendSimpleOrderNotification,
@@ -6,6 +7,9 @@ import {
 
 export const POST = async (req: NextRequest) => {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     const body = await req.json();
     const { testType = 'html' } = body;
 

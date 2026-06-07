@@ -37,6 +37,9 @@ interface Product {
   discountPercentage?: number;
   inStock: boolean;
   isActive: boolean;
+  gameId?: string;
+  emailId?: string;
+  zone?: string;
 }
 
 export default function ProductPage() {
@@ -107,23 +110,18 @@ export default function ProductPage() {
       // Calculate discounted price
       const priceInfo = calculateDiscountedPrice(
         selectedVariant.price,
-        product.discountPercentage || 0
+        product.discountPercentage || 0,
       );
 
-      // Create secure order session
       const response = await fetch('/api/orders/create-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          platform: product.platform,
-          type: product.type,
-          duration: selectedVariant.duration,
-          price: priceInfo.discountedPrice,
-          originalPrice: selectedVariant.price,
-          discountPercentage: product.discountPercentage || 0,
-          amount: selectedVariant.label,
+          productId: product._id,
+          variantIndex: selectedPackage,
+          quantity: 1,
         }),
       });
 
@@ -140,7 +138,7 @@ export default function ProductPage() {
       // Fallback to old method for now
       const priceInfo = calculateDiscountedPrice(
         selectedVariant.price,
-        product.discountPercentage || 0
+        product.discountPercentage || 0,
       );
 
       const query = new URLSearchParams({
@@ -256,7 +254,7 @@ export default function ProductPage() {
                 <div className="flex items-center gap-2 mt-1">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(
-                      product.category
+                      product.category,
                     )}`}
                   >
                     {product.category}
@@ -368,7 +366,7 @@ export default function ProductPage() {
                                 NPR{' '}
                                 {calculateDiscountedPrice(
                                   variant.price,
-                                  product.discountPercentage
+                                  product.discountPercentage,
                                 ).discountedPrice.toLocaleString()}
                               </p>
                               <p className="text-sm text-gray-500 line-through">
@@ -497,7 +495,7 @@ export default function ProductPage() {
                       product.discountPercentage > 0
                         ? calculateDiscountedPrice(
                             product.variants[selectedPackage]?.price || 0,
-                            product.discountPercentage
+                            product.discountPercentage,
                           ).discountedPrice.toLocaleString()
                         : product.variants[
                             selectedPackage
@@ -640,7 +638,7 @@ export default function ProductPage() {
                             // Store current time in a data attribute
                             originalVideo.setAttribute(
                               'data-current-time',
-                              originalVideo.currentTime.toString()
+                              originalVideo.currentTime.toString(),
                             );
                           }
                           setShowFullscreenModal(true);
@@ -750,7 +748,7 @@ export default function ProductPage() {
               onLoadedMetadata={(e) => {
                 // Set the video time to match the original video
                 const originalVideo = document.querySelector(
-                  '.relative video'
+                  '.relative video',
                 ) as HTMLVideoElement | null;
                 if (originalVideo) {
                   const currentTime =
@@ -800,7 +798,7 @@ export default function ProductPage() {
                       setShowFullscreenModal(false);
                       setIsTransitioning(false);
                     },
-                    { once: true }
+                    { once: true },
                   );
                 } else {
                   setShowFullscreenModal(false);

@@ -62,7 +62,26 @@ export default function WalletPage() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="rounded-3xl border border-blue-200 bg-gradient-to-r from-blue-100 via-sky-50 to-white p-5 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+                  Cashback Alert
+                </p>
+                <h2 className="text-lg sm:text-xl font-bold text-blue-900">
+                  Get 2% cashback on purchases of Rs. 500 or more!
+                </h2>
+                <p className="text-sm text-blue-700 mt-1">
+                  Eligible cashback is added automatically to your wallet after
+                  successful payment.
+                </p>
+              </div>
+              <div className="inline-flex items-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
+                Purchase cashback
+              </div>
+            </div>
+          </div>
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}

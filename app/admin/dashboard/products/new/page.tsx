@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { CheckoutConfigForm } from '@/components/admin/CheckoutConfigForm';
+import { DEFAULT_CHECKOUT, type ProductCheckoutConfig } from '@/lib/checkout-config';
 import {
   ArrowLeft,
   Save,
@@ -32,7 +34,8 @@ interface ProductFormData {
   category: string;
   type: string;
   variants: Variant[];
-  discountPercentage: number; // New field
+  discountPercentage: number;
+  checkout: ProductCheckoutConfig;
   inStock: boolean;
   isActive: boolean;
 }
@@ -91,6 +94,7 @@ export default function NewProductPage() {
     type: 'account',
     variants: [{ label: '', duration: '', price: 0, inStock: true }],
     discountPercentage: 0,
+    checkout: { ...DEFAULT_CHECKOUT },
     inStock: true,
     isActive: true,
   });
@@ -537,6 +541,28 @@ export default function NewProductPage() {
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <FileText className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Checkout fields
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Define what the customer must provide on the payment page
+                </p>
+              </div>
+            </div>
+            <CheckoutConfigForm
+              value={formData.checkout}
+              onChange={(checkout) =>
+                setFormData((prev) => ({ ...prev, checkout }))
+              }
+            />
           </div>
 
           {/* Product Variants */}

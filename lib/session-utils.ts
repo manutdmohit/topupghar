@@ -1,9 +1,13 @@
 import { randomBytes, createHmac } from 'crypto';
+import type { ProductCheckoutConfig } from '@/lib/checkout-config';
 
 // Secret key for signing tokens (should be in environment variables)
 const SECRET_KEY = process.env.SESSION_SECRET!;
 
 export interface OrderSessionData {
+  productId?: string;
+  slug?: string;
+  variantIndex?: number;
   platform: string;
   type: string;
   amount: string;
@@ -15,6 +19,13 @@ export interface OrderSessionData {
   level?: string;
   diamonds?: string;
   storage?: string;
+  checkout?: ProductCheckoutConfig;
+  /** @deprecated Use checkout instead */
+  gameId?: string;
+  /** @deprecated Use checkout instead */
+  emailId?: string;
+  /** @deprecated Use checkout instead */
+  zone?: string;
   timestamp: number;
 }
 

@@ -50,11 +50,7 @@ export default function PopupManagementPage() {
   const fetchPopupData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/popup', {
-        headers: {
-          'x-admin-email': adminUser?.email || '',
-        },
-      });
+      const response = await fetch('/api/admin/popup');
 
       if (response.ok) {
         const result = await response.json();
@@ -126,7 +122,6 @@ export default function PopupManagementPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-email': adminUser?.email || '',
         },
         body: JSON.stringify(popupData),
       });

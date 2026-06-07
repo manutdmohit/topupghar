@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -27,14 +27,14 @@ export async function POST(request: NextRequest) {
     if (!transactionId || !action) {
       return NextResponse.json(
         { error: 'Transaction ID and action are required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!['approve', 'reject'].includes(action)) {
       return NextResponse.json(
         { error: 'Action must be either "approve" or "reject"' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,21 +43,21 @@ export async function POST(request: NextRequest) {
     if (!transaction) {
       return NextResponse.json(
         { error: 'Transaction not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (transaction.status !== 'pending') {
       return NextResponse.json(
         { error: 'Transaction is not pending' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (transaction.type !== 'topup') {
       return NextResponse.json(
         { error: 'Only topup transactions can be approved/rejected' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -73,45 +73,68 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'approve') {
-      // Update transaction status
-      transaction.status = 'completed';
-      transaction.notes = notes || 'Approved by admin';
-      transaction.balance = wallet.balance + transaction.amount;
-      await transaction.save();
+      const cashbackThreshold = 500;
+      const cashbackRate = 0.02;
+      const eligibleForCashback = transaction.amount >= cashbackThreshold;
+      const cashbackAmount = eligibleForCashback
+        ? Number((transaction.amount * cashbackRate).toFixed(2))
+        : 0;
 
-      // Update wallet balance
-      wallet.balance += transaction.amount;
+      // Update wallet balance and transaction details
+      wallet.balance += transaction.amount + cashbackAmount;
       wallet.totalTopups += transaction.amount;
       wallet.lastTransactionDate = new Date();
       await wallet.save();
+
+      transaction.status = 'completed';
+      transaction.notes = notes || 'Approved by admin';
+      transaction.cashbackAmount = cashbackAmount;
+      transaction.balance = wallet.balance;
+      transaction.description = eligibleForCashback
+        ? `Wallet topup via ${transaction.paymentMethod} (includes ₹${cashbackAmount} cashback)`
+        : `Wallet topup via ${transaction.paymentMethod}`;
+      await transaction.save();
+
+      if (eligibleForCashback && cashbackAmount > 0) {
+        const cashbackTransaction = new WalletTransaction({
+          userId: transaction.userId,
+          type: 'cashback',
+          amount: cashbackAmount,
+          balance: wallet.balance,
+          description: `2% cashback for wallet topup of NPR ${transaction.amount}`,
+          status: 'completed',
+          notes: 'Instant cashback added to wallet',
+        });
+        await cashbackTransaction.save();
+      }
 
       // Send Telegram notification for approval
       try {
         await sendWalletTopupStatusUpdateToTelegram(
           transaction.transactionId,
           'approved',
-          notes || 'Approved by admin'
+          notes || 'Approved by admin',
         );
         console.log(
-          'Wallet top-up approval notification sent to Telegram successfully'
+          'Wallet top-up approval notification sent to Telegram successfully',
         );
       } catch (telegramError) {
         console.error(
           'Failed to send Telegram approval notification:',
-          telegramError
+          telegramError,
         );
 
         // Try to send a simple notification as fallback
         try {
           await sendSimpleNotificationToTelegram(
             'Wallet Top-up Approved',
-            `Transaction ID: ${transaction.transactionId}\nAmount: NPR ${transaction.amount}\nStatus: Approved`
+            `Transaction ID: ${transaction.transactionId}\nAmount: NPR ${transaction.amount}\nStatus: Approved`,
           );
           console.log('Simple Telegram approval notification sent as fallback');
         } catch (fallbackError) {
           console.error(
             'Failed to send fallback Telegram approval notification:',
-            fallbackError
+            fallbackError,
           );
         }
       }
@@ -141,30 +164,30 @@ export async function POST(request: NextRequest) {
         await sendWalletTopupStatusUpdateToTelegram(
           transaction.transactionId,
           'rejected',
-          notes || 'Rejected by admin'
+          notes || 'Rejected by admin',
         );
         console.log(
-          'Wallet top-up rejection notification sent to Telegram successfully'
+          'Wallet top-up rejection notification sent to Telegram successfully',
         );
       } catch (telegramError) {
         console.error(
           'Failed to send Telegram rejection notification:',
-          telegramError
+          telegramError,
         );
 
         // Try to send a simple notification as fallback
         try {
           await sendSimpleNotificationToTelegram(
             'Wallet Top-up Rejected',
-            `Transaction ID: ${transaction.transactionId}\nAmount: NPR ${transaction.amount}\nStatus: Rejected`
+            `Transaction ID: ${transaction.transactionId}\nAmount: NPR ${transaction.amount}\nStatus: Rejected`,
           );
           console.log(
-            'Simple Telegram rejection notification sent as fallback'
+            'Simple Telegram rejection notification sent as fallback',
           );
         } catch (fallbackError) {
           console.error(
             'Failed to send fallback Telegram rejection notification:',
-            fallbackError
+            fallbackError,
           );
         }
       }
@@ -183,7 +206,7 @@ export async function POST(request: NextRequest) {
     console.error('Admin wallet approval error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { requireAdmin } from '@/lib/admin-auth';
 import Order from '@/models/Order';
 import Promocode from '@/lib/models/Promocode';
 import connectDB from '@/config/db';
@@ -405,6 +406,9 @@ export const POST = async (req: NextRequest) => {
 
 export const GET = async (req: NextRequest) => {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB(); // Ensure database connection is established
 
     const { searchParams } = new URL(req.url);

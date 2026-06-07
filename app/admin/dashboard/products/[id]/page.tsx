@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { CheckoutConfigForm } from '@/components/admin/CheckoutConfigForm';
+import {
+  DEFAULT_CHECKOUT,
+  resolveCheckoutConfig,
+  type ProductCheckoutConfig,
+} from '@/lib/checkout-config';
 import {
   ArrowLeft,
   Save,
@@ -36,7 +42,8 @@ interface Product {
   description?: string;
   image?: string;
   variants: Variant[];
-  discountPercentage?: number; // New field
+  discountPercentage?: number;
+  checkout?: ProductCheckoutConfig;
   inStock: boolean;
   isActive: boolean;
 }
@@ -109,7 +116,12 @@ export default function EditProductPage() {
           }));
         }
         setProduct(productData);
-        setFormData(productData);
+        setFormData({
+          ...productData,
+          checkout: productData.checkout?.identifier
+            ? { ...DEFAULT_CHECKOUT, ...productData.checkout }
+            : resolveCheckoutConfig(productData),
+        });
 
         // Fetch categories
         const categoriesResponse = await fetch('/api/categories?status=active');
@@ -568,6 +580,28 @@ export default function EditProductPage() {
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <FileText className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Checkout fields
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Define what the customer must provide on the payment page
+                </p>
+              </div>
+            </div>
+            <CheckoutConfigForm
+              value={formData.checkout || DEFAULT_CHECKOUT}
+              onChange={(checkout) =>
+                setFormData((prev) => ({ ...prev, checkout }))
+              }
+            />
           </div>
 
           {/* Product Variants */}

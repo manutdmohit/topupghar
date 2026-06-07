@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProductType } from '@/lib/models/ProductType';
 import connectDB from '@/config/db';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await connectDB();
 
-    const productType = await ProductType.findById(params.id);
+    const productType = await ProductType.findById(id);
 
     if (!productType) {
       return NextResponse.json(
@@ -32,9 +34,13 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
     await connectDB();
 
     const body = await req.json();
@@ -49,7 +55,7 @@ export async function PUT(
     }
 
     // Check if product type exists
-    const existingProductType = await ProductType.findById(params.id);
+    const existingProductType = await ProductType.findById(id);
     if (!existingProductType) {
       return NextResponse.json(
         { message: 'Product type not found' },
@@ -59,7 +65,7 @@ export async function PUT(
 
     // Check if another product type with same name or value already exists
     const duplicateProductType = await ProductType.findOne({
-      _id: { $ne: params.id },
+      _id: { $ne: id },
       $or: [{ name }, { value }],
     });
 
@@ -72,7 +78,7 @@ export async function PUT(
 
     // Update product type
     const updatedProductType = await ProductType.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         value,
@@ -101,12 +107,16 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
     await connectDB();
 
-    const productType = await ProductType.findById(params.id);
+    const productType = await ProductType.findById(id);
 
     if (!productType) {
       return NextResponse.json(
@@ -115,7 +125,7 @@ export async function DELETE(
       );
     }
 
-    await ProductType.findByIdAndDelete(params.id);
+    await ProductType.findByIdAndDelete(id);
 
     return NextResponse.json({
       message: 'Product type deleted successfully',
@@ -133,16 +143,20 @@ export async function DELETE(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
     await connectDB();
 
     const body = await req.json();
     const { isActive } = body;
 
     // Check if product type exists
-    const existingProductType = await ProductType.findById(params.id);
+    const existingProductType = await ProductType.findById(id);
     if (!existingProductType) {
       return NextResponse.json(
         { message: 'Product type not found' },
@@ -152,7 +166,7 @@ export async function PATCH(
 
     // Toggle active status
     const updatedProductType = await ProductType.findByIdAndUpdate(
-      params.id,
+      id,
       { isActive: !existingProductType.isActive },
       { new: true }
     );

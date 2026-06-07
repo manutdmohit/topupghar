@@ -1,4 +1,9 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
+import {
+  DEFAULT_CHECKOUT,
+  normalizeCheckoutInput,
+  type ProductCheckoutConfig,
+} from '@/lib/checkout-config';
 
 export interface IVariant {
   label: string; // e.g., "1 Month"
@@ -21,6 +26,13 @@ export interface IProduct extends Document {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  /** @deprecated Use checkout.identifier instead */
+  gameId?: string;
+  /** @deprecated Use checkout.identifier instead */
+  emailId?: string;
+  /** @deprecated Use checkout instead */
+  zone?: string;
+  checkout?: ProductCheckoutConfig;
 }
 
 const VariantSchema = new Schema<IVariant>(
@@ -30,7 +42,41 @@ const VariantSchema = new Schema<IVariant>(
     price: { type: Number, required: true },
     inStock: { type: Boolean, required: true, default: true }, // NEW -> admin toggles this to show/hide the variant from the product
   },
-  { _id: false }
+  { _id: false },
+);
+
+const CheckoutSchema = new Schema<ProductCheckoutConfig>(
+  {
+    identifier: {
+      type: String,
+      enum: [
+        'gameId',
+        'gameIdWithZone',
+        'email',
+        'username',
+        'postLink',
+        'channelUrl',
+        'none',
+      ],
+      required: true,
+      default: 'email',
+    },
+    identifierLabel: { type: String },
+    identifierPlaceholder: { type: String },
+    requiresAccountPassword: { type: Boolean, default: false },
+    accountPasswordLabel: { type: String },
+    requiresServicePassword: { type: Boolean, default: false },
+    servicePasswordLabel: { type: String },
+    requiresSocialLogin: { type: Boolean, default: false },
+    socialLoginMethods: {
+      type: [String],
+      enum: ['google', 'facebook'],
+      default: ['google', 'facebook'],
+    },
+    requiresSeparateZone: { type: Boolean, default: false },
+    zoneLabel: { type: String },
+  },
+  { _id: false },
 );
 
 const ProductSchema = new Schema<IProduct>(
@@ -46,8 +92,15 @@ const ProductSchema = new Schema<IProduct>(
     discountPercentage: { type: Number, min: 0, max: 100, default: 0 }, // New field
     inStock: { type: Boolean, required: true, default: true },
     isActive: { type: Boolean, default: true },
+    gameId: { type: String, enum: ['yes', 'no'], default: 'no' },
+    emailId: { type: String, enum: ['yes', 'no'], default: 'no' },
+    zone: { type: String, enum: ['yes', 'no'], default: 'no' },
+    checkout: {
+      type: CheckoutSchema,
+      default: () => ({ ...DEFAULT_CHECKOUT }),
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Pre-save middleware to automatically set inStock based on variants
@@ -78,5 +131,12 @@ ProductSchema.virtual('hasDiscount').get(function () {
   return this.discountPercentage && this.discountPercentage > 0;
 });
 
-export const Product: Model<IProduct> =
-  mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
+// Re-register model so schema changes apply during Next.js hot reload
+if (mongoose.models.Product) {
+  delete mongoose.models.Product;
+}
+
+export const Product: Model<IProduct> = mongoose.model<IProduct>(
+  'Product',
+  ProductSchema,
+);
