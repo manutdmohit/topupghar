@@ -94,7 +94,6 @@ export default function AdminSettingsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-email': adminUser.email,
         },
         body: JSON.stringify({
           currentPassword: formData.currentPassword,

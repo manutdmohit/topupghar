@@ -2,20 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import User from '@/lib/models/User';
 import connectDB from '@/config/db';
 import bcrypt from 'bcryptjs';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
-
-    // Get admin user email from request headers (sent by frontend)
-    const adminEmail = req.headers.get('x-admin-email');
-
-    if (!adminEmail) {
-      return NextResponse.json(
-        { message: 'Unauthorized - Admin email not provided' },
-        { status: 401 }
-      );
-    }
 
     const { currentPassword, newPassword } = await req.json();
 
@@ -27,9 +21,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Find the admin user
     const adminUser = await User.findOne({
-      email: adminEmail,
+      _id: auth.session.user.id,
       role: 'admin',
     });
 

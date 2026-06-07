@@ -25,8 +25,9 @@ interface WalletData {
 
 interface Transaction {
   transactionId: string;
-  type: 'topup' | 'payment' | 'refund' | 'admin_adjustment';
+  type: 'topup' | 'payment' | 'refund' | 'admin_adjustment' | 'cashback';
   amount: number;
+  cashbackAmount?: number;
   balance: number;
   description: string;
   status: 'pending' | 'completed' | 'failed' | 'cancelled';
@@ -234,6 +235,12 @@ export default function WalletBalance() {
                         <p className="font-medium text-gray-900 text-sm">
                           {transaction.description}
                         </p>
+                        {transaction.cashbackAmount ? (
+                          <p className="text-xs text-blue-700 mt-1">
+                            Cashback earned:{' '}
+                            {formatAmount(transaction.cashbackAmount)}
+                          </p>
+                        ) : null}
                         <p className="text-xs text-gray-500 mt-1">
                           {transaction.transactionId}
                         </p>
@@ -248,6 +255,11 @@ export default function WalletBalance() {
                         {transaction.type === 'refund' && (
                           <Badge className="bg-green-100 text-green-800 text-xs">
                             💰 Refund
+                          </Badge>
+                        )}
+                        {transaction.type === 'cashback' && (
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">
+                            🔁 Cashback
                           </Badge>
                         )}
                         {transaction.paymentMethod && (
@@ -284,6 +296,12 @@ export default function WalletBalance() {
                         <p className="font-medium text-gray-900">
                           {transaction.description}
                         </p>
+                        {transaction.cashbackAmount ? (
+                          <p className="text-xs text-blue-700 mt-1">
+                            Cashback earned:{' '}
+                            {formatAmount(transaction.cashbackAmount)}
+                          </p>
+                        ) : null}
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-sm text-gray-500">
                             {transaction.transactionId}
@@ -291,6 +309,11 @@ export default function WalletBalance() {
                           {transaction.type === 'refund' && (
                             <Badge className="bg-green-100 text-green-800 text-xs">
                               💰 Refund
+                            </Badge>
+                          )}
+                          {transaction.type === 'cashback' && (
+                            <Badge className="bg-blue-100 text-blue-800 text-xs">
+                              🔁 Cashback
                             </Badge>
                           )}
                           {transaction.paymentMethod && (

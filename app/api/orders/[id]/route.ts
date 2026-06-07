@@ -1,6 +1,7 @@
 import connectDB from '@/config/db';
 import Order from '@/models/Order';
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin-auth';
 import { sendOrderStatusUpdateToTelegram } from '@/lib/telegram-service';
 import { Wallet, WalletTransaction } from '@/models/Wallet';
 
@@ -65,16 +66,19 @@ async function processWalletRefund(order: any) {
 
 export const GET = async (req: NextRequest, context: any) => {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB(); // Ensure database connection is established
 
-    const { id } = context.params;
+    const { id } = await context.params;
 
     console.log(`Fetching order with ID: ${id}`);
 
     if (!id) {
       return NextResponse.json(
         { message: 'Order ID is required.' },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const order = await Order.findOne({ _id: id });
@@ -90,22 +94,25 @@ export const GET = async (req: NextRequest, context: any) => {
       error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       { message: 'Failed to fetch order', error: errorMessage },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
 
 export const PATCH = async (req: NextRequest, context: any) => {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await req.json();
 
     if (!id) {
       return NextResponse.json(
         { message: 'Order ID is required.' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -142,9 +149,50 @@ export const PATCH = async (req: NextRequest, context: any) => {
                 ? refundError.message
                 : 'Unknown refund error',
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
+    }
+
+    // Apply cashback for eligible purchases when an order is approved
+    if (
+      body.status === 'approved' &&
+      existingOrder.status !== 'approved' &&
+      (!existingOrder.cashbackAmount || existingOrder.cashbackAmount <= 0) &&
+      existingOrder.finalPrice &&
+      existingOrder.finalPrice >= 500
+    ) {
+      const cashbackAmount = Number(
+        (existingOrder.finalPrice * 0.02).toFixed(2),
+      );
+
+      let wallet = await Wallet.findOne({ userId: existingOrder.userId });
+      if (!wallet) {
+        wallet = new Wallet({
+          userId: existingOrder.userId,
+          balance: 0,
+          totalTopups: 0,
+          totalSpent: 0,
+          isActive: true,
+        });
+      }
+
+      wallet.balance += cashbackAmount;
+      wallet.lastTransactionDate = new Date();
+
+      const cashbackTransaction = new WalletTransaction({
+        userId: existingOrder.userId,
+        type: 'cashback',
+        amount: cashbackAmount,
+        balance: wallet.balance,
+        description: `2% cashback for purchase ${existingOrder.orderId}`,
+        status: 'completed',
+        orderId: existingOrder.orderId,
+        notes: 'Automatic purchase cashback',
+      });
+
+      body.cashbackAmount = cashbackAmount;
+      await Promise.all([wallet.save(), cashbackTransaction.save()]);
     }
 
     // Update the order
@@ -166,13 +214,13 @@ export const PATCH = async (req: NextRequest, context: any) => {
         await sendOrderStatusUpdateToTelegram(
           order.orderId,
           body.status,
-          body.additionalInfo || body.note
+          body.additionalInfo || body.note,
         );
         console.log('Order status update sent to Telegram successfully');
       } catch (telegramError) {
         console.error(
           'Failed to send order status update to Telegram:',
-          telegramError
+          telegramError,
         );
         // Don't fail the request if Telegram notification fails
       }
@@ -185,7 +233,7 @@ export const PATCH = async (req: NextRequest, context: any) => {
       error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
       { message: 'Failed to update order', error: errorMessage },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

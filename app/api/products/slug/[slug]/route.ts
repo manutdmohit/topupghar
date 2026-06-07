@@ -4,17 +4,19 @@ import connectDB from '@/config/db';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: { slug: string } },
 ) {
   try {
     await connectDB();
 
-    const product = await Product.findOne({ slug: params.slug });
+    const { slug } = await params;
+
+    const product = await Product.findOne({ slug });
 
     if (!product) {
       return NextResponse.json(
         { message: 'Product not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -22,7 +24,7 @@ export async function GET(
     const productObj = product.toObject();
     if (productObj.variants && Array.isArray(productObj.variants)) {
       productObj.variants = productObj.variants.filter(
-        (variant: any) => variant.inStock !== false
+        (variant: any) => variant.inStock !== false,
       );
     }
 
@@ -31,7 +33,7 @@ export async function GET(
     console.error('Error fetching product by slug:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

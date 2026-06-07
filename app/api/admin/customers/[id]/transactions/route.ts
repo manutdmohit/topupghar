@@ -7,7 +7,7 @@ import { WalletTransaction } from '@/models/Wallet';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,9 +19,8 @@ export async function GET(
       );
     }
 
+    const { id: customerId } = await params;
     await connectDB();
-
-    const customerId = params.id;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');

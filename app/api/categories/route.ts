@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Category } from '@/lib/models/Category';
 import connectDB from '@/config/db';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -79,6 +80,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
     const body = await req.json();

@@ -4,8 +4,9 @@ import mongoose, { Document, Schema, model, models } from 'mongoose';
 export interface IWalletTransaction extends Document {
   transactionId: string;
   userId: string;
-  type: 'topup' | 'payment' | 'refund' | 'admin_adjustment';
+  type: 'topup' | 'payment' | 'refund' | 'admin_adjustment' | 'cashback';
   amount: number;
+  cashbackAmount?: number;
   balance: number; // Balance after transaction
   description: string;
   status: 'pending' | 'completed' | 'failed' | 'cancelled';
@@ -56,10 +57,11 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
     userId: { type: String, required: true },
     type: {
       type: String,
-      enum: ['topup', 'payment', 'refund', 'admin_adjustment'],
+      enum: ['topup', 'payment', 'refund', 'admin_adjustment', 'cashback'],
       required: true,
     },
     amount: { type: Number, required: true },
+    cashbackAmount: { type: Number, default: 0 },
     balance: { type: Number, required: true },
     description: { type: String, required: true },
     status: {
@@ -73,7 +75,7 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
     adminId: { type: String },
     notes: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // --- Wallet Schema ---
@@ -86,7 +88,7 @@ const WalletSchema = new Schema<IWallet>(
     lastTransactionDate: { type: Date },
     isActive: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // --- Indexes for Fast Search ---

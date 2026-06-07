@@ -177,11 +177,16 @@ export default function OrdersPage() {
 
       const fetchUserName = async () => {
         try {
-          const res = await fetch(`/api/admin/users/${userId}`);
+          const res = await fetch(`/api/admin/customers/${userId}`);
           const data = await res.json();
-          // Adjust 'data.name' based on your actual API response structure (e.g., data.user.name)
 
-          setName(data.user.name || data.user.fullName || 'No Name Found');
+          if (!res.ok) {
+            throw new Error(data.error || 'Failed to fetch customer');
+          }
+
+          setName(
+            data.customer?.name || data.customer?.fullName || 'No Name Found'
+          );
         } catch (error) {
           console.error('Error fetching user:', error);
           setName('Error loading name');

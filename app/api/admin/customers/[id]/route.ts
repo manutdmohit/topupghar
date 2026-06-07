@@ -7,7 +7,7 @@ import { Wallet } from '@/models/Wallet';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -15,28 +15,34 @@ export async function GET(
     if (!session?.user?.id || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     await connectDB();
 
-    const customerId = params.id;
+    const { id } = await params;
+
+    console.log('Fetching customer with ID:', id);
+
+    // const customerId = params.id;
 
     // Get customer details
-    const customer = await User.findById(customerId).select(
-      '_id email name image createdAt'
+    const customer = await User.findOne({ _id: id }).select(
+      '_id email name image createdAt',
     );
+
+    console.log('Fetched customer:', customer);
 
     if (!customer) {
       return NextResponse.json(
         { error: 'Customer not found' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Get wallet information
-    const wallet = await Wallet.findOne({ userId: customerId });
+    const wallet = await Wallet.findOne({ userId: id });
 
     const customerWithWallet = {
       _id: customer._id,
@@ -61,7 +67,7 @@ export async function GET(
     console.error('Get customer error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

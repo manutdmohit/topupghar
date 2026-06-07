@@ -10,7 +10,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { generateFailedOrderId } from '@/lib/order-utils';
 import Link from 'next/link';
-import { platform } from 'os';
+import {
+  CheckoutFieldsForm,
+  validateCheckoutFields,
+  buildUidEmailForOrder,
+  type CheckoutFieldValues,
+} from '@/components/checkout/CheckoutFieldsForm';
+import {
+  DEFAULT_CHECKOUT,
+  resolveCheckoutConfig,
+  type ProductCheckoutConfig,
+} from '@/lib/checkout-config';
+
 // Remove client-side token verification - will use API route instead
 
 // Wallet Balance Check Component
@@ -149,11 +160,22 @@ export default function TopupPaymentPage() {
     storage: '',
     zone: '',
     konamiPassword: '',
+    gameId: 'no',
+    emailId: 'no',
   });
 
-  // Common fields
-  const [uid, setUid] = useState('');
-  const [phone, setPhone] = useState('');
+  const [checkout, setCheckout] =
+    useState<ProductCheckoutConfig>(DEFAULT_CHECKOUT);
+  const [checkoutFields, setCheckoutFields] = useState<CheckoutFieldValues>({
+    uid: '',
+    phone: '',
+    password: '',
+    servicePassword: '',
+    loginId: '',
+    tiktokPassword: '',
+    loginMethod: '',
+    zone: '',
+  });
   const [quantity, setQuantity] = useState(1);
   const [receipt, setReceipt] = useState<File | null>(null);
   const [referredBy, setReferredBy] = useState('');
@@ -176,15 +198,12 @@ export default function TopupPaymentPage() {
   const [baseDiscountAmount, setBaseDiscountAmount] = useState(0);
   const [baseOriginalPrice, setBaseOriginalPrice] = useState(0);
 
-  // TikTok login fields (for coins only)
-  const [loginId, setLoginId] = useState('');
-  const [tiktokPassword, setTiktokPassword] = useState('');
-  const [loginMethod, setLoginMethod] = useState<'google' | 'facebook' | ''>(
-    '',
-  );
-
-  // Garena
-  const [password, setPassword] = useState('');
+  const handleCheckoutFieldChange = (
+    field: keyof CheckoutFieldValues,
+    value: string,
+  ) => {
+    setCheckoutFields((prev) => ({ ...prev, [field]: value }));
+  };
 
   // Authentication check
   useEffect(() => {
@@ -243,9 +262,11 @@ export default function TopupPaymentPage() {
             const result = await response.json();
             const sessionData = result.data;
 
+            console.log({ sessionData });
+
             setData({
               platform: sessionData.platform,
-              uid_email: uid || '',
+              uid_email: '',
               type: sessionData.type,
               amount: sessionData.amount,
               price: sessionData.price.toString(),
@@ -254,10 +275,22 @@ export default function TopupPaymentPage() {
               diamonds: sessionData.diamonds,
               storage: sessionData.storage,
               zone: sessionData.zone,
-              konamiPassword: sessionData.konamiPassword,
+              konamiPassword: '',
+              gameId: sessionData.gameId || 'no',
+              emailId: sessionData.emailId || 'no',
             });
 
-            // Set quantity from session data
+            setCheckout(
+              resolveCheckoutConfig({
+                checkout: sessionData.checkout,
+                platform: sessionData.platform,
+                type: sessionData.type,
+                gameId: sessionData.gameId,
+                emailId: sessionData.emailId,
+                zone: sessionData.zone,
+              }),
+            );
+
             setQuantity(sessionData.quantity || 1);
 
             // Initialize price states with quantity consideration
@@ -319,7 +352,7 @@ export default function TopupPaymentPage() {
 
     setData({
       platform,
-      uid_email: uid || '',
+      uid_email: '',
       type,
       amount,
       price,
@@ -329,8 +362,19 @@ export default function TopupPaymentPage() {
       storage: searchParams.get('storage') || '',
       zone: searchParams.get('zone') || '',
       konamiPassword: searchParams.get('konamiPassword') || '',
+      gameId: searchParams.get('gameId') || 'no',
+      emailId: searchParams.get('emailId') || 'no',
     });
     setReferredBy(searchParams.get('referredBy') || '');
+    setCheckout(
+      resolveCheckoutConfig({
+        platform,
+        type,
+        gameId: searchParams.get('gameId') || 'no',
+        emailId: searchParams.get('emailId') || 'no',
+        zone: searchParams.get('zone') || 'no',
+      }),
+    );
 
     // Initialize price states (for fallback URL parameters)
     const priceNum = parseFloat(price || '0');
@@ -338,7 +382,7 @@ export default function TopupPaymentPage() {
     setFinalPrice(Math.round(priceNum));
     // Set default quantity to 1 for fallback
     setQuantity(1);
-  }, [searchParams, uid]);
+  }, [searchParams]);
 
   // Recalculate price when quantity changes
   useEffect(() => {
@@ -380,10 +424,6 @@ export default function TopupPaymentPage() {
       setReceipt(e.target.files[0]);
     }
   };
-
-  const validatePhone = (phone: string) => /^(97|98)\d{8}$/.test(phone);
-  const validateEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validatePromocode = async () => {
     if (!promocode.trim()) {
@@ -493,100 +533,6 @@ export default function TopupPaymentPage() {
     toast.success('Promocode removed');
   };
 
-  // UID/Email label and placeholder logic
-  let idLabel = 'Email Address';
-  let idPlaceholder = 'Enter your email address';
-  let idType: 'text' | 'email' = 'text';
-
-  // console.log(data.platform);
-
-  if (data.platform === 'freefire') {
-    idLabel = 'Free Fire UID';
-    idPlaceholder = 'Enter your Free Fire UID';
-  } else if (data.platform === 'pubg') {
-    idLabel = 'PUBG ID / Player ID';
-    idPlaceholder = 'Enter your PUBG Player ID';
-  } else if (data.platform === 'garena') {
-    idLabel = 'Garena Account ID';
-    idPlaceholder = 'Enter your Garena Account ID';
-  } else if (data.platform === 'netflix') {
-    idLabel = 'Email Address';
-    idPlaceholder = 'Enter your email address';
-    idType = 'email';
-  } else if (data.platform === 'prime-video') {
-    idLabel = 'Email Address';
-    idPlaceholder = 'Enter your email address';
-    idType = 'email';
-  } else if (data.platform === 'spotify') {
-    idLabel = 'Spotify Username';
-    idPlaceholder = 'Enter your Spotify username';
-  } else if (data.platform === 'youtube-premium') {
-    idLabel = 'Gmail Account ID';
-    idPlaceholder = 'Enter your Google Account ID';
-    idType = 'email';
-  } else if (data.platform === 'poppo') {
-    idLabel = 'Poppo ID';
-    idPlaceholder = 'Enter your Poppo ID';
-  } else if (data.platform === 'canva' && data.type === 'pro') {
-    idLabel = 'Email Address';
-    idPlaceholder = 'Enter your email address';
-    idType = 'email';
-  } else if (data.platform === 'paypal') {
-    idLabel = 'PayPal Email';
-    idPlaceholder = 'Enter your PayPal email';
-    idType = 'email';
-  } else if (data.platform === 'skrill') {
-    idLabel = 'Skrill Email';
-    idPlaceholder = 'Enter your Skrill email';
-    idType = 'email';
-  } else if (
-    data.platform === 'chatgpt' ||
-    data.platform === 'chatgpt-one-year'
-  ) {
-    idLabel = 'Enter your email address';
-    idPlaceholder = 'Enter your email address';
-    idType = 'email';
-  } else if (data.platform === 'instagram') {
-    idLabel =
-      data.type === 'followers' ? 'Instagram Username' : 'Instagram Post Link';
-    idPlaceholder =
-      data.type === 'followers'
-        ? 'Enter your Instagram username (Paste your username)'
-        : 'Enter your Instagram post link (Paste your post link)';
-  } else if (data.platform === 'facebook') {
-    idLabel =
-      data.type === 'followers' ? 'Facebook Username' : 'Facebook Post Link';
-    idPlaceholder =
-      data.type === 'followers'
-        ? 'Enter your Facebook username (Paste your username)'
-        : 'Enter your Facebook post link (Paste your post link)';
-  } else if (data.platform === 'youtube') {
-    idLabel = 'YouTube Channel URL';
-    idPlaceholder = 'Enter your YouTube channel URL';
-  } else if (data.platform === 'tiktok' && data.type !== 'coins') {
-    idLabel =
-      data.type === 'followers' ? 'TikTok Username' : 'TikTok Post Link';
-    idPlaceholder =
-      data.type === 'followers'
-        ? 'Enter your TikTok username (Paste your username)'
-        : 'Enter your TikTok post link (Paste your post link)';
-  } else if (data.platform === 'MLBB') {
-    idLabel = 'Enter user Id';
-    idPlaceholder = 'Enter user ID';
-  } else if (data.platform === 'konami') {
-    idLabel = 'Enter your email address';
-    idPlaceholder = 'Enter your email address';
-  } else if (data.platform === 'Age of empires mobile ') {
-    idLabel = 'Age of empires mobile User ID';
-    idPlaceholder = 'Enter your Age of empires mobile User ID';
-  } else if (
-    data.platform === 'Clash of clans gems' ||
-    data.platform === 'Gems'
-  ) {
-    idLabel = 'Supercell ID';
-    idPlaceholder = 'Enter your Supercell ID';
-  }
-  // ----------- Submission Logic -----------
   const handleSubmit = async () => {
     // Prevent multiple submissions
     if (isSubmitting) return;
@@ -611,59 +557,15 @@ export default function TopupPaymentPage() {
       return;
     }
 
-    if (data.platform === 'MLBB' && !data.zone.trim()) {
-      toast.error('Zone is required.');
+    const checkoutError = validateCheckoutFields(checkout, checkoutFields);
+    if (checkoutError) {
+      toast.error(checkoutError);
       return;
     }
 
-    if (data.platform === 'tiktok' && data.type === 'coins') {
-      if (!loginId || !tiktokPassword || !loginMethod || !phone || !receipt) {
-        toast.error(
-          'Please fill in all required TikTok fields and upload the receipt.',
-        );
-        return;
-      }
-      if (!validatePhone(phone)) {
-        toast.error('Please enter a valid Nepali phone number.');
-        return;
-      }
-    } else if (data.platform === 'facebook' && data.type !== 'followers') {
-      if (!uid || !phone || !receipt) {
-        toast.error(
-          'कृपया Facebook को Profile वा Page को Link, फोन, र Receipt अपलोड गर्नुहोस्।',
-        );
-        return;
-      }
-      if (!validatePhone(phone)) {
-        toast.error('Please enter a valid Nepali phone number.');
-        return;
-      }
-    } else {
-      if (
-        (!uid && !(data.platform === 'tiktok' && data.type === 'coins')) ||
-        !phone ||
-        (selectedPaymentMethod !== 'wallet' && !receipt) ||
-        (data.platform === 'garena' && !password)
-      ) {
-        toast.error(
-          selectedPaymentMethod === 'wallet'
-            ? 'Please fill in all required fields for wallet payment.'
-            : 'Please fill in all required fields and upload the receipt.',
-        );
-        return;
-      }
-      if (data.platform === 'netflix' && !validateEmail(uid)) {
-        toast.error('Please enter a valid email address for Netflix.');
-        return;
-      }
-      if (data.platform === 'youtube-premium' && !validateEmail(uid)) {
-        toast.error('Please enter a valid Gmail address for YouTube Premium.');
-        return;
-      }
-      if (!validatePhone(phone)) {
-        toast.error('Please enter a valid Nepali phone number.');
-        return;
-      }
+    if (selectedPaymentMethod !== 'wallet' && !receipt) {
+      toast.error('Please upload your payment receipt.');
+      return;
     }
 
     // Check wallet balance if wallet payment is selected
@@ -680,20 +582,11 @@ export default function TopupPaymentPage() {
       }
     }
 
-    let finalUidEmail =
-      data.platform === 'tiktok' && data.type === 'coins' ? loginId : uid;
+    const finalUidEmail = buildUidEmailForOrder(checkout, checkoutFields);
 
-    if (data.platform === 'MLBB' || data.platform === 'konami') {
-      finalUidEmail = `${uid} - ${
-        data.platform === 'konami' ? data.konamiPassword : data.zone
-      }`;
-    }
-
-    // Build FormData for file upload
     const formData = new FormData();
     formData.append('uid_email', finalUidEmail);
-
-    formData.append('phone', phone);
+    formData.append('phone', checkoutFields.phone);
     formData.append('platform', data.platform);
     formData.append('type', data.type);
     if (data.amount) formData.append('amount', data.amount);
@@ -706,22 +599,25 @@ export default function TopupPaymentPage() {
     if (data.level) formData.append('level', data.level);
     if (data.diamonds) formData.append('diamonds', data.diamonds);
     if (data.storage) formData.append('storage', data.storage);
-    if (data.zone) formData.append('zone', data.zone);
+    if (checkoutFields.zone) formData.append('zone', checkoutFields.zone);
 
     if (referredBy.trim()) formData.append('referredBy', referredBy.trim());
     formData.append('paymentMethod', selectedPaymentMethod);
 
-    // Add promocode data if applied
     if (appliedPromocode) {
       formData.append('promocode', appliedPromocode.name);
     }
 
-    if (data.platform === 'garena' && password) {
-      formData.append('password', password);
+    if (checkout.requiresAccountPassword && checkoutFields.password) {
+      formData.append('password', checkoutFields.password);
+      formData.append('garenaPassword', checkoutFields.password);
     }
-    if (data.platform === 'tiktok' && data.type === 'coins') {
-      formData.append('tiktokPassword', tiktokPassword);
-      formData.append('loginMethod', loginMethod);
+    if (checkout.requiresServicePassword && checkoutFields.servicePassword) {
+      formData.append('password', checkoutFields.servicePassword);
+    }
+    if (checkout.requiresSocialLogin) {
+      formData.append('tiktokPassword', checkoutFields.tiktokPassword);
+      formData.append('loginMethod', checkoutFields.loginMethod);
     }
     if (receipt && selectedPaymentMethod !== 'wallet') {
       formData.append('receipt', receipt);
@@ -1090,6 +986,16 @@ export default function TopupPaymentPage() {
         {data.type === 'usd' ? data.type.toUpperCase() : data.type} Payment
       </h1>
 
+      <div className="mx-auto max-w-3xl rounded-3xl border border-blue-200 bg-gradient-to-r from-sky-50 to-blue-50 p-4 mb-4">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+          Get 2% Cashback on purchases of Rs. 500 or more!
+        </p>
+        <p className="text-sm text-blue-700 mt-1">
+          Eligible cashback is added automatically to your wallet after your
+          order is completed.
+        </p>
+      </div>
+
       <p className="text-center text-lg mb-2">{summary}</p>
 
       <p className="text-sm text-center text-gray-500 italic">
@@ -1097,152 +1003,11 @@ export default function TopupPaymentPage() {
         info may delay your delivery.
       </p>
 
-      {/* TikTok Coin Purchase: Login Fields */}
-      {data.platform === 'tiktok' && data.type === 'coins' && (
-        <div className="space-y-3">
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              TikTok Login ID <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter your TikTok Login ID"
-              value={loginId}
-              onChange={(e) => setLoginId(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              TikTok Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              placeholder="Enter your TikTok password"
-              value={tiktokPassword}
-              onChange={(e) => setTiktokPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg"
-              autoComplete="current-password"
-            />
-          </div>
-          <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              Login Method <span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer font-medium">
-                <input
-                  type="radio"
-                  value="google"
-                  checked={loginMethod === 'google'}
-                  onChange={() => setLoginMethod('google')}
-                  className="accent-[#ff0050]"
-                />
-                Google
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer font-medium">
-                <input
-                  type="radio"
-                  value="facebook"
-                  checked={loginMethod === 'facebook'}
-                  onChange={() => setLoginMethod('facebook')}
-                  className="accent-[#1877f2]"
-                />
-                Facebook
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* UID or Email Field (not for TikTok coins) */}
-      {!(data.platform === 'tiktok' && data.type === 'coins') && (
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            {idLabel} <span className="text-red-500">*</span>
-          </label>
-          <input
-            type={idType}
-            placeholder={idPlaceholder}
-            value={uid}
-            onChange={(e) => setUid(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-      )}
-
-      {/* Garena Password */}
-      {data.platform === 'garena' && (
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            Garena Password <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            placeholder="Enter your Garena password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            autoComplete="current-password"
-          />
-        </div>
-      )}
-
-      {data.platform === 'MLBB' && (
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            Zone <span className="text-red-500">*</span>
-          </label>
-          <input
-            type={idType}
-            placeholder="Enter Zone"
-            value={data.zone}
-            onChange={(e) =>
-              setData((prev) => ({ ...prev, zone: e.target.value }))
-            }
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-      )}
-
-      {data.platform === 'konami' && (
-        <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            Konami Password <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter your Konami Password"
-            value={data.konamiPassword}
-            onChange={(e) =>
-              setData((prev) => ({ ...prev, konamiPassword: e.target.value }))
-            }
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-
-          <p className="text-xs text-gray-500 mt-1">
-            Password is the password you use to login to your Konami account.
-          </p>
-
-          <p className="text-xs text-red-500 font-bold mt-1">
-            Please contact the admin to get one time code for your konami
-            account after the successful purchase.
-          </p>
-        </div>
-      )}
-      {/* Phone */}
-      <div>
-        <label className="block mb-1 font-medium text-gray-700">
-          Phone Number <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="tel"
-          placeholder="9800000000"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full px-4 py-2 border rounded-lg"
-        />
-      </div>
+      <CheckoutFieldsForm
+        checkout={checkout}
+        values={checkoutFields}
+        onChange={handleCheckoutFieldChange}
+      />
 
       {/* Quantity */}
       <div>

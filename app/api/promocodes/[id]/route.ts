@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Promocode from '@/lib/models/Promocode';
 import connectDB from '@/config/db';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { name, maxCount, expiry, discountPercentage, isActive } = body;
 
@@ -83,12 +87,15 @@ export async function PUT(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { isActive } = body;
 
@@ -127,12 +134,15 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
 
     // Check if promocode exists
     const existingPromocode = await Promocode.findById(id);

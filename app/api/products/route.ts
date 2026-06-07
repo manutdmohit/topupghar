@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Product } from '@/models/Product';
 import connectDB from '@/config/db';
+import { requireAdmin } from '@/lib/admin-auth';
+import { normalizeCheckoutInput } from '@/lib/checkout-config';
 import { v2 as cloudinary } from 'cloudinary';
 
 // Configure Cloudinary
@@ -97,6 +99,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) return auth.response;
+
     await connectDB();
 
     const formData = await req.formData();
@@ -192,7 +197,17 @@ export async function POST(req: NextRequest) {
     }
 
     const newProduct = new Product({
-      ...productData,
+      name: productData.name,
+      slug: productData.slug,
+      platform: productData.platform,
+      category: productData.category,
+      type: productData.type,
+      description: productData.description,
+      variants: productData.variants,
+      discountPercentage: productData.discountPercentage ?? 0,
+      inStock: productData.inStock ?? true,
+      isActive: productData.isActive ?? true,
+      checkout: normalizeCheckoutInput(productData.checkout),
       image: imageUrl,
     });
 
