@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -21,6 +20,12 @@ import {
   resolveCheckoutConfig,
   type ProductCheckoutConfig,
 } from '@/lib/checkout-config';
+import {
+  PaymentMethodSelector,
+  getSelectedPaymentMethodInstructions,
+  getSelectedPaymentMethodLabel,
+} from '@/components/payment/PaymentMethodSelector';
+import { usePaymentMethods } from '@/hooks/usePaymentMethods';
 
 // Remove client-side token verification - will use API route instead
 
@@ -185,6 +190,7 @@ export default function TopupPaymentPage() {
   const [isAgeConfirmed, setIsAgeConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const { paymentMethods, loading: paymentMethodsLoading } = usePaymentMethods();
 
   // Promocode fields
   const [promocode, setPromocode] = useState('');
@@ -1165,125 +1171,30 @@ export default function TopupPaymentPage() {
         <p className="text-center text-lg font-semibold text-gray-700 mb-4">
           Choose your payment method <span className="text-red-500">*</span>
         </p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          {[
-            {
-              id: 'wallet',
-              label: 'Wallet Balance',
-              qrImage: '/wallet.svg',
-              color: 'from-blue-400 to-blue-600',
-              borderColor: 'border-blue-300',
-              selectedBorderColor: 'border-blue-500',
-              icon: '💰',
-            },
-            {
-              id: 'esewa',
-              label: 'eSewa',
-              qrImage: '/esewa.jpg',
-              color: 'from-orange-400 to-orange-600',
-              borderColor: 'border-orange-300',
-              selectedBorderColor: 'border-orange-500',
-              icon: '💳',
-            },
-            // {
-            //   id: 'khalti',
-            //   label: 'Khalti/IME',
-            //   qrImage: '/khalti.jpg',
-            //   color: 'from-purple-400 to-purple-600',
-            //   borderColor: 'border-purple-300',
-            //   selectedBorderColor: 'border-purple-500',
-            //   icon: '📱',
-            // },
-            {
-              id: 'bank',
-              label: 'Bank Transfer',
-              qrImage: '/bank.jpg',
-              color: 'from-green-400 to-green-600',
-              borderColor: 'border-green-300',
-              selectedBorderColor: 'border-green-500',
-              icon: '🏦',
-            },
-          ].map((method) => (
-            <div
-              key={method.id}
-              onClick={() => setSelectedPaymentMethod(method.id)}
-              className={`relative cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                selectedPaymentMethod === method.id
-                  ? `${method.selectedBorderColor} border-2 shadow-lg scale-105`
-                  : `${method.borderColor} border-2 hover:border-gray-400`
-              } rounded-xl p-4 lg:p-6 text-center bg-white shadow-sm`}
-            >
-              {/* Selection Indicator */}
-              {selectedPaymentMethod === method.id && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              )}
-
-              {/* Method Icon */}
-              <div className="text-3xl lg:text-4xl mb-3">{method.icon}</div>
-
-              {/* Method Label */}
-              <p className="font-semibold text-gray-800 mb-3 text-base lg:text-lg">
-                {method.label}
-              </p>
-
-              {/* QR Code */}
-              <div className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 mx-auto mb-4 flex items-center justify-center">
-                <Image
-                  src={method.qrImage}
-                  alt={`${method.label} QR`}
-                  width={256}
-                  height={256}
-                  className="object-contain w-full h-full"
-                />
-              </div>
-
-              {/* Selection Status */}
-              <div
-                className={`text-sm lg:text-base font-medium ${
-                  selectedPaymentMethod === method.id
-                    ? 'text-green-600'
-                    : 'text-gray-500'
-                }`}
-              >
-                {selectedPaymentMethod === method.id
-                  ? '✓ Selected'
-                  : 'Click to select'}
-              </div>
-            </div>
-          ))}
-        </div>
+        <PaymentMethodSelector
+          methods={paymentMethods}
+          selectedSlug={selectedPaymentMethod}
+          onSelect={setSelectedPaymentMethod}
+          includeWallet={!!session?.user?.id}
+          variant="checkout"
+          loading={paymentMethodsLoading}
+        />
 
         {/* Selected Payment Method Info */}
         {selectedPaymentMethod && (
           <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <span className="font-semibold">Selected:</span>{' '}
-              {selectedPaymentMethod === 'wallet'
-                ? 'Wallet Balance'
-                : selectedPaymentMethod === 'esewa'
-                  ? 'eSewa'
-                  : selectedPaymentMethod === 'khalti'
-                    ? 'Khalti/IME'
-                    : selectedPaymentMethod === 'bank'
-                      ? 'Bank Transfer'
-                      : ''}
+              {getSelectedPaymentMethodLabel(
+                paymentMethods,
+                selectedPaymentMethod,
+              )}
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              {selectedPaymentMethod === 'wallet'
-                ? 'Your wallet balance will be deducted immediately and the order will be pending admin review.'
-                : 'Please scan the QR code above and upload your payment receipt after completing the transaction.'}
+              {getSelectedPaymentMethodInstructions(
+                paymentMethods,
+                selectedPaymentMethod,
+              )}
             </p>
             {selectedPaymentMethod === 'wallet' && (
               <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">

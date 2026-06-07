@@ -134,6 +134,12 @@ export function CheckoutFieldsForm({
         </div>
       )}
 
+      {checkout.customerNote?.trim() && (
+        <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+          {checkout.customerNote.trim()}
+        </p>
+      )}
+
       {checkout.requiresSeparateZone && (
         <div>
           <label className="block mb-1 font-medium text-gray-700">

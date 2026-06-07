@@ -75,6 +75,7 @@ const CheckoutSchema = new Schema<ProductCheckoutConfig>(
     },
     requiresSeparateZone: { type: Boolean, default: false },
     zoneLabel: { type: String },
+    customerNote: { type: String },
   },
   { _id: false },
 );

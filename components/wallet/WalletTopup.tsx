@@ -7,37 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Upload, Wallet, CreditCard } from 'lucide-react';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  image: string;
-  description?: string;
-}
-
-const paymentMethods: PaymentMethod[] = [
-  {
-    id: 'esewa',
-    name: 'eSewa',
-    image: '/esewa.jpg',
-    description: 'Digital wallet & payment gateway',
-  },
-  {
-    id: 'khalti',
-    name: 'Khalti',
-    image: '/khalti.jpg',
-    description: 'Digital wallet & payment solution',
-  },
-  {
-    id: 'bank_transfer',
-    name: 'Bank Transfer',
-    image: '/bank.jpg',
-    description: 'Direct bank transfer',
-  },
-];
+import { PaymentMethodSelector } from '@/components/payment/PaymentMethodSelector';
+import { usePaymentMethods } from '@/hooks/usePaymentMethods';
 
 export default function WalletTopup() {
   const { data: session } = useSession();
+  const { paymentMethods, loading: paymentMethodsLoading } = usePaymentMethods();
   const [amount, setAmount] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
@@ -190,33 +165,14 @@ export default function WalletTopup() {
             <span className="text-green-600 text-sm">✓</span>
           )}
         </Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
-          {paymentMethods.map((method) => (
-            <button
-              key={method.id}
-              type="button"
-              onClick={() => setSelectedPaymentMethod(method.id)}
-              className={`p-4 sm:p-6 lg:p-10 border-2 rounded-lg transition-all duration-200 hover:shadow-md ${
-                selectedPaymentMethod === method.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
-            >
-              <div className="text-center">
-                <img
-                  src={method.image}
-                  alt={method.name}
-                  className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-contain mx-auto mb-3 rounded-lg"
-                />
-                <p className="font-medium text-gray-900 text-sm sm:text-base">
-                  {method.name}
-                </p>
-                <p className="text-xs text-gray-600 mt-1 hidden sm:block">
-                  {method.description}
-                </p>
-              </div>
-            </button>
-          ))}
+        <div className="mb-6 sm:mb-8">
+          <PaymentMethodSelector
+            methods={paymentMethods}
+            selectedSlug={selectedPaymentMethod}
+            onSelect={setSelectedPaymentMethod}
+            variant="wallet"
+            loading={paymentMethodsLoading}
+          />
         </div>
       </div>
 
@@ -335,11 +291,11 @@ export default function WalletTopup() {
             <div className="flex items-center gap-3">
               <img
                 src={
-                  paymentMethods.find((m) => m.id === selectedPaymentMethod)
-                    ?.image
+                  paymentMethods.find((m) => m.slug === selectedPaymentMethod)
+                    ?.qrImage
                 }
                 alt={
-                  paymentMethods.find((m) => m.id === selectedPaymentMethod)
+                  paymentMethods.find((m) => m.slug === selectedPaymentMethod)
                     ?.name
                 }
                 className="w-10 h-10 sm:w-12 sm:h-12 object-contain rounded-lg border bg-white p-1"
@@ -347,13 +303,13 @@ export default function WalletTopup() {
               <div>
                 <p className="font-medium text-gray-900 text-sm sm:text-base">
                   {
-                    paymentMethods.find((m) => m.id === selectedPaymentMethod)
+                    paymentMethods.find((m) => m.slug === selectedPaymentMethod)
                       ?.name
                   }
                 </p>
                 <p className="text-xs sm:text-sm text-gray-600">
                   {
-                    paymentMethods.find((m) => m.id === selectedPaymentMethod)
+                    paymentMethods.find((m) => m.slug === selectedPaymentMethod)
                       ?.description
                   }
                 </p>

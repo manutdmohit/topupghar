@@ -168,6 +168,22 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
           />
         )}
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Customer note (optional)
+        </label>
+        <textarea
+          value={checkout.customerNote || ''}
+          onChange={(e) => update({ customerNote: e.target.value })}
+          placeholder='e.g. Please contact the admin to get one time code for your account after the successful phase'
+          rows={3}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Shown on the payment page after credential fields (email, passwords, etc.)
+        </p>
+      </div>
     </div>
   );
 }
