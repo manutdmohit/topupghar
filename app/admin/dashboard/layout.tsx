@@ -19,6 +19,7 @@ import {
   Wallet,
   ChevronDown,
   MessageSquare,
+  CreditCard,
 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -97,6 +98,11 @@ export default function DashboardLayout({
     { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingCart },
     { name: 'Customers', href: '/admin/dashboard/customers', icon: User },
     { name: 'Wallet', href: '/admin/dashboard/wallet', icon: Wallet },
+    {
+      name: 'Payment Methods',
+      href: '/admin/dashboard/payment-methods',
+      icon: CreditCard,
+    },
     {
       name: 'Popup Management',
       href: '/admin/dashboard/popup',

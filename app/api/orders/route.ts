@@ -15,6 +15,7 @@ import {
   sendPaymentDetailsToTelegram,
   sendSimpleNotificationToTelegram,
 } from '@/lib/telegram-service';
+import { isValidExternalPaymentMethod } from '@/lib/payment-methods';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -69,6 +70,24 @@ export const POST = async (req: NextRequest) => {
     const formData = await req.formData();
     const receipt = formData.get('receipt') as File | null;
     const paymentMethod = formData.get('paymentMethod') as string;
+
+    if (!paymentMethod) {
+      return NextResponse.json(
+        { message: 'Payment method is required.' },
+        { status: 400 },
+      );
+    }
+
+    if (paymentMethod !== 'wallet') {
+      const paymentMethodValid =
+        await isValidExternalPaymentMethod(paymentMethod);
+      if (!paymentMethodValid) {
+        return NextResponse.json(
+          { message: 'Invalid or disabled payment method.' },
+          { status: 400 },
+        );
+      }
+    }
 
     // Prepare order data from form fields
     const orderData: { [key: string]: any } = {};

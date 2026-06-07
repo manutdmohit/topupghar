@@ -8,6 +8,7 @@ import {
   sendWalletTopupDetailsToTelegram,
   sendSimpleNotificationToTelegram,
 } from '@/lib/telegram-service';
+import { isValidExternalPaymentMethod } from '@/lib/payment-methods';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,6 +35,14 @@ export async function POST(request: NextRequest) {
     if (amount <= 0) {
       return NextResponse.json(
         { error: 'Amount must be greater than 0' },
+        { status: 400 }
+      );
+    }
+
+    const paymentMethodValid = await isValidExternalPaymentMethod(paymentMethod);
+    if (!paymentMethodValid) {
+      return NextResponse.json(
+        { error: 'Invalid or disabled payment method' },
         { status: 400 }
       );
     }

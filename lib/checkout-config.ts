@@ -23,6 +23,8 @@ export interface ProductCheckoutConfig {
   socialLoginMethods?: SocialLoginMethod[];
   requiresSeparateZone?: boolean;
   zoneLabel?: string;
+  /** Optional message shown on checkout after credential fields */
+  customerNote?: string;
 }
 
 export const DEFAULT_CHECKOUT: ProductCheckoutConfig = {
