@@ -22,6 +22,15 @@ interface CheckoutFieldsFormProps {
   onChange: (field: keyof CheckoutFieldValues, value: string) => void;
 }
 
+function OptionalLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="block mb-1 font-medium text-gray-700">
+      {children}
+      <span className="text-gray-500 font-normal"> (optional)</span>
+    </label>
+  );
+}
+
 export function CheckoutFieldsForm({
   checkout,
   values,
@@ -34,9 +43,7 @@ export function CheckoutFieldsForm({
       {checkout.requiresSocialLogin && (
         <div className="space-y-3">
           <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              Login ID <span className="text-red-500">*</span>
-            </label>
+            <OptionalLabel>Login ID</OptionalLabel>
             <input
               type="text"
               placeholder="Enter your login ID"
@@ -46,9 +53,7 @@ export function CheckoutFieldsForm({
             />
           </div>
           <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              Account Password <span className="text-red-500">*</span>
-            </label>
+            <OptionalLabel>Account Password</OptionalLabel>
             <input
               type="password"
               placeholder="Enter your account password"
@@ -59,9 +64,7 @@ export function CheckoutFieldsForm({
             />
           </div>
           <div>
-            <label className="block mb-1 font-medium text-gray-700">
-              Login Method <span className="text-red-500">*</span>
-            </label>
+            <OptionalLabel>Login Method</OptionalLabel>
             <div className="flex gap-6">
               {(checkout.socialLoginMethods ?? ['google', 'facebook']).map(
                 (method) => (
@@ -87,9 +90,7 @@ export function CheckoutFieldsForm({
 
       {!checkout.requiresSocialLogin && checkout.identifier !== 'none' && (
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            {identifierMeta.label} <span className="text-red-500">*</span>
-          </label>
+          <OptionalLabel>{identifierMeta.label}</OptionalLabel>
           <input
             type={identifierMeta.inputType}
             placeholder={identifierMeta.placeholder}
@@ -102,29 +103,27 @@ export function CheckoutFieldsForm({
 
       {checkout.requiresAccountPassword && (
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            {checkout.accountPasswordLabel || 'Account Password'}{' '}
-            <span className="text-red-500">*</span>
-          </label>
+          <OptionalLabel>
+            {checkout.accountPasswordLabel || 'Account Password'}
+          </OptionalLabel>
           <input
-            type="password"
+            type="text"
             placeholder={`Enter your ${checkout.accountPasswordLabel || 'account password'}`}
             value={values.password}
             onChange={(e) => onChange('password', e.target.value)}
             className="w-full px-4 py-2 border rounded-lg"
-            autoComplete="current-password"
+            autoComplete="off"
           />
         </div>
       )}
 
       {checkout.requiresServicePassword && (
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            {checkout.servicePasswordLabel || 'Service Password'}{' '}
-            <span className="text-red-500">*</span>
-          </label>
+          <OptionalLabel>
+            {checkout.servicePasswordLabel || 'Service Password'}
+          </OptionalLabel>
           <input
-            type="password"
+            type="text"
             placeholder={`Enter your ${checkout.servicePasswordLabel || 'service password'}`}
             value={values.servicePassword}
             onChange={(e) => onChange('servicePassword', e.target.value)}
@@ -142,9 +141,7 @@ export function CheckoutFieldsForm({
 
       {checkout.requiresSeparateZone && (
         <div>
-          <label className="block mb-1 font-medium text-gray-700">
-            {checkout.zoneLabel || 'Zone'} <span className="text-red-500">*</span>
-          </label>
+          <OptionalLabel>{checkout.zoneLabel || 'Zone'}</OptionalLabel>
           <input
             type="text"
             placeholder="Enter your zone"
@@ -156,9 +153,7 @@ export function CheckoutFieldsForm({
       )}
 
       <div>
-        <label className="block mb-1 font-medium text-gray-700">
-          Phone Number <span className="text-red-500">*</span>
-        </label>
+        <OptionalLabel>Phone Number</OptionalLabel>
         <input
           type="tel"
           placeholder="9800000000"
@@ -179,35 +174,15 @@ export function validateCheckoutFields(
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  if (checkout.requiresSocialLogin) {
-    if (!values.loginId || !values.tiktokPassword || !values.loginMethod) {
-      return 'Please fill in all social login fields.';
-    }
-  } else if (checkout.identifier !== 'none' && !values.uid.trim()) {
-    return `Please enter your ${getIdentifierFieldMeta(checkout).label.toLowerCase()}.`;
-  }
-
-  if (checkout.requiresAccountPassword && !values.password) {
-    return 'Please enter your account password.';
-  }
-
-  if (checkout.requiresServicePassword && !values.servicePassword) {
-    return 'Please enter the service password.';
-  }
-
-  if (checkout.requiresSeparateZone && !values.zone.trim()) {
-    return 'Please enter your zone.';
-  }
-
-  if (!values.phone) {
-    return 'Please enter your phone number.';
-  }
-
-  if (!validatePhone(values.phone)) {
+  if (values.phone.trim() && !validatePhone(values.phone)) {
     return 'Please enter a valid Nepali phone number.';
   }
 
-  if (checkout.identifier === 'email' && values.uid && !validateEmail(values.uid)) {
+  if (
+    checkout.identifier === 'email' &&
+    values.uid.trim() &&
+    !validateEmail(values.uid)
+  ) {
     return 'Please enter a valid email address.';
   }
 

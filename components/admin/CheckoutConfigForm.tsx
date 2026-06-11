@@ -24,6 +24,11 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
 
   return (
     <div className="space-y-6">
+      <p className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+        All checkout fields shown to customers are optional. Enable only the
+        fields you want to collect.
+      </p>
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Customer identifier field <span className="text-red-500">*</span>
@@ -89,7 +94,7 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
             className="rounded border-gray-300"
           />
           <span className="text-sm text-gray-700">
-            Requires account password (e.g. Garena)
+            Show account password / extra field (optional)
           </span>
         </label>
 
@@ -98,8 +103,8 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
             type="text"
             value={checkout.accountPasswordLabel || ''}
             onChange={(e) => update({ accountPasswordLabel: e.target.value })}
-            placeholder="Password field label (default: Account Password)"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            placeholder="Field label (e.g. In game name, Garena Password)"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg ml-6"
           />
         )}
 
@@ -113,7 +118,7 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
             className="rounded border-gray-300"
           />
           <span className="text-sm text-gray-700">
-            Requires service password (e.g. Konami)
+            Show service password field (optional, e.g. Konami)
           </span>
         </label>
 
@@ -140,7 +145,7 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
             className="rounded border-gray-300"
           />
           <span className="text-sm text-gray-700">
-            Requires social login (ID + password + Google/Facebook)
+            Show social login fields (optional)
           </span>
         </label>
 
@@ -154,7 +159,7 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
             className="rounded border-gray-300"
           />
           <span className="text-sm text-gray-700">
-            Requires separate zone field (e.g. MLBB)
+            Show separate zone field (optional, e.g. MLBB)
           </span>
         </label>
 
