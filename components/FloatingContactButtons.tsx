@@ -36,7 +36,7 @@ const FloatingContactButtons = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50">
       {/* Main Contact Button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -48,7 +48,7 @@ const FloatingContactButtons = () => {
 
       {/* Floating Contact Options */}
       <div
-        className={`absolute bottom-16 right-0 space-y-3 transition-all duration-300 z-50 ${
+        className={`absolute bottom-16 left-0 space-y-3 transition-all duration-300 z-50 ${
           isExpanded
             ? 'opacity-100 visible translate-y-0'
             : 'opacity-0 invisible translate-y-4'
@@ -64,7 +64,7 @@ const FloatingContactButtons = () => {
           aria-label="Contact us on WhatsApp"
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+          <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
             WhatsApp
           </span>
         </button>
@@ -79,7 +79,7 @@ const FloatingContactButtons = () => {
           aria-label="Contact us on Telegram"
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+          <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
             Telegram
           </span>
         </button>
@@ -94,7 +94,7 @@ const FloatingContactButtons = () => {
           aria-label="Visit our Facebook page"
         >
           <Facebook className="w-5 h-5" />
-          <span className="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+          <span className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
             Facebook
           </span>
         </button>

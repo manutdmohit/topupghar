@@ -13,12 +13,17 @@ const TawkChat = () => {
   const scriptUrl = 'https://embed.tawk.to/69c8b7fd0c50e01c367c3a4e/1jks0tdq6';
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') return;
     if (typeof window === 'undefined') return;
     if (document.getElementById('tawk-chat-script')) return;
 
     window.Tawk_API = window.Tawk_API || {};
     window.Tawk_LoadStart = new Date();
+    window.Tawk_API.customStyle = {
+      visibility: {
+        desktop: { position: 'br', xOffset: 24, yOffset: 24 },
+        mobile: { position: 'br', xOffset: 16, yOffset: 16 },
+      },
+    };
 
     const script = document.createElement('script');
     script.id = 'tawk-chat-script';

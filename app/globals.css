@@ -132,3 +132,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Tawk.to live chat — bottom right */
+#tawk-bubble-container,
+.tawk-min-container {
+  right: 1.5rem !important;
+  left: auto !important;
+  bottom: 1.5rem !important;
+}
