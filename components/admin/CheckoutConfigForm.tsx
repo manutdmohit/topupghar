@@ -25,8 +25,8 @@ export function CheckoutConfigForm({ value, onChange }: CheckoutConfigFormProps)
   return (
     <div className="space-y-6">
       <p className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-        All checkout fields shown to customers are optional. Enable only the
-        fields you want to collect.
+        The main identifier field (Game ID, email, etc.) and phone number are
+        always required on checkout. Extra fields below are optional.
       </p>
 
       <div>

@@ -78,6 +78,20 @@ export const CHECKOUT_IDENTIFIER_OPTIONS: Array<{
   },
 ];
 
+/** Main identifier field is required whenever it is shown on checkout. */
+export function isIdentifierRequired(checkout: ProductCheckoutConfig): boolean {
+  return (
+    checkout.identifier !== 'none' && !checkout.requiresSocialLogin
+  );
+}
+
+/** @deprecated Use isIdentifierRequired */
+export function isCustomIdentifierRequired(
+  checkout: ProductCheckoutConfig,
+): boolean {
+  return isIdentifierRequired(checkout);
+}
+
 export function getIdentifierFieldMeta(
   checkout: ProductCheckoutConfig,
 ): {

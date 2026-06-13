@@ -2,6 +2,7 @@
 
 import {
   getIdentifierFieldMeta,
+  isIdentifierRequired,
   type ProductCheckoutConfig,
 } from '@/lib/checkout-config';
 
@@ -22,13 +23,27 @@ interface CheckoutFieldsFormProps {
   onChange: (field: keyof CheckoutFieldValues, value: string) => void;
 }
 
-function OptionalLabel({ children }: { children: React.ReactNode }) {
+function FieldLabel({
+  children,
+  required = false,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+}) {
   return (
     <label className="block mb-1 font-medium text-gray-700">
       {children}
-      <span className="text-gray-500 font-normal"> (optional)</span>
+      {required ? (
+        <span className="text-red-500"> *</span>
+      ) : (
+        <span className="text-gray-500 font-normal"> (optional)</span>
+      )}
     </label>
   );
+}
+
+function OptionalLabel({ children }: { children: React.ReactNode }) {
+  return <FieldLabel required={false}>{children}</FieldLabel>;
 }
 
 export function CheckoutFieldsForm({
@@ -37,6 +52,7 @@ export function CheckoutFieldsForm({
   onChange,
 }: CheckoutFieldsFormProps) {
   const identifierMeta = getIdentifierFieldMeta(checkout);
+  const identifierRequired = isIdentifierRequired(checkout);
 
   return (
     <div className="space-y-4">
@@ -90,7 +106,9 @@ export function CheckoutFieldsForm({
 
       {!checkout.requiresSocialLogin && checkout.identifier !== 'none' && (
         <div>
-          <OptionalLabel>{identifierMeta.label}</OptionalLabel>
+          <FieldLabel required={identifierRequired}>
+            {identifierMeta.label}
+          </FieldLabel>
           <input
             type={identifierMeta.inputType}
             placeholder={identifierMeta.placeholder}
@@ -153,7 +171,7 @@ export function CheckoutFieldsForm({
       )}
 
       <div>
-        <OptionalLabel>Phone Number</OptionalLabel>
+        <FieldLabel required>Phone Number</FieldLabel>
         <input
           type="tel"
           placeholder="9800000000"
@@ -174,7 +192,15 @@ export function validateCheckoutFields(
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  if (values.phone.trim() && !validatePhone(values.phone)) {
+  if (isIdentifierRequired(checkout) && !values.uid.trim()) {
+    return `Please enter your ${getIdentifierFieldMeta(checkout).label.toLowerCase()}.`;
+  }
+
+  if (!values.phone.trim()) {
+    return 'Please enter your phone number.';
+  }
+
+  if (!validatePhone(values.phone)) {
     return 'Please enter a valid Nepali phone number.';
   }
 
