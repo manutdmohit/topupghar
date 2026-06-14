@@ -2,37 +2,15 @@
 
 import { MessageCircle, Facebook } from 'lucide-react';
 import { useState } from 'react';
+import { openContactLink } from '@/lib/contact-settings';
+import { useContactSettings } from '@/hooks/useContactSettings';
 
 const FloatingContactButtons = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const contactInfo = {
-    whatsapp: '+35795676054',
-    telegram: '+35795676054',
-    facebook: 'https://www.facebook.com/share/1HaEjS42Er/?mibextid=wwXIfr',
-  };
+  const { contactSettings } = useContactSettings();
 
   const handleContact = (type: 'whatsapp' | 'telegram' | 'facebook') => {
-    switch (type) {
-      case 'whatsapp':
-        window.open(
-          `https://wa.me/${contactInfo.whatsapp.replace(
-            /\D/g,
-            ''
-          )}?text=Hi, I need help with my order`,
-          '_blank'
-        );
-        break;
-      case 'telegram':
-        window.open(
-          `https://t.me/${contactInfo.telegram.replace('@', '')}`,
-          '_blank'
-        );
-        break;
-      case 'facebook':
-        window.open(contactInfo.facebook, '_blank');
-        break;
-    }
+    openContactLink(type, contactSettings);
   };
 
   return (

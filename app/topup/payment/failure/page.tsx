@@ -16,10 +16,13 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { generateFailedOrderId, formatOrderId } from '@/lib/order-utils';
+import { getTelegramUrl, getWhatsAppUrl } from '@/lib/contact-settings';
+import { useContactSettings } from '@/hooks/useContactSettings';
 
 export default function PaymentFailurePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { contactSettings } = useContactSettings();
   const [orderDetails, setOrderDetails] = useState({
     platform: '',
     type: '',
@@ -41,42 +44,28 @@ export default function PaymentFailurePage() {
     setOrderDetails({ platform, type, amount, price, orderId, error });
   }, [searchParams]);
 
-  const contactInfo = {
-    whatsapp: '+35795676054',
-    telegram: '+35795676054',
-    email: 'topup.ghar11@gmail.com',
-    phone: '+35795676054',
-  };
+  const email = 'topup.ghar11@gmail.com';
 
   const handleContact = (type: 'whatsapp' | 'telegram' | 'email' | 'phone') => {
     const message = `Hi, I'm having trouble with my payment. Order ID: ${orderDetails.orderId}. Error: ${orderDetails.error}`;
 
     switch (type) {
       case 'whatsapp':
-        window.open(
-          `https://wa.me/${contactInfo.whatsapp.replace(
-            /\D/g,
-            ''
-          )}?text=${encodeURIComponent(message)}`,
-          '_blank'
-        );
+        window.open(getWhatsAppUrl(contactSettings.whatsapp, message), '_blank');
         break;
       case 'telegram':
-        window.open(
-          `https://t.me/${contactInfo.telegram.replace('@', '')}`,
-          '_blank'
-        );
+        window.open(getTelegramUrl(contactSettings.telegram), '_blank');
         break;
       case 'email':
         window.open(
-          `mailto:${contactInfo.email}?subject=Payment Issue - ${
+          `mailto:${email}?subject=Payment Issue - ${
             orderDetails.orderId
           }&body=${encodeURIComponent(message)}`,
-          '_blank'
+          '_blank',
         );
         break;
       case 'phone':
-        window.open(`tel:${contactInfo.phone}`, '_blank');
+        window.open(`tel:${contactSettings.whatsapp}`, '_blank');
         break;
     }
   };
@@ -246,7 +235,7 @@ export default function PaymentFailurePage() {
                 <div className="text-left">
                   <div className="font-semibold">WhatsApp</div>
                   <div className="text-sm opacity-90">
-                    {contactInfo.whatsapp}
+                    {contactSettings.whatsapp}
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
@@ -260,7 +249,7 @@ export default function PaymentFailurePage() {
                 <div className="text-left">
                   <div className="font-semibold">Telegram</div>
                   <div className="text-sm opacity-90">
-                    {contactInfo.telegram}
+                    {contactSettings.telegram}
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
@@ -273,7 +262,7 @@ export default function PaymentFailurePage() {
                 <Mail className="w-5 h-5 mr-2" />
                 <div className="text-left">
                   <div className="font-semibold">Email</div>
-                  <div className="text-sm opacity-90">{contactInfo.email}</div>
+                  <div className="text-sm opacity-90">{email}</div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
               </Button>
@@ -285,7 +274,7 @@ export default function PaymentFailurePage() {
                 <Phone className="w-5 h-5 mr-2" />
                 <div className="text-left">
                   <div className="font-semibold">Phone</div>
-                  <div className="text-sm opacity-90">{contactInfo.phone}</div>
+                  <div className="text-sm opacity-90">{contactSettings.whatsapp}</div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
               </Button>

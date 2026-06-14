@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Mail,
   Phone,
@@ -24,8 +24,11 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { getTelegramUrl, getWhatsAppUrl } from '@/lib/contact-settings';
+import { useContactSettings } from '@/hooks/useContactSettings';
 
 export default function ContactUsPage() {
+  const { contactSettings } = useContactSettings();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -62,56 +65,62 @@ export default function ContactUsPage() {
     }, 3000);
   };
 
-  const contactInfo = [
-    {
-      icon: <Mail className="w-6 h-6" />,
-      title: 'Email Support',
-      details: ['topup.ghar11@gmail.com'],
-      description: 'Get response within 2 hours',
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      icon: <MessageCircle className="w-6 h-6" />,
-      title: 'WhatsApp Support',
-      details: ['+35795676054'],
-      description: 'Instant messaging support',
-      color: 'from-green-500 to-emerald-500',
-    },
-    {
-      icon: <MessageCircle className="w-6 h-6" />,
-      title: 'Telegram Support',
-      details: ['+35795676054'],
-      description: 'Quick response via Telegram',
-      color: 'from-blue-500 to-cyan-500',
-    },
-  ];
+  const contactInfo = useMemo(
+    () => [
+      {
+        icon: <Mail className="w-6 h-6" />,
+        title: 'Email Support',
+        details: ['topup.ghar11@gmail.com'],
+        description: 'Get response within 2 hours',
+        color: 'from-purple-500 to-pink-500',
+      },
+      {
+        icon: <MessageCircle className="w-6 h-6" />,
+        title: 'WhatsApp Support',
+        details: [contactSettings.whatsapp],
+        description: 'Instant messaging support',
+        color: 'from-green-500 to-emerald-500',
+      },
+      {
+        icon: <MessageCircle className="w-6 h-6" />,
+        title: 'Telegram Support',
+        details: [contactSettings.telegram],
+        description: 'Quick response via Telegram',
+        color: 'from-blue-500 to-cyan-500',
+      },
+    ],
+    [contactSettings],
+  );
 
-  const socialLinks = [
-    {
-      name: 'WhatsApp',
-      href: `https://wa.me/35795676054?text=Hi, I need help with my order`,
-      color: 'hover:bg-green-600',
-      icon: '📱',
-    },
-    {
-      name: 'Telegram',
-      href: 'https://t.me/+35795676054',
-      color: 'hover:bg-blue-600',
-      icon: '✈️',
-    },
-    {
-      name: 'Email',
-      href: 'mailto:topup.ghar11@gmail.com?subject=Support Request',
-      color: 'hover:bg-purple-600',
-      icon: '📧',
-    },
-    {
-      name: 'Facebook',
-      href: 'https://www.facebook.com/share/1HaEjS42Er/?mibextid=wwXIfr',
-      color: 'hover:bg-blue-700',
-      icon: '📘',
-    },
-  ];
+  const socialLinks = useMemo(
+    () => [
+      {
+        name: 'WhatsApp',
+        href: getWhatsAppUrl(contactSettings.whatsapp),
+        color: 'hover:bg-green-600',
+        icon: '📱',
+      },
+      {
+        name: 'Telegram',
+        href: getTelegramUrl(contactSettings.telegram),
+        color: 'hover:bg-blue-600',
+        icon: '✈️',
+      },
+      {
+        name: 'Email',
+        href: 'mailto:topup.ghar11@gmail.com?subject=Support Request',
+        color: 'hover:bg-purple-600',
+        icon: '📧',
+      },
+      {
+        name: 'Facebook',
+        href: contactSettings.facebook,
+        color: 'hover:bg-blue-700',
+        icon: '📘',
+      },
+    ],
+    [contactSettings],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-50">

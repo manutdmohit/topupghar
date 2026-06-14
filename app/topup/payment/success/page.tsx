@@ -15,10 +15,17 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { generateTempOrderId, formatOrderId } from '@/lib/order-utils';
+import {
+  getTelegramUrl,
+  getWhatsAppUrl,
+  openContactLink,
+} from '@/lib/contact-settings';
+import { useContactSettings } from '@/hooks/useContactSettings';
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { contactSettings } = useContactSettings();
   const [orderDetails, setOrderDetails] = useState({
     platform: '',
     type: '',
@@ -40,12 +47,7 @@ export default function PaymentSuccessPage() {
     setOrderDetails({ platform, type, amount, price, orderId, quantity });
   }, [searchParams]);
 
-  const contactInfo = {
-    whatsapp: '+35795676054',
-    telegram: '+35795676054',
-    email: 'topup.ghar11@gmail.com',
-    facebook: 'https://www.facebook.com/share/1HaEjS42Er/?mibextid=wwXIfr',
-  };
+  const email = 'topup.ghar11@gmail.com';
 
   const handleContact = (
     type: 'whatsapp' | 'telegram' | 'email' | 'facebook'
@@ -53,27 +55,24 @@ export default function PaymentSuccessPage() {
     switch (type) {
       case 'whatsapp':
         window.open(
-          `https://wa.me/${contactInfo.whatsapp.replace(
-            /\D/g,
-            ''
-          )}?text=Hi, I need help with my order ${orderDetails.orderId}`,
-          '_blank'
+          getWhatsAppUrl(
+            contactSettings.whatsapp,
+            `Hi, I need help with my order ${orderDetails.orderId}`,
+          ),
+          '_blank',
         );
         break;
       case 'telegram':
-        window.open(
-          `https://t.me/${contactInfo.telegram.replace('@', '')}`,
-          '_blank'
-        );
+        window.open(getTelegramUrl(contactSettings.telegram), '_blank');
         break;
       case 'email':
         window.open(
-          `mailto:${contactInfo.email}?subject=Order Support - ${orderDetails.orderId}`,
-          '_blank'
+          `mailto:${email}?subject=Order Support - ${orderDetails.orderId}`,
+          '_blank',
         );
         break;
       case 'facebook':
-        window.open(contactInfo.facebook, '_blank');
+        openContactLink('facebook', contactSettings);
         break;
     }
   };
@@ -214,7 +213,7 @@ export default function PaymentSuccessPage() {
                 <div className="text-left">
                   <div className="font-semibold">WhatsApp</div>
                   <div className="text-sm opacity-90">
-                    {contactInfo.whatsapp}
+                    {contactSettings.whatsapp}
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
@@ -228,7 +227,7 @@ export default function PaymentSuccessPage() {
                 <div className="text-left">
                   <div className="font-semibold">Telegram</div>
                   <div className="text-sm opacity-90">
-                    {contactInfo.telegram}
+                    {contactSettings.telegram}
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
@@ -241,7 +240,7 @@ export default function PaymentSuccessPage() {
                 <Mail className="w-5 h-5 mr-2" />
                 <div className="text-left">
                   <div className="font-semibold">Email</div>
-                  <div className="text-sm opacity-90">{contactInfo.email}</div>
+                  <div className="text-sm opacity-90">{email}</div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto" />
               </Button>

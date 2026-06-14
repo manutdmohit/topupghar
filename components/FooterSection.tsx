@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Gamepad2,
   MessageCircle,
@@ -8,44 +10,22 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import { openContactLink } from '@/lib/contact-settings';
+import { useContactSettings } from '@/hooks/useContactSettings';
 
 const FooterSection = () => {
-  const contactInfo = {
-    whatsapp: '+35795676054',
-    telegram: '+35795676054',
-    email: 'topup.ghar11@gmail.com',
-    facebook: 'https://www.facebook.com/share/1HaEjS42Er/?mibextid=wwXIfr',
-  };
+  const { contactSettings } = useContactSettings();
+  const email = 'topup.ghar11@gmail.com';
 
   const handleContact = (
     type: 'whatsapp' | 'telegram' | 'email' | 'facebook'
   ) => {
-    switch (type) {
-      case 'whatsapp':
-        window.open(
-          `https://wa.me/${contactInfo.whatsapp.replace(
-            /\D/g,
-            ''
-          )}?text=Hi, I need help with my order`,
-          '_blank'
-        );
-        break;
-      case 'telegram':
-        window.open(
-          `https://t.me/${contactInfo.telegram.replace('@', '')}`,
-          '_blank'
-        );
-        break;
-      case 'email':
-        window.open(
-          `mailto:${contactInfo.email}?subject=Support Request`,
-          '_blank'
-        );
-        break;
-      case 'facebook':
-        window.open(contactInfo.facebook, '_blank');
-        break;
+    if (type === 'email') {
+      window.open(`mailto:${email}?subject=Support Request`, '_blank');
+      return;
     }
+
+    openContactLink(type, contactSettings);
   };
 
   return (
@@ -142,7 +122,7 @@ const FooterSection = () => {
                 <div>
                   <div className="font-semibold">WhatsApp</div>
                   <div className="text-sm opacity-90">
-                    {contactInfo.whatsapp}
+                    {contactSettings.whatsapp}
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -156,7 +136,7 @@ const FooterSection = () => {
                 <div>
                   <div className="font-semibold">Telegram</div>
                   <div className="text-sm opacity-90">
-                    {contactInfo.telegram}
+                    {contactSettings.telegram}
                   </div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -169,7 +149,7 @@ const FooterSection = () => {
                 <Mail className="w-5 h-5 mr-3 text-purple-400" />
                 <div>
                   <div className="font-semibold">Email</div>
-                  <div className="text-sm opacity-90">{contactInfo.email}</div>
+                  <div className="text-sm opacity-90">{email}</div>
                 </div>
                 <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>

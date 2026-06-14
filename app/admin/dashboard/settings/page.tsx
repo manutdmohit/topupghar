@@ -5,6 +5,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Lock, Shield, User } from 'lucide-react';
+import { ContactSettingsForm } from '@/components/admin/ContactSettingsForm';
 
 export default function AdminSettingsPage() {
   const { adminUser, loading: authLoading } = useAdminAuth();
@@ -379,6 +380,8 @@ export default function AdminSettingsPage() {
           </div>
         </div>
       </div>
+
+      <ContactSettingsForm />
     </div>
   );
 }
