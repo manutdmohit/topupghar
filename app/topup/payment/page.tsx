@@ -425,10 +425,24 @@ export default function TopupPaymentPage() {
     }
   }, [quantity, baseOriginalPrice, appliedPromocode, baseDiscountAmount]);
 
+  const MAX_FILE_SIZE = 4.5 * 1024 * 1024; // 4.5 MB (Vercel serverless limit)
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setReceipt(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      toast.error(
+        `Your receipt image is ${fileSizeMB} MB, which exceeds the 4.5 MB upload limit. Please compress or resize the image and try again.`,
+      );
+      // Reset the file input so the user can re-select
+      e.target.value = '';
+      setReceipt(null);
+      return;
     }
+
+    setReceipt(file);
   };
 
   const validatePromocode = async () => {
