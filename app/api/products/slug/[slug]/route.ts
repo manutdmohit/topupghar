@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Product } from '@/models/Product';
 import connectDB from '@/config/db';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-) {
+type RouteParams = { params: Promise<{ slug: string }> };
+
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
 
