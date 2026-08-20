@@ -130,7 +130,7 @@ const CategorizedProducts = () => {
       // Product has a discount - show discounted price
       const priceRange = calculatePriceRange(
         product.variants,
-        product.discountPercentage || 0
+        product.discountPercentage || 0,
       );
       formattedPrice = formatPrice(priceRange.lowestDiscountedPrice);
       formattedOriginalPrice = formatPrice(priceRange.lowestOriginalPrice);
@@ -165,36 +165,47 @@ const CategorizedProducts = () => {
         product.platform === 'freefire' && product.type === 'evo-access'
           ? 'freefire-evo-access'
           : product.platform === 'youtube' && product.type === 'subscribers'
-          ? 'youtube-subscriber'
-          : product.platform === 'facebook' && product.type === 'views'
-          ? 'facebook-views'
-          : product.platform === 'facebook' && product.type === 'likes'
-          ? 'facebook-likes'
-          : product.platform === 'facebook' && product.type === 'followers'
-          ? 'facebook-followers'
-          : product.platform === 'instagram' && product.type === 'views'
-          ? 'instagram-views'
-          : product.platform === 'instagram' && product.type === 'likes'
-          ? 'instagram-likes'
-          : product.platform === 'instagram' && product.type === 'followers'
-          ? 'instagram-followers'
-          : product.platform === 'tiktok' && product.type === 'followers'
-          ? 'tiktok-followers'
-          : product.platform === 'tiktok' && product.type === 'views'
-          ? 'tiktok-views'
-          : product.platform === 'tiktok' && product.type === 'likes'
-          ? 'tiktok-likes'
-          : product.platform === 'tiktok' && product.type === 'coins'
-          ? 'tiktok-coin'
-          : product.platform === 'twitter' && product.type === 'followers'
-          ? 'twitter-followers'
-          : product.platform === 'youtube' && product.type === 'views'
-          ? 'youtube-views'
-          : product.platform === 'youtube' && product.type === 'likes'
-          ? 'youtube-likes'
-          : product.platform === 'youtube' && product.type === 'comments'
-          ? 'youtube-comments'
-          : product.slug
+            ? 'youtube-subscriber'
+            : product.platform === 'facebook' && product.type === 'views'
+              ? 'facebook-views'
+              : product.platform === 'facebook' && product.type === 'likes'
+                ? 'facebook-likes'
+                : product.platform === 'facebook' &&
+                    product.type === 'followers'
+                  ? 'facebook-followers'
+                  : product.platform === 'instagram' && product.type === 'views'
+                    ? 'instagram-views'
+                    : product.platform === 'instagram' &&
+                        product.type === 'likes'
+                      ? 'instagram-likes'
+                      : product.platform === 'instagram' &&
+                          product.type === 'followers'
+                        ? 'instagram-followers'
+                        : product.platform === 'tiktok' &&
+                            product.type === 'followers'
+                          ? 'tiktok-followers'
+                          : product.platform === 'tiktok' &&
+                              product.type === 'views'
+                            ? 'tiktok-views'
+                            : product.platform === 'tiktok' &&
+                                product.type === 'likes'
+                              ? 'tiktok-likes'
+                              : product.platform === 'tiktok' &&
+                                  product.type === 'coins'
+                                ? 'tiktok-coin'
+                                : product.platform === 'twitter' &&
+                                    product.type === 'followers'
+                                  ? 'twitter-followers'
+                                  : product.platform === 'youtube' &&
+                                      product.type === 'views'
+                                    ? product.slug
+                                    : product.platform === 'youtube' &&
+                                        product.type === 'likes'
+                                      ? product.slug
+                                      : product.platform === 'youtube' &&
+                                          product.type === 'comments'
+                                        ? product.slug
+                                        : product.slug
       }`,
       image: product.image || `/${product.platform}.jpg`,
       badge,
