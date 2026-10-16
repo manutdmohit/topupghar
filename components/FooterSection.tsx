@@ -18,7 +18,7 @@ const FooterSection = () => {
   const email = 'topup.ghar11@gmail.com';
 
   const handleContact = (
-    type: 'whatsapp' | 'telegram' | 'email' | 'facebook'
+    type: 'whatsapp' | 'telegram' | 'email' | 'facebook',
   ) => {
     if (type === 'email') {
       window.open(`mailto:${email}?subject=Support Request`, '_blank');
@@ -69,8 +69,10 @@ const FooterSection = () => {
                 { name: 'Contact Us', href: '/contact-us' },
                 { name: 'FAQ', href: '/faq' },
                 { name: 'About Us', href: '/about' },
-                { name: 'Privacy Policy', href: '/privacy' },
-                { name: 'Terms of Service', href: '/terms' },
+                {
+                  name: 'Refund & Replacement Policy',
+                  href: '/refund-replacement-policy',
+                },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
